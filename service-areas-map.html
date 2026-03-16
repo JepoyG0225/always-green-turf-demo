@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Service Areas Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <style>
+    html, body, #map { height:100%; margin:0; }
+    #map { background:#0b200b; }
+    .pin-3d {
+      width:20px; height:20px;
+      background:radial-gradient(circle at 30% 30%, #c8ffb5 0%, #63e963 35%, #25b425 70%, #128712 100%);
+      border-radius:50% 50% 50% 0;
+      transform:rotate(-45deg);
+      box-shadow:0 8px 18px rgba(0,0,0,.35);
+      position:relative;
+    }
+    .pin-3d::before {
+      content:''; position:absolute; left:50%; top:50%;
+      width:10px; height:10px; border-radius:50%;
+      transform:translate(-50%, -50%) rotate(45deg);
+      background:radial-gradient(circle at 30% 30%, #f3ffe9 0%, #9bff9b 60%, #5ddf5d 100%);
+      box-shadow:inset 0 -1px 2px rgba(0,0,0,.2);
+    }
+    .pin-3d::after {
+      content:''; position:absolute; left:50%; bottom:-10px;
+      width:22px; height:6px; border-radius:50%;
+      transform:translateX(-50%) rotate(45deg);
+      background:radial-gradient(ellipse at center, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 70%);
+      opacity:.6;
+    }
+    .leaflet-popup-content { font-family: 'Poppins', sans-serif; font-weight:600; }
+    .pin-tooltip { background: rgba(6,15,6,.9); color: #fff; border: 1px solid rgba(255,255,255,.15); border-radius: 10px; padding: 4px 8px; font-weight: 700; letter-spacing: .02em; }
+    .leaflet-tooltip-top:before { border-top-color: rgba(6,15,6,.9); }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    const points = [{"name": "Anthem", "lat": 33.8600714, "lon": -112.1276627}, {"name": "Apache Junction", "lat": 33.4150485, "lon": -111.549577}, {"name": "Avondale", "lat": 33.4355977, "lon": -112.349602}, {"name": "Buckeye", "lat": 33.3703197, "lon": -112.583776}, {"name": "Carefree", "lat": 33.8222377, "lon": -111.918166}, {"name": "Cave Creek", "lat": 33.8333333, "lon": -111.950833}, {"name": "Chandler", "lat": 33.3062031, "lon": -111.841185}, {"name": "El Mirage", "lat": 33.6130338, "lon": -112.324486}, {"name": "Fountain Hills", "lat": 33.6117105, "lon": -111.717361}, {"name": "Gilbert", "lat": 33.3527632, "lon": -111.789037}, {"name": "Glendale", "lat": 33.5386858, "lon": -112.185994}, {"name": "Goodyear", "lat": 33.4672279, "lon": -112.3853489}, {"name": "Guadalupe", "lat": 33.3631249, "lon": -111.9625328}, {"name": "Laveen Village", "lat": 33.3849033, "lon": -112.1250803}, {"name": "Litchfield Park", "lat": 33.4933796, "lon": -112.358124}, {"name": "Maricopa", "lat": 33.34883, "lon": -112.49123}, {"name": "Mesa", "lat": 33.4151005, "lon": -111.831455}, {"name": "Peoria", "lat": 33.5806115, "lon": -112.237294}, {"name": "Paradise Valley", "lat": 33.5324295, "lon": -111.9505123}, {"name": "Phoenix", "lat": 33.4484367, "lon": -112.074141}, {"name": "Queen Creek", "lat": 33.2483858, "lon": -111.634158}, {"name": "San Tan Valley", "lat": 33.1798079, "lon": -111.5849201}, {"name": "Scottsdale", "lat": 33.4942189, "lon": -111.926018}, {"name": "Sun City", "lat": 33.6169035, "lon": -112.280118}, {"name": "Sun City West", "lat": 33.6691873, "lon": -112.3498066}, {"name": "Surprise", "lat": 33.629247, "lon": -112.3681428}, {"name": "Tempe", "lat": 33.4255117, "lon": -111.940016}, {"name": "Tolleson", "lat": 33.4500497, "lon": -112.259309}, {"name": "Youngtown", "lat": 33.5937302, "lon": -112.3033265}];
+    const map = L.map('map', { zoomControl: true }).setView([33.50000312413793, -112.08273148275863], 9);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const pinIcon = L.divIcon({
+      className: '',
+      html: '<div class="pin-3d"></div>',
+      iconSize: [20, 20],
+      iconAnchor: [10, 20],
+      popupAnchor: [0, -20]
+    });
+
+    points.forEach(p => {
+      const m = L.marker([p.lat, p.lon], { icon: pinIcon }).addTo(map);
+      m.bindTooltip(p.name, {direction: 'top', offset: [0, -18], opacity: 0.95, className: 'pin-tooltip'});
+    });
+
+    const bounds = L.latLngBounds(points.map(p => [p.lat, p.lon]));
+    map.fitBounds(bounds.pad(0.25));
+  </script>
+</body>
+</html>

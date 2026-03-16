@@ -1,0 +1,147 @@
+{
+  "Anthem, AZ": {
+    "name": "Anthem",
+    "lat": 33.8600714,
+    "lon": -112.1276627
+  },
+  "Apache Junction, AZ": {
+    "name": "Apache Junction",
+    "lat": 33.4150485,
+    "lon": -111.549577
+  },
+  "Avondale, AZ": {
+    "name": "Avondale",
+    "lat": 33.4355977,
+    "lon": -112.349602
+  },
+  "Buckeye, AZ": {
+    "name": "Buckeye",
+    "lat": 33.3703197,
+    "lon": -112.583776
+  },
+  "Carefree, AZ": {
+    "name": "Carefree",
+    "lat": 33.8222377,
+    "lon": -111.918166
+  },
+  "Cave Creek, AZ": {
+    "name": "Cave Creek",
+    "lat": 33.8333333,
+    "lon": -111.950833
+  },
+  "Chandler, AZ": {
+    "name": "Chandler",
+    "lat": 33.3062031,
+    "lon": -111.841185
+  },
+  "El Mirage, AZ": {
+    "name": "El Mirage",
+    "lat": 33.6130338,
+    "lon": -112.324486
+  },
+  "Fountain Hills, AZ": {
+    "name": "Fountain Hills",
+    "lat": 33.6117105,
+    "lon": -111.717361
+  },
+  "Gilbert, AZ": {
+    "name": "Gilbert",
+    "lat": 33.3527632,
+    "lon": -111.789037
+  },
+  "Glendale, AZ": {
+    "name": "Glendale",
+    "lat": 33.5386858,
+    "lon": -112.185994
+  },
+  "Goodyear, AZ": {
+    "name": "Goodyear",
+    "lat": 33.4672279,
+    "lon": -112.3853489
+  },
+  "Guadalupe, AZ": {
+    "name": "Guadalupe",
+    "lat": 33.3631249,
+    "lon": -111.9625328
+  },
+  "Laveen Village, AZ": {
+    "name": "Laveen Village",
+    "lat": 33.3849033,
+    "lon": -112.1250803
+  },
+  "Litchfield Park, AZ": {
+    "name": "Litchfield Park",
+    "lat": 33.4933796,
+    "lon": -112.358124
+  },
+  "Maricopa, AZ": {
+    "name": "Maricopa",
+    "lat": 33.34883,
+    "lon": -112.49123
+  },
+  "Mesa, AZ": {
+    "name": "Mesa",
+    "lat": 33.4151005,
+    "lon": -111.831455
+  },
+  "Peoria, AZ": {
+    "name": "Peoria",
+    "lat": 33.5806115,
+    "lon": -112.237294
+  },
+  "Paradise Valley, AZ": {
+    "name": "Paradise Valley",
+    "lat": 33.5324295,
+    "lon": -111.9505123
+  },
+  "Phoenix, AZ": {
+    "name": "Phoenix",
+    "lat": 33.4484367,
+    "lon": -112.074141
+  },
+  "Queen Creek, AZ": {
+    "name": "Queen Creek",
+    "lat": 33.2483858,
+    "lon": -111.634158
+  },
+  "San Tan Valley, AZ": {
+    "name": "San Tan Valley",
+    "lat": 33.1798079,
+    "lon": -111.5849201
+  },
+  "Scottsdale, AZ": {
+    "name": "Scottsdale",
+    "lat": 33.4942189,
+    "lon": -111.926018
+  },
+  "Sun City, AZ": {
+    "name": "Sun City",
+    "lat": 33.6169035,
+    "lon": -112.280118
+  },
+  "Sun City West, AZ": {
+    "name": "Sun City West",
+    "lat": 33.6691873,
+    "lon": -112.3498066
+  },
+  "Surprise, AZ": {
+    "name": "Surprise",
+    "lat": 33.629247,
+    "lon": -112.3681428
+  },
+  "Tempe, AZ": {
+    "name": "Tempe",
+    "lat": 33.4255117,
+    "lon": -111.940016
+  },
+  "Tolleson, AZ": {
+    "name": "Tolleson",
+    "lat": 33.4500497,
+    "lon": -112.259309
+  },
+  "Youngtown, AZ": {
+    "name": "Youngtown",
+    "lat": 33.5937302,
+    "lon": -112.3033265
+  }
+}
