@@ -254,6 +254,24 @@
     .ft-copy { font-size:.72rem; color:rgba(255,255,255,.25); }
     .ft-tag { font-size:.72rem; font-weight:700; color:rgba(255,255,255,.2); letter-spacing:.06em; }
 
+    /* ── Process Grid ── */
+    .process-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; max-width:1140px; margin:0 auto; }
+    .proc-card { background:#fff; border:1px solid var(--border); border-radius:20px; padding:32px 26px; position:relative; transition:transform var(--t),box-shadow var(--t); overflow:hidden; }
+    .proc-card:hover { transform:translateY(-5px); box-shadow:0 12px 40px rgba(0,0,0,.09); }
+    .proc-num { font-size:3.8rem; font-weight:900; color:rgba(30,138,30,.08); line-height:1; position:absolute; top:20px; right:20px; letter-spacing:-.04em; pointer-events:none; }
+    .proc-icon { width:50px; height:50px; border-radius:13px; background:rgba(30,138,30,.1); color:var(--g4); display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+    .proc-h { font-size:1rem; font-weight:800; color:var(--text); margin-bottom:10px; }
+    .proc-p { font-size:.83rem; color:var(--muted); line-height:1.72; }
+
+    /* ── Financing bar ── */
+    .financing-bar { background:linear-gradient(135deg,var(--g2),var(--g1)); padding:80px 24px; text-align:center; position:relative; overflow:hidden; }
+    .financing-bar::before { content:''; position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px); background-size:48px 48px; pointer-events:none; }
+    .fin-inner { max-width:760px; margin:0 auto; position:relative; z-index:1; }
+    .fin-badge { display:inline-block; padding:5px 16px; border-radius:50px; background:rgba(82,214,82,.18); color:var(--g6); font-size:.65rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; margin-bottom:20px; }
+    .fin-h { font-size:clamp(1.5rem,3vw,2.4rem); font-weight:900; color:#fff; line-height:1.2; letter-spacing:-.025em; margin-bottom:14px; }
+    .fin-p { font-size:.97rem; color:rgba(255,255,255,.62); line-height:1.75; margin-bottom:30px; max-width:560px; margin-left:auto; margin-right:auto; }
+    .fin-p { margin-bottom:30px; }
+
     /* ── Responsive ── */
     @media(max-width:1200px) { #nav { padding:0 28px; } footer { padding:60px 28px 30px; } }
     @media(max-width:960px)  {
@@ -262,9 +280,11 @@
       .split, .mat-split { grid-template-columns:1fr; gap:40px; }
       .split.rev { direction:ltr; }
       .feat-grid { grid-template-columns:1fr 1fr; }
+      .process-grid { grid-template-columns:1fr 1fr; }
     }
     @media(max-width:640px)  {
       .feat-grid { grid-template-columns:1fr; }
+      .process-grid { grid-template-columns:1fr; }
       .gal-grid { grid-template-columns:1fr 1fr; grid-template-rows:180px 180px 180px; }
       .hero { padding:130px 20px 72px; }
       .cta-btns, .hero-btns { flex-direction:column; align-items:center; }
@@ -546,6 +566,56 @@
   </div>
 </section>
 
+<!-- ══ INSTALLATION PROCESS ══════════════════════════════════════════ -->
+<section class="section" id="process">
+  <div class="section-inner" style="margin-bottom:48px">
+    <div class="eyebrow">
+      <svg class="ico" width="13" height="13"><use href="#ico-tool"/></svg>
+      How It Works
+    </div>
+    <h2 class="sec-h">Our Complete Pet Turf Installation Process</h2>
+    <p class="sec-p">From first call to final walkthrough — we handle every step so you and your pets can enjoy your new yard as soon as possible.</p>
+  </div>
+  <div class="process-grid">
+    <div class="proc-card">
+      <div class="proc-num">01</div>
+      <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-phone"/></svg></div>
+      <h3 class="proc-h">Consultation</h3>
+      <p class="proc-p">We come to you for a free on-site assessment of your space and your pets' needs — no pressure, no obligation, just honest answers.</p>
+    </div>
+    <div class="proc-card">
+      <div class="proc-num">02</div>
+      <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-tool"/></svg></div>
+      <h3 class="proc-h">Base Preparation</h3>
+      <p class="proc-p">We remove existing material and build a durable, drainable foundation that prevents puddles and supports decades of use.</p>
+    </div>
+    <div class="proc-card">
+      <div class="proc-num">03</div>
+      <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-leaf"/></svg></div>
+      <h3 class="proc-h">Turf Selection</h3>
+      <p class="proc-p">Choose from our pet-specific product lines — each selected for softness, fiber density, and performance with active animals.</p>
+    </div>
+    <div class="proc-card">
+      <div class="proc-num">04</div>
+      <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-award"/></svg></div>
+      <h3 class="proc-h">Professional Installation</h3>
+      <p class="proc-p">Our certified crew handles precise seam placement, secure edging, and expert turf laying — finished clean and on schedule.</p>
+    </div>
+    <div class="proc-card">
+      <div class="proc-num">05</div>
+      <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-droplet"/></svg></div>
+      <h3 class="proc-h">Odor-Control &amp; Drainage</h3>
+      <p class="proc-p">Antimicrobial infill is integrated into the surface, locking in odor control and maximizing drainage performance from day one.</p>
+    </div>
+    <div class="proc-card">
+      <div class="proc-num">06</div>
+      <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-check"/></svg></div>
+      <h3 class="proc-h">Final Walkthrough</h3>
+      <p class="proc-p">We walk you through rinsing, maintenance, and getting the most from your turf — before we leave your property.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ══ TRUSTED & CERTIFIED ════════════════════════ -->
 <section id="certified">
   <div class="cert-wrap">
@@ -561,7 +631,23 @@
       <div class="cert-logo-item" style="display:flex;justify-content:center;">
         <img src="assets/certifiications/synthetic_turf_council_installer_badge_yvj4nvjopzadbb9cyi5z8a-1126x1085.webp" alt="Synthetic Turf Council Certified Installer" class="cert-logo-img" style="display:block;margin:0 auto;">
       </div>
+      <div class="cert-logo-item" style="display:flex;justify-content:center;">
+        <img src="assets/certifiications/quijano-beach.jpg" alt="Quijano Beach Certified" class="cert-logo-img" style="display:block;margin:0 auto;border-radius:8px;">
+      </div>
     </div>
+  </div>
+</section>
+
+<!-- ══ FINANCING BANNER ══════════════════════════════════════════════ -->
+<section class="financing-bar">
+  <div class="fin-inner">
+    <div class="fin-badge">Special Offer</div>
+    <h3 class="fin-h">$0 Down · 12 Months No Interest, No Payments</h3>
+    <p class="fin-p">Get your pets the yard they deserve today — with flexible financing that fits your budget. No surprises, just a clean, green yard.</p>
+    <a href="financing.html" class="btn-primary">
+      <svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>
+      Learn About Financing
+    </a>
   </div>
 </section>
 
