@@ -1,7 +1,9 @@
 # Always Green Turf Demo — Project Rules
 
 ## Navigation Rule (IMPORTANT)
-Whenever a new HTML page is created that is part of the site navigation, **always update the nav menu in ALL existing HTML pages** — both the desktop nav (`#nav .n-links`) and the mobile nav (`#nMob .n-mob-list`).
+Whenever a new HTML page is created that is part of the site navigation, **always update the nav menu in ALL existing HTML pages** — both the desktop nav (`#nav .n-links`), the mobile nav (`#nMob .n-mob-list`), and the **footer links**.
+
+> ⚠️ Note: `index.html` uses `#services` (no filename prefix) for internal anchor links, while all other pages use `index.html#services`. When updating nav links on `index.html`, search for `href="#services"` not `href="index.html#services"`.
 
 Current HTML pages that each contain a nav:
 - index.html
