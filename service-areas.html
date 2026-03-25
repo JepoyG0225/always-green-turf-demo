@@ -238,12 +238,13 @@
       min-height:580px;
       display:grid;
       grid-template-columns:1fr 1fr;
-      overflow:hidden;
+      background:var(--g1);
     }
     .hero-left {
       background:var(--g1);
       display:flex;
       align-items:center;
+      justify-content:center;
       padding:68px 52px 68px 56px;
       position:relative;
       overflow:hidden;
@@ -262,7 +263,8 @@
       background:radial-gradient(circle,rgba(30,138,30,.2) 0%,transparent 70%);
       pointer-events:none;
     }
-    .hero-left-inner { position:relative; z-index:2; max-width:500px; }
+    .hero-left-inner { position:relative; z-index:2; max-width:500px; text-align:center; }
+    .hero-left-inner .hero-pills { justify-content:center; }
     .eyebrow {
       display:inline-flex; align-items:center; gap:8px;
       font-size:.65rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--g6);
@@ -289,23 +291,22 @@
     }
     .hero-cta:hover { transform:translateY(-3px); box-shadow:0 14px 38px rgba(30,138,30,.52); }
 
-    /* Map panel */
+    /* Map panel — no gradient, rounded left corners, inset from panel edge */
     .hero-map {
       position:relative;
       min-height:520px;
+      background:var(--g1);
+    }
+    .hero-map-inner {
+      position:absolute;
+      inset:20px 0 20px 20px;
+      border-radius:18px 0 0 18px;
       overflow:hidden;
+      box-shadow:-8px 0 40px rgba(0,0,0,.35);
     }
     .hero-map iframe {
       width:100%; height:100%;
       border:0; display:block;
-      position:absolute; inset:0;
-    }
-    /* left-edge fade into dark green */
-    .hero-map::before {
-      content:'';
-      position:absolute; inset:0;
-      background:linear-gradient(to right, var(--g1) 0%, transparent 18%);
-      z-index:1; pointer-events:none;
     }
 
     /* ── Shared layout ── */
@@ -392,24 +393,14 @@
       font-size:.68rem; font-weight:700; color:var(--g6); letter-spacing:.04em;
     }
 
-    /* ── Process steps ── */
-    .steps { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; counter-reset:step; }
-    .step {
-      background:#fff; border:1px solid var(--border); border-radius:16px;
-      padding:24px 20px; text-align:left; position:relative;
-      box-shadow:0 8px 28px rgba(0,0,0,.06);
-      transition:transform var(--t), box-shadow var(--t);
-    }
-    .step:hover { transform:translateY(-4px); box-shadow:0 16px 44px rgba(0,0,0,.1); }
-    .step-num {
-      display:inline-flex; align-items:center; justify-content:center;
-      width:36px; height:36px; border-radius:50%;
-      background:linear-gradient(135deg,var(--g4),var(--g5));
-      color:#fff; font-size:.82rem; font-weight:900;
-      margin-bottom:14px; box-shadow:0 6px 16px rgba(30,138,30,.3);
-    }
-    .step-h { font-weight:800; font-size:.95rem; margin-bottom:8px; }
-    .step-p { font-size:.85rem; color:var(--muted); line-height:1.65; }
+    /* ── Process Grid (pet-turf style) ── */
+    .process-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; max-width:1180px; margin:0 auto; }
+    .proc-card { background:#fff; border:1px solid var(--border); border-radius:20px; padding:32px 26px; position:relative; transition:transform var(--t),box-shadow var(--t); overflow:hidden; }
+    .proc-card:hover { transform:translateY(-5px); box-shadow:0 12px 40px rgba(0,0,0,.09); }
+    .proc-num { font-size:3.8rem; font-weight:900; color:rgba(30,138,30,.08); line-height:1; position:absolute; top:20px; right:20px; letter-spacing:-.04em; pointer-events:none; }
+    .proc-icon { width:50px; height:50px; border-radius:13px; background:rgba(30,138,30,.1); color:var(--g4); display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+    .proc-h { font-size:1rem; font-weight:800; color:var(--text); margin-bottom:10px; }
+    .proc-p { font-size:.83rem; color:var(--muted); line-height:1.72; }
 
     /* ── FAQ ── */
     .faq-list { max-width:840px; margin:0 auto; display:flex; flex-direction:column; gap:12px; text-align:left; }
@@ -545,10 +536,41 @@
     #fcta:hover { box-shadow:0 16px 44px rgba(30,138,30,.65); transform:translateY(-3px); }
     #fcta-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.7); }
 
+    /* ── Cities split layout ── */
+    .cities-split { display:grid; grid-template-columns:1fr 1fr; gap:52px; align-items:start; text-align:left; }
+    .cities-content .section-h,
+    .cities-content .eyebrow { text-align:left; }
+    .cities-content .section-p { text-align:left; margin-left:0; }
+    .cities-content .regions-wrap { grid-template-columns:1fr; gap:16px; margin-top:28px; }
+    .cities-img-panel { border-radius:22px; overflow:hidden; box-shadow:0 28px 70px rgba(0,0,0,.14); position:sticky; top:90px; }
+    .cities-img-panel img { width:100%; height:540px; object-fit:cover; display:block; }
+    .cities-img-inner { position:relative; }
+    .cities-img-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(7,26,7,.82) 0%, transparent 55%); pointer-events:none; }
+    .cities-img-stats { position:absolute; bottom:0; left:0; right:0; padding:28px 28px; display:flex; gap:0; justify-content:space-between; }
+    .cities-stat { text-align:center; flex:1; }
+    .cities-stat-num { font-size:1.55rem; font-weight:900; color:#fff; line-height:1; }
+    .cities-stat-label { font-size:.66rem; font-weight:700; color:rgba(255,255,255,.65); text-transform:uppercase; letter-spacing:.06em; margin-top:4px; }
+
+    /* ── Why AZ photo strip ── */
+    .why-az-photo { border-radius:22px; overflow:hidden; margin-bottom:44px; box-shadow:0 20px 60px rgba(0,0,0,.35); max-height:340px; position:relative; }
+    .why-az-photo img { width:100%; height:340px; object-fit:cover; display:block; }
+    .why-az-photo-overlay { position:absolute; inset:0; background:linear-gradient(135deg,rgba(7,26,7,.45) 0%,transparent 60%); pointer-events:none; }
+    .why-az-photo-tag { position:absolute; bottom:20px; left:24px; display:flex; align-items:center; gap:8px; background:rgba(7,26,7,.75); backdrop-filter:blur(8px); border:1px solid rgba(82,214,82,.25); border-radius:50px; padding:8px 18px; font-size:.72rem; font-weight:700; color:var(--g6); letter-spacing:.06em; text-transform:uppercase; }
+
+    /* ── Process split layout ── */
+    .process-split { display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:start; text-align:left; }
+    .process-content .section-h,
+    .process-content .eyebrow { text-align:left; }
+    .process-content .section-p { text-align:left; margin-left:0; }
+    .process-content .steps-vert { display:flex; flex-direction:column; gap:16px; margin-top:32px; }
+    .process-content .steps-vert .step { display:block; }
+    .process-img-panel { border-radius:22px; overflow:hidden; box-shadow:0 28px 70px rgba(0,0,0,.1); position:sticky; top:90px; }
+    .process-img-panel img { width:100%; height:560px; object-fit:cover; display:block; }
+
     /* ── Responsive ── */
     @media (max-width:1100px) {
       .benefit-grid { grid-template-columns:repeat(2,1fr); }
-      .steps { grid-template-columns:repeat(2,1fr); }
+      .process-grid { grid-template-columns:repeat(2,1fr); }
     }
     @media (max-width:1200px) {
       #nav { padding:0 28px; }
@@ -558,18 +580,23 @@
     @media (max-width:980px) {
       .hero { grid-template-columns:1fr; min-height:auto; }
       .hero-map { min-height:380px; order:-1; }
-      .hero-map::before { background:linear-gradient(to bottom, var(--g1) 0%, transparent 30%); }
+      .hero-map-inner { inset:0; border-radius:0; box-shadow:none; }
       .hero-left { padding:48px 28px 56px; }
       .hero-left-inner { max-width:100%; }
       .cards { grid-template-columns:1fr; }
       .regions-wrap { grid-template-columns:1fr; }
       .cities-grid { grid-template-columns:repeat(2,1fr); }
       .ft-grid { grid-template-columns:1fr 1fr; gap:32px; }
+      .cities-split { grid-template-columns:1fr; }
+      .cities-img-panel { position:static; }
+      .cities-img-panel img { height:320px; }
+      .process-split { grid-template-columns:1fr; }
+      .process-img-panel { position:static; }
+      .process-img-panel img { height:300px; }
     }
     @media (max-width:720px) {
       .benefit-grid { grid-template-columns:1fr; }
-      .steps { grid-template-columns:1fr; }
-      .cities-grid { grid-template-columns:repeat(2,1fr); }
+      .process-grid { grid-template-columns:1fr; }
     }
     @media (max-width:640px) {
       #nav { padding:0 14px; }
@@ -727,13 +754,15 @@
     </div>
   </div>
   <div class="hero-map">
-    <iframe
-      title="Always Green Turf Arizona Service Areas — Interactive Map"
-      src="service-areas-map.html"
-      loading="lazy"
-      referrerpolicy="no-referrer-when-downgrade"
-      aria-label="Interactive map showing all Always Green Turf service areas across Phoenix Metro, Arizona">
-    </iframe>
+    <div class="hero-map-inner">
+      <iframe
+        title="Always Green Turf Arizona Service Areas — Interactive Map"
+        src="service-areas-map.html"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        aria-label="Interactive map showing all Always Green Turf service areas across Phoenix Metro, Arizona">
+      </iframe>
+    </div>
   </div>
 </div>
 
@@ -745,7 +774,7 @@
     <h2 class="section-h">Every City We Serve in <span style="color:var(--g4)">Arizona</span></h2>
     <p class="section-p">We provide artificial turf installation services to homeowners, businesses, and HOAs throughout the entire Phoenix metropolitan area. Don't see your city? <a href="contact.html" style="color:var(--g4);font-weight:700;">Contact us</a> — we likely serve your neighborhood.</p>
 
-    <div class="regions-wrap">
+    <div class="regions-wrap sr" data-dir="up">
       <!-- East Valley -->
       <div class="region-box">
         <div class="city-region-title">East Valley</div>
@@ -791,7 +820,7 @@
           <span class="city-item"><span class="city-dot"></span>Fountain Hills</span>
           <span class="city-item"><span class="city-dot"></span>Rio Verde</span>
           <span class="city-item"><span class="city-dot"></span>Laveen</span>
-          <span class="city-item"><span class="city-dot"></span>Tolleson</span>
+          <span class="city-item"><span class="city-dot"></span>Gilbert</span>
         </div>
       </div>
     </div>
@@ -804,6 +833,16 @@
     <div class="eyebrow">Why Arizona Homeowners Switch</div>
     <h2 class="section-h">Synthetic Grass Is the <span style="color:var(--g6)">Smart Choice</span> for Arizona</h2>
     <p class="section-p">Arizona's desert climate makes maintaining natural grass expensive, water-intensive, and frustrating. Artificial turf solves every challenge the Valley throws at your lawn.</p>
+
+    <div class="why-az-photo sr" data-dir="fade">
+      <img src="assets/wholeyard.jpg" alt="Lush artificial turf whole yard renovation in Phoenix Arizona" loading="lazy">
+      <div class="why-az-photo-overlay"></div>
+      <div class="why-az-photo-tag">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Zero Water — Stays Green Year-Round
+      </div>
+    </div>
+
     <div class="benefit-grid">
       <div class="benefit-card">
         <div class="benefit-icon"><svg class="ico" width="22" height="22"><use href="#ico-droplet"/></svg></div>
@@ -866,31 +905,47 @@
 
 <!-- ════════════════════════════ HOW IT WORKS ══════════════════════════════════ -->
 <section class="section alt" id="process">
-  <div class="section-inner">
+  <div class="section-inner" style="margin-bottom:48px">
     <div class="eyebrow">Our Local Installation Process</div>
     <h2 class="section-h">From Quote to <span style="color:var(--g4)">Green Lawn</span> — Fast</h2>
     <p class="section-p">Our streamlined process means your Phoenix-area home gets a stunning new artificial lawn in as little as one day. Here's how we make it happen.</p>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-h">Free On-Site Consultation</div>
-        <div class="step-p">A local Always Green Turf specialist visits your home anywhere in the Phoenix metro. We measure your space, discuss your goals — residential lawn, pet turf, putting green — and provide a detailed, no-obligation quote on the spot.</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-h">Custom Turf Selection</div>
-        <div class="step-p">We guide you through our premium turf product line, selecting the right pile height, blade style, and infill system for Arizona's climate and your specific use case. All products carry our 15-year UV warranty.</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-h">Professional Base Preparation</div>
-        <div class="step-p">Our crew removes existing vegetation, grades and compacts your Arizona caliche or sandy soil, and installs a drainage-optimized crushed decomposed granite base — critical for Arizona's monsoon rains and desert drainage conditions.</div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-h">Expert Installation &amp; Finishing</div>
-        <div class="step-p">We precision-cut and seam your artificial turf, secure all edges and borders, apply your selected infill, and power-brush the turf fibers to standing height. Most Phoenix-area installations are complete in a single day.</div>
-      </div>
+  </div>
+  <div class="process-grid">
+    <div class="proc-card sr" data-dir="up" style="--sr-d:0ms">
+      <div class="proc-num">01</div>
+      <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-phone"/></svg></div>
+      <h3 class="proc-h">Free On-Site Consultation</h3>
+      <p class="proc-p">A local Always Green Turf specialist visits your home anywhere in the Phoenix metro. We measure your space and provide a detailed, no-obligation quote on the spot.</p>
+    </div>
+    <div class="proc-card sr" data-dir="up" style="--sr-d:80ms">
+      <div class="proc-num">02</div>
+      <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-leaf"/></svg></div>
+      <h3 class="proc-h">Custom Turf Selection</h3>
+      <p class="proc-p">We guide you through our premium turf product line — right pile height, blade style, and infill system for Arizona's climate. All products carry our 15-year UV warranty.</p>
+    </div>
+    <div class="proc-card sr" data-dir="up" style="--sr-d:160ms">
+      <div class="proc-num">03</div>
+      <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-zap"/></svg></div>
+      <h3 class="proc-h">Base Preparation</h3>
+      <p class="proc-p">Our crew removes existing vegetation, grades your Arizona caliche or sandy soil, and installs a drainage-optimized decomposed granite base — critical for desert drainage.</p>
+    </div>
+    <div class="proc-card sr" data-dir="up" style="--sr-d:240ms">
+      <div class="proc-num">04</div>
+      <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-award"/></svg></div>
+      <h3 class="proc-h">Professional Installation</h3>
+      <p class="proc-p">Our certified crew handles precise seam placement, secure edging, and expert turf laying — finished clean and on schedule. Most Phoenix-area installs are complete in a single day.</p>
+    </div>
+    <div class="proc-card sr" data-dir="up" style="--sr-d:320ms">
+      <div class="proc-num">05</div>
+      <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-droplet"/></svg></div>
+      <h3 class="proc-h">Infill &amp; Power Brush</h3>
+      <p class="proc-p">We apply your selected infill and power-brush turf fibers to standing height, giving your new lawn that lush, natural look that stays beautiful year-round.</p>
+    </div>
+    <div class="proc-card sr" data-dir="up" style="--sr-d:400ms">
+      <div class="proc-num">06</div>
+      <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-check"/></svg></div>
+      <h3 class="proc-h">Final Walkthrough</h3>
+      <p class="proc-p">We walk you through rinsing, maintenance, and getting the most from your turf — before we leave your property. Backed by our 15-year product warranty.</p>
     </div>
   </div>
 </section>
