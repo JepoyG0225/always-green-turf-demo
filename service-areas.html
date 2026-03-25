@@ -232,27 +232,80 @@
     .breadcrumb-inner a:hover { text-decoration:underline; }
     .bc-sep { color:#ccc; }
 
-    /* ── Hero ── */
+    /* ── Hero (split: text left, map right) ── */
     .hero {
-      padding:134px 24px 28px;
-      background:linear-gradient(180deg,#f0f7f0 0%,#f8fbf8 100%);
-      text-align:center;
-      border-bottom:1px solid var(--border);
+      padding-top:70px;
+      min-height:580px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      overflow:hidden;
     }
+    .hero-left {
+      background:var(--g1);
+      display:flex;
+      align-items:center;
+      padding:68px 52px 68px 56px;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero-left::before {
+      content:'';
+      position:absolute; inset:0;
+      background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+      background-size:52px 52px;
+      pointer-events:none;
+    }
+    .hero-left::after {
+      content:'';
+      position:absolute; left:-80px; bottom:-80px;
+      width:400px; height:400px; border-radius:50%;
+      background:radial-gradient(circle,rgba(30,138,30,.2) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .hero-left-inner { position:relative; z-index:2; max-width:500px; }
     .eyebrow {
-      display:inline-flex; align-items:center; gap:10px;
-      font-size:.65rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--g4);
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:.65rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--g6);
+      margin-bottom:14px;
     }
-    .eyebrow::before { content:''; width:26px; height:2.5px; background:linear-gradient(90deg,var(--g5),var(--g6)); border-radius:2px; }
-    h1 { font-size:clamp(1.9rem,4vw,3rem); font-weight:900; margin:14px 0 10px; letter-spacing:-.02em; }
-    .sub { color:var(--muted); max-width:720px; margin:0 auto 22px; line-height:1.8; font-size:.96rem; }
-    .hero-pills { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:4px; }
+    h1 { font-size:clamp(1.8rem,3.2vw,2.8rem); font-weight:900; color:#fff; line-height:1.1; letter-spacing:-.03em; margin:10px 0 16px; }
+    h1 span { color:var(--g5); }
+    .sub { font-size:.93rem; color:rgba(255,255,255,.6); line-height:1.75; margin-bottom:28px; }
+    .hero-pills { display:flex; gap:9px; flex-wrap:wrap; margin-bottom:32px; }
     .hero-pill {
       display:inline-flex; align-items:center; gap:7px;
-      padding:7px 16px; border-radius:50px;
-      background:#fff; border:1px solid rgba(30,138,30,.2);
-      font-size:.72rem; font-weight:700; color:var(--g4);
-      box-shadow:0 2px 10px rgba(0,0,0,.06);
+      padding:7px 14px; border-radius:50px;
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14);
+      font-size:.7rem; font-weight:700; color:rgba(255,255,255,.75);
+    }
+    .hero-pill svg { color:var(--g5); }
+    .hero-cta {
+      display:inline-flex; align-items:center; gap:10px;
+      padding:14px 30px; border-radius:50px;
+      background:linear-gradient(135deg,var(--g4),var(--g5));
+      color:#fff; font-size:.88rem; font-weight:800; text-decoration:none;
+      box-shadow:0 8px 28px rgba(30,138,30,.38);
+      transition:transform .3s,box-shadow .3s;
+    }
+    .hero-cta:hover { transform:translateY(-3px); box-shadow:0 14px 38px rgba(30,138,30,.52); }
+
+    /* Map panel */
+    .hero-map {
+      position:relative;
+      min-height:520px;
+      overflow:hidden;
+    }
+    .hero-map iframe {
+      width:100%; height:100%;
+      border:0; display:block;
+      position:absolute; inset:0;
+    }
+    /* left-edge fade into dark green */
+    .hero-map::before {
+      content:'';
+      position:absolute; inset:0;
+      background:linear-gradient(to right, var(--g1) 0%, transparent 18%);
+      z-index:1; pointer-events:none;
     }
 
     /* ── Shared layout ── */
@@ -260,18 +313,6 @@
     .sec-h { font-size:clamp(1.8rem,3.4vw,2.6rem); font-weight:900; line-height:1.15; letter-spacing:-.025em; color:var(--text); margin:12px 0 14px; }
     .sec-h .hi { color:var(--g4); }
     .sec-p { font-size:.95rem; font-weight:400; color:var(--muted); line-height:1.82; }
-
-    /* ── Map section ── */
-    .content {
-      max-width:1180px; margin:0 auto; padding:32px 24px 56px;
-      display:grid; grid-template-columns:1fr; gap:28px; align-items:start;
-    }
-    .map-card {
-      background:#fff; border:1px solid var(--border); border-radius:22px;
-      box-shadow:0 18px 60px rgba(0,0,0,.08); padding:20px; overflow:hidden;
-    }
-    .map-wrap { position:relative; aspect-ratio:16/10; min-height:520px; background:linear-gradient(145deg,#0b200b,#143814 40%,#1f5a1f 100%); border-radius:18px; overflow:hidden; }
-    .map-wrap iframe { width:100%; height:100%; border:0; border-radius:18px; }
 
     /* ── Section base ── */
     .section { padding:60px 24px 72px; }
@@ -515,6 +556,11 @@
       footer { padding:60px 28px 30px; }
     }
     @media (max-width:980px) {
+      .hero { grid-template-columns:1fr; min-height:auto; }
+      .hero-map { min-height:380px; order:-1; }
+      .hero-map::before { background:linear-gradient(to bottom, var(--g1) 0%, transparent 30%); }
+      .hero-left { padding:48px 28px 56px; }
+      .hero-left-inner { max-width:100%; }
       .cards { grid-template-columns:1fr; }
       .regions-wrap { grid-template-columns:1fr; }
       .cities-grid { grid-template-columns:repeat(2,1fr); }
@@ -534,8 +580,7 @@
     @media (max-width:600px) {
       #nav { height:60px; }
       .n-logo-img { height:34px; }
-      .content { padding:16px 14px 40px; }
-      .map-wrap { aspect-ratio:3/4; min-height:480px; }
+      .hero-map { min-height:280px; }
       .section { padding:44px 14px 60px; }
       .cities-grid { grid-template-columns:1fr 1fr; }
       .cta-btns { flex-direction:column; align-items:center; }
@@ -610,7 +655,6 @@
     </li>
     <li><a href="financing.html">Financing</a></li>
     <li><a href="process.html">Turf Installation Process</a></li>
-    <li><a href="about.html">FAQ</a></li>
     <li><a href="about.html">About</a></li>
     <li><a href="contact.html">Contact</a></li>
     <li><a href="blog.html">Blog</a></li>
@@ -641,7 +685,6 @@
     </li>
     <li><a href="financing.html" class="n-mob-a">Financing</a></li>
     <li><a href="process.html" class="n-mob-a">Turf Installation Process</a></li>
-    <li><a href="about.html" class="n-mob-a">FAQ</a></li>
     <li><a href="about.html" class="n-mob-a">About</a></li>
     <li><a href="contact.html" class="n-mob-a">Contact</a></li>
     <li><a href="blog.html" class="n-mob-a">Blog</a></li>
@@ -652,54 +695,47 @@
   </a>
 </div>
 
-<!-- ══════════════════════════════ BREADCRUMB ══════════════════════════════════ -->
-<nav class="breadcrumb" aria-label="Breadcrumb">
-  <div class="breadcrumb-inner">
-    <a href="index.html">Home</a>
-    <span class="bc-sep">›</span>
-    <span>Service Areas</span>
-  </div>
-</nav>
-
 <!-- ══════════════════════════════════ HERO ════════════════════════════════════ -->
-<section class="hero">
-  <div class="eyebrow">Artificial Turf Service Areas — Phoenix Metro, AZ</div>
-  <h1>Premium Artificial Turf Installation<br>Across the Entire Phoenix Metro Area</h1>
-  <p class="sub">Always Green Turf brings expert synthetic grass installation to every corner of the Valley — from Anthem in the north to San Tan Valley in the south, Buckeye in the west to Fountain Hills in the east. Serving 30+ Arizona cities with local crews and same-week scheduling.</p>
-  <div class="hero-pills">
-    <span class="hero-pill">
-      <svg class="ico" width="12" height="12"><use href="#ico-pin"/></svg>
-      30+ Cities Served
-    </span>
-    <span class="hero-pill">
-      <svg class="ico" width="12" height="12"><use href="#ico-clock"/></svg>
-      Same-Week Scheduling
-    </span>
-    <span class="hero-pill">
-      <svg class="ico" width="12" height="12"><use href="#ico-check"/></svg>
-      Free On-Site Quotes
-    </span>
-    <span class="hero-pill">
-      <svg class="ico" width="12" height="12"><use href="#ico-award"/></svg>
-      Licensed &amp; Insured in AZ
-    </span>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════ MAP ═════════════════════════════════════ -->
-<section class="content" id="map">
-  <div class="map-card">
-    <div class="map-wrap">
-      <iframe
-        title="Always Green Turf Arizona Service Areas — Interactive Map"
-        src="service-areas-map.html"
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-        aria-label="Interactive map showing all Always Green Turf service areas across Phoenix Metro, Arizona">
-      </iframe>
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-left-inner">
+      <div class="eyebrow">Service Areas · Phoenix Metro, AZ</div>
+      <h1>Premium Turf Across the<br><span>Entire Phoenix Valley</span></h1>
+      <p class="sub">From Anthem to San Tan Valley, Buckeye to Fountain Hills — Always Green Turf installs premium synthetic grass in every corner of the metro with local crews and same-week scheduling.</p>
+      <div class="hero-pills">
+        <span class="hero-pill">
+          <svg class="ico" width="11" height="11"><use href="#ico-pin"/></svg>
+          30+ Cities Served
+        </span>
+        <span class="hero-pill">
+          <svg class="ico" width="11" height="11"><use href="#ico-clock"/></svg>
+          Same-Week Scheduling
+        </span>
+        <span class="hero-pill">
+          <svg class="ico" width="11" height="11"><use href="#ico-check"/></svg>
+          Free On-Site Quotes
+        </span>
+        <span class="hero-pill">
+          <svg class="ico" width="11" height="11"><use href="#ico-award"/></svg>
+          Licensed &amp; Insured
+        </span>
+      </div>
+      <a href="contact.html" class="hero-cta">
+        <svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>
+        Get Design Consultation
+      </a>
     </div>
   </div>
-</section>
+  <div class="hero-map">
+    <iframe
+      title="Always Green Turf Arizona Service Areas — Interactive Map"
+      src="service-areas-map.html"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      aria-label="Interactive map showing all Always Green Turf service areas across Phoenix Metro, Arizona">
+    </iframe>
+  </div>
+</div>
 
 
 <!-- ═════════════════════════════ CITIES GRID ══════════════════════════════════ -->
