@@ -1159,6 +1159,19 @@
       .rp-strip { gap:8px; }
       .rp-pill { padding:7px 14px; gap:6px; }
     }
+  
+    /* ── Cert logos: stack one-per-row on mobile ── */
+    @media(max-width:640px){
+      .cert-logos{ flex-direction:column; gap:28px; align-items:center; }
+      .cert-logos img{ max-width:200px; width:80%; }
+    }
+  
+    /* ── Reviews slider: better mobile layout ── */
+    @media(max-width:640px){
+      .r-card{ padding:22px 18px; }
+      .slider-track{ gap:10px; }
+      .sl-arr{ width:38px; height:38px; }
+    }
   </style>
   <link rel="stylesheet" href="shared-components.css">
 </head>
@@ -2000,30 +2013,41 @@
   ctrs.forEach(c => co.observe(c));
 
   /* Slider */
-  const track     = document.getElementById('sTrack');
-  const slWrap    = track.closest('.slider-wrap');
-  const rCards    = track.querySelectorAll('.r-card');
-  const dots      = document.querySelectorAll('.sl-dot');
-  const GAP       = 18;
-  const PER_VIEW  = 2;
-  let slide = 0, total = Math.ceil(rCards.length / PER_VIEW);
-
+  const track  = document.getElementById('sTrack');
+  const slWrap = track.closest('.slider-wrap');
+  const rCards = track.querySelectorAll('.r-card');
+  const dotsEl = document.getElementById('sDots');
+  const GAP    = 18;
+  let PER_VIEW, total, slide = 0;
+  function getPerView() { return window.innerWidth <= 640 ? 1 : 2; }
+  function buildDots() {
+    dotsEl.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+      const d = document.createElement('button');
+      d.className = 'sl-dot' + (i === slide ? ' on' : '');
+      d.setAttribute('aria-label', 'Slide ' + (i + 1));
+      d.addEventListener('click', () => goTo(i));
+      dotsEl.appendChild(d);
+    }
+  }
   function setCardWidths() {
+    const newPer = getPerView();
+    const changed = newPer !== PER_VIEW;
+    PER_VIEW = newPer;
+    total = Math.ceil(rCards.length / PER_VIEW);
     const cardW = (slWrap.offsetWidth - GAP * (PER_VIEW - 1)) / PER_VIEW;
     rCards.forEach(c => c.style.width = cardW + 'px');
+    if (changed) { slide = Math.min(slide || 0, total - 1); buildDots(); }
   }
-
   function goTo(i) {
     slide = ((i % total) + total) % total;
     const w = rCards[0].offsetWidth + GAP;
     track.style.transform = `translateX(${-slide * w * PER_VIEW}px)`;
-    dots.forEach((d,j) => d.classList.toggle('on', j === slide));
+    dotsEl.querySelectorAll('.sl-dot').forEach((d, j) => d.classList.toggle('on', j === slide));
   }
-
   setCardWidths();
   document.getElementById('sPrev').addEventListener('click', () => goTo(slide - 1));
   document.getElementById('sNext').addEventListener('click', () => goTo(slide + 1));
-  dots.forEach((d, i) => d.addEventListener('click', () => goTo(i)));
   setInterval(() => goTo(slide + 1), 5500);
   window.addEventListener('resize', () => { setCardWidths(); goTo(slide); });
 

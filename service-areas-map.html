@@ -33,6 +33,19 @@
     .leaflet-popup-content { font-family: 'Poppins', sans-serif; font-weight:600; }
     .pin-tooltip { background: rgba(6,15,6,.9); color: #fff; border: 1px solid rgba(255,255,255,.15); border-radius: 10px; padding: 4px 8px; font-weight: 700; letter-spacing: .02em; }
     .leaflet-tooltip-top:before { border-top-color: rgba(6,15,6,.9); }
+  
+    /* ── Cert logos: stack one-per-row on mobile ── */
+    @media(max-width:640px){
+      .cert-logos{ flex-direction:column; gap:28px; align-items:center; }
+      .cert-logos img{ max-width:200px; width:80%; }
+    }
+  
+    /* ── Reviews slider: better mobile layout ── */
+    @media(max-width:640px){
+      .r-card{ padding:22px 18px; }
+      .slider-track{ gap:10px; }
+      .sl-arr{ width:38px; height:38px; }
+    }
   </style>
 </head>
 <body>

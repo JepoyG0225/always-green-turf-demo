@@ -270,6 +270,19 @@
     .qm-success p{font-size:.88rem;color:#6a8a6a;line-height:1.7;margin:0;}
     @media(max-width:540px){.qm-card{padding:32px 20px 28px;}.qm-row{grid-template-columns:1fr;}}
 
+  
+    /* ── Cert logos: stack one-per-row on mobile ── */
+    @media(max-width:640px){
+      .cert-logos{ flex-direction:column; gap:28px; align-items:center; }
+      .cert-logos img{ max-width:200px; width:80%; }
+    }
+  
+    /* ── Reviews slider: better mobile layout ── */
+    @media(max-width:640px){
+      .r-card{ padding:22px 18px; }
+      .slider-track{ gap:10px; }
+      .sl-arr{ width:38px; height:38px; }
+    }
   </style>
   <link rel="stylesheet" href="shared-components.css">
 </head>
