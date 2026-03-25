@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Backyard Blog | Artificial Turf Tips & Guides | Always Green Turf</title>
+  <meta name="description" content="Tips, inspiration, and guides for Arizona homeowners. Artificial turf costs, care, pet turf, putting greens, and more from Always Green Turf." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --g1:#071a07; --g2:#0e300e; --g3:#165f16; --g4:#1e8a1e; --g5:#28b828; --g6:#52d652;
+      --gold:#c9a24a; --gold-l:#e8c070;
+      --white:#fff; --off:#f6faf6; --dark:#060f06;
+      --text:#162016; --muted:#5a7a5a; --border:rgba(0,0,0,.08);
+      --ease:cubic-bezier(.22,1,.36,1); --t:.4s var(--ease);
+    }
+    html { scroll-behavior:smooth; width:100%; overflow-x:hidden; }
+    body { width:100%; overflow-x:clip; font-family:'Poppins',sans-serif; color:var(--text); background:#fff; }
+    svg.ico { display:inline-block; flex-shrink:0; }
+
+    /* ── Navbar ── */
+    #nav { position:fixed; inset:0 0 auto; z-index:900; height:70px; padding:0 52px; display:flex; align-items:center; justify-content:space-between; width:100%; box-sizing:border-box; background:rgba(6,15,6,.96); backdrop-filter:blur(20px); box-shadow:0 1px 0 rgba(255,255,255,.06),0 8px 32px rgba(0,0,0,.3); }
+    #nav.solid { background:rgba(6,15,6,.99); }
+    .n-brand { display:flex; align-items:center; gap:12px; text-decoration:none; }
+    .n-logo-img { height:44px; width:auto; display:block; }
+    .n-links { display:flex; list-style:none; gap:22px; align-items:center; }
+    .n-links a { font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); text-decoration:none; position:relative; padding-bottom:3px; transition:color var(--t); }
+    .n-links a::after { content:''; position:absolute; bottom:-3px; left:0; width:0; height:1.5px; background:var(--g6); transition:width var(--t); }
+    .n-links a:hover { color:#fff; }
+    .n-links a:hover::after, .n-links a.active::after { width:100%; }
+    .n-links a.active { color:#fff; }
+    .n-btn { display:flex; align-items:center; gap:8px; padding:9px 22px; border-radius:50px; background:linear-gradient(135deg,var(--g5),var(--g6)); color:#fff; font-size:.78rem; font-weight:700; text-decoration:none; box-shadow:0 4px 18px rgba(40,184,40,.38); transition:transform var(--t),box-shadow var(--t); }
+    .n-btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(40,184,40,.55); }
+    .n-links li { position:relative; }
+    .n-links li:hover > .n-dropdown { opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0); }
+    .n-dropdown { position:absolute; top:100%; left:50%; transform:translateX(-50%) translateY(-8px); min-width:210px; background:rgba(6,20,6,.97); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:16px 0 8px; list-style:none; box-shadow:0 12px 40px rgba(0,0,0,.5); opacity:0; pointer-events:none; transition:opacity .2s ease,transform .2s ease; }
+    .n-dropdown::before { content:''; position:absolute; left:0; right:0; top:-10px; height:10px; }
+    .n-dropdown li a { display:block; padding:9px 18px; font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); text-decoration:none; white-space:nowrap; transition:color .15s,background .15s; }
+    .n-dropdown li a:hover, .n-dropdown li a.active { color:#fff; background:rgba(255,255,255,.07); }
+    .n-ham { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
+    .n-ham span { display:block; width:24px; height:2px; background:#fff; border-radius:2px; transition:transform .3s,opacity .3s,width .3s; }
+    .n-ham.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .n-ham.open span:nth-child(2) { opacity:0; width:0; }
+    .n-ham.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+    .n-mob { position:fixed; inset:0; z-index:850; background:rgba(6,15,6,.97); backdrop-filter:blur(20px); padding:82px 28px 40px; display:flex; flex-direction:column; transform:translateX(100%); opacity:0; pointer-events:none; transition:transform .38s var(--ease),opacity .3s ease; overflow-y:auto; }
+    .n-mob.open { transform:none; opacity:1; pointer-events:auto; }
+    .n-mob-list { list-style:none; display:flex; flex-direction:column; }
+    .n-mob-a { display:block; padding:15px 4px; font-size:1rem; font-weight:700; color:rgba(255,255,255,.78); text-decoration:none; border-bottom:1px solid rgba(255,255,255,.07); transition:color .2s,padding-left .2s; }
+    .n-mob-a:hover { color:var(--g6); padding-left:8px; }
+    .n-mob-drop-btn { width:100%; text-align:left; background:none; border:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:15px 4px; font-size:1rem; font-weight:700; color:rgba(255,255,255,.78); font-family:'Poppins',sans-serif; border-bottom:1px solid rgba(255,255,255,.07); transition:color .2s; }
+    .n-mob-drop-btn.open { color:var(--g6); border-bottom-color:transparent; }
+    .n-mob-arrow { transition:transform .3s; font-size:.7rem; }
+    .n-mob-drop-btn.open .n-mob-arrow { transform:rotate(180deg); }
+    .n-mob-sub { list-style:none; max-height:0; overflow:hidden; transition:max-height .35s var(--ease); background:rgba(255,255,255,.04); border-radius:8px; }
+    .n-mob-sub.open { max-height:400px; }
+    .n-mob-sub li a { display:block; padding:10px 18px; font-size:.84rem; font-weight:600; color:rgba(255,255,255,.58); text-decoration:none; transition:color .2s; }
+    .n-mob-sub li a:hover, .n-mob-sub li a.active { color:var(--g6); }
+    .n-mob-cta { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:28px; padding:14px 28px; border-radius:50px; background:linear-gradient(135deg,var(--g5),var(--g6)); color:#fff; font-size:.88rem; font-weight:800; text-decoration:none; }
+
+    /* ── Buttons ── */
+    .btn-primary { display:inline-flex; align-items:center; gap:10px; padding:15px 34px; border-radius:50px; background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; font-size:.9rem; font-weight:800; text-decoration:none; box-shadow:0 8px 28px rgba(30,138,30,.38); transition:transform var(--t),box-shadow var(--t); }
+    .btn-primary:hover { transform:translateY(-3px); box-shadow:0 14px 40px rgba(30,138,30,.52); }
+    .btn-ghost { display:inline-flex; align-items:center; gap:10px; padding:15px 34px; border-radius:50px; border:2px solid rgba(255,255,255,.3); color:#fff; font-size:.9rem; font-weight:700; text-decoration:none; transition:border-color var(--t),background var(--t); }
+    .btn-ghost:hover { border-color:#fff; background:rgba(255,255,255,.08); }
+
+    /* ── Layout ── */
+    .wrap { max-width:1140px; margin:0 auto; padding:0 24px; }
+    .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:.65rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--g5); margin-bottom:14px; }
+
+    /* ── Float CTA ── */
+    #fcta { position:fixed; bottom:28px; right:28px; z-index:800; display:flex; align-items:center; gap:10px; padding:13px 24px; border-radius:50px; background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; font-size:.82rem; font-weight:800; text-decoration:none; box-shadow:0 8px 28px rgba(30,138,30,.42); transform:translateY(120px); opacity:0; transition:transform .5s var(--ease),opacity .5s ease; }
+    #fcta.show { transform:none; opacity:1; }
+    #fcta-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.6); animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(40,184,40,.5)} 50%{box-shadow:0 0 0 8px rgba(40,184,40,0)} }
+
+    /* ── Footer ── */
+    footer { background:var(--dark); color:rgba(255,255,255,.55); padding:68px 52px 30px; }
+    .ft-grid { display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:50px; margin-bottom:52px; }
+    .ft-desc { font-size:.82rem; line-height:1.72; margin:16px 0 18px; }
+    .ft-socs { display:flex; gap:10px; }
+    .ft-soc { width:34px; height:34px; border-radius:50%; border:1px solid rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.5); text-decoration:none; transition:background var(--t),border-color var(--t),color var(--t); }
+    .ft-soc:hover { background:var(--g4); border-color:var(--g4); color:#fff; }
+    .ft-col-h { font-size:.72rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.75); margin-bottom:16px; }
+    .ft-links { list-style:none; display:flex; flex-direction:column; gap:9px; }
+    .ft-links a { font-size:.8rem; color:rgba(255,255,255,.45); text-decoration:none; display:flex; align-items:center; gap:7px; transition:color var(--t); }
+    .ft-links a:hover { color:var(--g6); }
+    .fl-arrow { color:var(--g5); }
+    .ft-bottom { display:flex; justify-content:space-between; align-items:center; padding-top:28px; border-top:1px solid rgba(255,255,255,.07); flex-wrap:wrap; gap:10px; }
+    .ft-copy { font-size:.72rem; color:rgba(255,255,255,.25); }
+    .ft-tag { font-size:.72rem; font-weight:700; color:rgba(255,255,255,.2); letter-spacing:.06em; }
+
+    /* ── Page Header ── */
+    .page-header {
+      padding-top:70px;
+      background:var(--g1);
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .page-header::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+      background-size:56px 56px;
+      pointer-events:none;
+    }
+    .page-header-inner {
+      position:relative;
+      z-index:2;
+      padding:52px 24px 40px;
+      max-width:760px;
+      margin:0 auto;
+    }
+    .page-header .eyebrow { color:var(--g6); }
+    .page-header h1 {
+      font-size:clamp(2rem,4vw,3rem);
+      font-weight:900;
+      color:#fff;
+      line-height:1.12;
+      letter-spacing:-.03em;
+      margin:10px 0 14px;
+    }
+    .page-header-sub {
+      font-size:.95rem;
+      color:rgba(255,255,255,.6);
+      line-height:1.7;
+      margin-bottom:28px;
+    }
+    .blog-search {
+      display:flex;
+      align-items:center;
+      max-width:420px;
+      margin:0 auto;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:50px;
+      padding:4px 4px 4px 20px;
+      gap:8px;
+    }
+    .blog-search input {
+      flex:1;
+      background:none;
+      border:none;
+      outline:none;
+      font-family:'Poppins',sans-serif;
+      font-size:.85rem;
+      color:#fff;
+      padding:8px 0;
+    }
+    .blog-search input::placeholder { color:rgba(255,255,255,.38); }
+    .blog-search button {
+      padding:9px 20px;
+      border-radius:50px;
+      background:linear-gradient(135deg,var(--g4),var(--g5));
+      color:#fff;
+      border:none;
+      font-family:'Poppins',sans-serif;
+      font-size:.78rem;
+      font-weight:700;
+      cursor:pointer;
+      transition:transform .2s;
+    }
+    .blog-search button:hover { transform:scale(1.04); }
+
+    /* ── Featured Article ── */
+    .featured-article {
+      position:relative;
+      height:480px;
+      background:url('assets/artificial lawns/artificial-00001.jpg') center/cover no-repeat;
+      display:flex;
+      align-items:flex-end;
+      overflow:hidden;
+    }
+    .featured-article::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      background:linear-gradient(to top, rgba(0,0,0,.88) 0%, rgba(0,0,0,.45) 50%, rgba(0,0,0,.18) 100%);
+    }
+    .featured-inner {
+      position:relative;
+      z-index:2;
+      max-width:1140px;
+      margin:0 auto;
+      width:100%;
+      padding:0 40px 44px;
+    }
+    .cat-badge {
+      display:inline-block;
+      padding:4px 12px;
+      border-radius:50px;
+      font-size:.62rem;
+      font-weight:800;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+      margin-bottom:14px;
+    }
+    .cat-badge.guides    { background:rgba(201,162,74,.22); color:var(--gold-l); border:1px solid rgba(201,162,74,.3); }
+    .cat-badge.pet-turf  { background:rgba(160,100,220,.22); color:#c89be8; border:1px solid rgba(160,100,220,.3); }
+    .cat-badge.putting   { background:rgba(22,95,22,.35); color:#7dd87d; border:1px solid rgba(22,95,22,.5); }
+    .cat-badge.playground{ background:rgba(220,130,50,.22); color:#f0a860; border:1px solid rgba(220,130,50,.3); }
+    .cat-badge.lawn-care { background:rgba(60,130,210,.22); color:#82b8f0; border:1px solid rgba(60,130,210,.3); }
+    .cat-badge.inspiration{ background:rgba(210,80,130,.22); color:#f0a0c0; border:1px solid rgba(210,80,130,.3); }
+    .featured-inner h2 {
+      font-size:clamp(1.5rem,3vw,2.4rem);
+      font-weight:900;
+      color:#fff;
+      line-height:1.18;
+      letter-spacing:-.025em;
+      max-width:720px;
+      margin-bottom:14px;
+    }
+    .featured-excerpt {
+      font-size:.9rem;
+      color:rgba(255,255,255,.7);
+      line-height:1.72;
+      max-width:620px;
+      margin-bottom:18px;
+    }
+    .featured-meta {
+      font-size:.75rem;
+      color:rgba(255,255,255,.5);
+      margin-bottom:22px;
+    }
+    .btn-featured {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:11px 26px;
+      border-radius:50px;
+      background:linear-gradient(135deg,var(--g4),var(--g5));
+      color:#fff;
+      font-size:.82rem;
+      font-weight:700;
+      text-decoration:none;
+      box-shadow:0 6px 22px rgba(30,138,30,.4);
+      transition:transform .2s,box-shadow .2s;
+    }
+    .btn-featured:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(30,138,30,.55); }
+
+    /* ── Category Filter Bar ── */
+    .filter-bar {
+      background:#fff;
+      border-bottom:1px solid var(--border);
+      padding:0 24px;
+      position:sticky;
+      top:70px;
+      z-index:100;
+    }
+    .filter-bar-inner {
+      max-width:1140px;
+      margin:0 auto;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      overflow-x:auto;
+      padding:14px 0;
+      scrollbar-width:none;
+    }
+    .filter-bar-inner::-webkit-scrollbar { display:none; }
+    .filter-pill {
+      display:inline-block;
+      padding:7px 18px;
+      border-radius:50px;
+      font-size:.73rem;
+      font-weight:700;
+      cursor:pointer;
+      white-space:nowrap;
+      border:1.5px solid var(--border);
+      background:#fff;
+      color:var(--muted);
+      transition:background .2s,border-color .2s,color .2s;
+      user-select:none;
+    }
+    .filter-pill:hover { border-color:var(--g4); color:var(--g4); }
+    .filter-pill.active { background:var(--g4); border-color:var(--g4); color:#fff; }
+
+    /* ── Article Grid ── */
+    .article-grid-section {
+      padding:60px 24px 80px;
+      background:#fff;
+    }
+    .article-grid {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:28px;
+      max-width:1140px;
+      margin:0 auto;
+    }
+    .article-card {
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:16px;
+      overflow:hidden;
+      transition:transform .35s var(--ease),box-shadow .35s var(--ease);
+      display:flex;
+      flex-direction:column;
+    }
+    .article-card:hover {
+      transform:translateY(-4px);
+      box-shadow:0 12px 40px rgba(0,0,0,.10);
+    }
+    .article-card-img {
+      height:220px;
+      overflow:hidden;
+      position:relative;
+    }
+    .article-card-img img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      transition:transform .5s var(--ease);
+    }
+    .article-card:hover .article-card-img img { transform:scale(1.05); }
+    .article-card-body {
+      padding:22px 22px 18px;
+      display:flex;
+      flex-direction:column;
+      flex:1;
+    }
+    .article-card-body .cat-badge { margin-bottom:10px; }
+    .article-card-body h3 {
+      font-size:.93rem;
+      font-weight:800;
+      color:var(--text);
+      line-height:1.45;
+      margin-bottom:10px;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .article-card-excerpt {
+      font-size:.8rem;
+      color:var(--muted);
+      line-height:1.72;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+      flex:1;
+      margin-bottom:16px;
+    }
+    .article-card-footer {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding-top:14px;
+      border-top:1px solid var(--border);
+      gap:10px;
+    }
+    .card-meta {
+      display:flex;
+      align-items:center;
+      gap:9px;
+    }
+    .card-avatar {
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      background:linear-gradient(135deg,var(--g4),var(--g6));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:.6rem;
+      font-weight:800;
+      color:#fff;
+      flex-shrink:0;
+    }
+    .card-meta-text { font-size:.7rem; color:var(--muted); line-height:1.4; }
+    .card-meta-name { font-weight:700; color:var(--text); font-size:.72rem; }
+    .card-read-more {
+      font-size:.75rem;
+      font-weight:700;
+      color:var(--g4);
+      text-decoration:none;
+      white-space:nowrap;
+      transition:color .2s;
+    }
+    .card-read-more:hover { color:var(--g3); }
+
+    /* hidden cards */
+    .article-card.hidden { display:none; }
+
+    /* ── Newsletter Strip ── */
+    .newsletter-strip {
+      background:linear-gradient(135deg,var(--g2),var(--g1));
+      padding:72px 24px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .newsletter-strip::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+      background-size:48px 48px;
+      pointer-events:none;
+    }
+    .newsletter-inner {
+      position:relative;
+      z-index:1;
+      max-width:560px;
+      margin:0 auto;
+    }
+    .newsletter-inner h2 {
+      font-size:clamp(1.5rem,3vw,2.2rem);
+      font-weight:900;
+      color:#fff;
+      line-height:1.2;
+      letter-spacing:-.025em;
+      margin-bottom:12px;
+    }
+    .newsletter-inner p {
+      font-size:.9rem;
+      color:rgba(255,255,255,.58);
+      line-height:1.75;
+      margin-bottom:30px;
+    }
+    .newsletter-form {
+      display:flex;
+      gap:8px;
+      max-width:440px;
+      margin:0 auto;
+    }
+    .newsletter-form input {
+      flex:1;
+      padding:13px 20px;
+      border-radius:50px;
+      border:1px solid rgba(255,255,255,.15);
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      font-family:'Poppins',sans-serif;
+      font-size:.85rem;
+      outline:none;
+      transition:border-color .2s;
+    }
+    .newsletter-form input::placeholder { color:rgba(255,255,255,.38); }
+    .newsletter-form input:focus { border-color:var(--g5); }
+    .newsletter-form button {
+      padding:13px 26px;
+      border-radius:50px;
+      background:linear-gradient(135deg,var(--g4),var(--g5));
+      color:#fff;
+      border:none;
+      font-family:'Poppins',sans-serif;
+      font-size:.85rem;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 6px 22px rgba(30,138,30,.4);
+      transition:transform .2s,box-shadow .2s;
+      white-space:nowrap;
+    }
+    .newsletter-form button:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(30,138,30,.55); }
+
+    /* ── Responsive ── */
+    @media(max-width:1200px) { #nav { padding:0 28px; } footer { padding:60px 28px 30px; } }
+    @media(max-width:960px) {
+      .n-links { display:none; } .n-btn { display:none; } .n-ham { display:flex; }
+      .article-grid { grid-template-columns:repeat(2,1fr); }
+      .featured-inner { padding:0 24px 36px; }
+    }
+    @media(max-width:640px) {
+      .article-grid { grid-template-columns:1fr; }
+      .featured-article { height:420px; }
+      .newsletter-form { flex-direction:column; align-items:stretch; }
+      footer { padding:48px 18px 28px; } .ft-grid { grid-template-columns:1fr; gap:28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SVG Sprite -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="ico-leaf"      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></symbol>
+  <symbol id="ico-home"      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+  <symbol id="ico-shield"    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+  <symbol id="ico-zap"       viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+  <symbol id="ico-star"      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+  <symbol id="ico-check"     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+  <symbol id="ico-phone"     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.57 3.4 2 2 0 0 1 3.54 1.23h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></symbol>
+  <symbol id="ico-arrow-r"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+  <symbol id="ico-chevron-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+  <symbol id="ico-award"     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></symbol>
+  <symbol id="ico-users"     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="ico-tool"      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+  <symbol id="ico-search"    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+</svg>
+
+<!-- ══ NAVBAR ══════════════════════════════════════════════════════ -->
+<nav id="nav">
+  <a href="index.html" class="n-brand">
+    <img src="logo.webp" alt="Always Green Turf" class="n-logo-img">
+  </a>
+  <ul class="n-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="service-areas.html">Service Areas</a></li>
+    <li class="has-drop">
+      <a href="index.html#services">Services <span class="arrow">▼</span></a>
+      <ul class="n-dropdown">
+        <li><a href="artificial-lawns.html">Artificial Lawns</a></li>
+        <li><a href="pet-turf.html">Pet Turf</a></li>
+        <li><a href="playground-turf.html">Playground Turf</a></li>
+        <li><a href="putting-greens.html">Putting Greens</a></li>
+        <li><a href="whole-yard-renovations.html">Whole Yard Renovations</a></li>
+      </ul>
+    </li>
+    <li><a href="financing.html">Financing</a></li>
+    <li><a href="process.html">Turf Installation Process</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+    <li><a href="blog.html" class="active">Blog</a></li>
+  </ul>
+  <a href="tel:4805305476" class="n-btn">
+    <svg class="ico" width="14" height="14"><use href="#ico-phone"/></svg>
+    (480) 530-5476
+  </a>
+  <button class="n-ham" id="nHam" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ══ MOBILE MENU ══════════════════════════════════════════════════ -->
+<div class="n-mob" id="nMob" aria-hidden="true">
+  <ul class="n-mob-list">
+    <li><a href="index.html" class="n-mob-a">Home</a></li>
+    <li><a href="service-areas.html" class="n-mob-a">Service Areas</a></li>
+    <li class="n-mob-has-drop">
+      <button class="n-mob-drop-btn" id="nMobDrop">Services <span class="n-mob-arrow">▼</span></button>
+      <ul class="n-mob-sub" id="nMobSub">
+        <li><a href="artificial-lawns.html">Artificial Lawns</a></li>
+        <li><a href="pet-turf.html">Pet Turf</a></li>
+        <li><a href="playground-turf.html">Playground Turf</a></li>
+        <li><a href="putting-greens.html">Putting Greens</a></li>
+        <li><a href="whole-yard-renovations.html">Whole Yard Renovations</a></li>
+      </ul>
+    </li>
+    <li><a href="financing.html" class="n-mob-a">Financing</a></li>
+    <li><a href="process.html" class="n-mob-a">Turf Installation Process</a></li>
+    <li><a href="about.html" class="n-mob-a">About</a></li>
+    <li><a href="index.html#contact" class="n-mob-a">Contact</a></li>
+    <li><a href="blog.html" class="n-mob-a active">Blog</a></li>
+  </ul>
+  <a href="tel:4805305476" class="n-mob-cta">
+    <svg class="ico" width="14" height="14"><use href="#ico-phone"/></svg>
+    (480) 530-5476
+  </a>
+</div>
+
+<!-- ══ PAGE HEADER ════════════════════════════════════════════════ -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="eyebrow">Always Green Turf</div>
+    <h1>The Backyard Blog</h1>
+    <p class="page-header-sub">Tips, inspiration, and guides for Arizona homeowners</p>
+    <div class="blog-search">
+      <svg class="ico" width="15" height="15" style="color:rgba(255,255,255,.4);flex-shrink:0"><use href="#ico-search"/></svg>
+      <input type="text" placeholder="Search articles…" aria-label="Search articles">
+      <button type="button">Search</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FEATURED ARTICLE ════════════════════════════════════════════ -->
+<div class="featured-article">
+  <div class="featured-inner">
+    <div class="cat-badge guides">Guides</div>
+    <h2>How Much Does Artificial Grass Cost in 2025? A Complete Pricing Guide</h2>
+    <p class="featured-excerpt">From materials to labor, installation type to turf grade — here's every factor that affects the price of artificial grass in Arizona, with real numbers.</p>
+    <p class="featured-meta">By Always Green Team &middot; June 12, 2025 &middot; 8 min read</p>
+    <a href="blog-article.html" class="btn-featured">
+      Read Article
+      <svg class="ico" width="13" height="13"><use href="#ico-arrow-r"/></svg>
+    </a>
+  </div>
+</div>
+
+<!-- ══ CATEGORY FILTER BAR ════════════════════════════════════════ -->
+<div class="filter-bar">
+  <div class="filter-bar-inner">
+    <button class="filter-pill active" data-filter="all">All</button>
+    <button class="filter-pill" data-filter="guides">Guides</button>
+    <button class="filter-pill" data-filter="pet-turf">Pet Turf</button>
+    <button class="filter-pill" data-filter="putting-greens">Putting Greens</button>
+    <button class="filter-pill" data-filter="playground">Playground</button>
+    <button class="filter-pill" data-filter="lawn-care">Lawn Care</button>
+    <button class="filter-pill" data-filter="inspiration">Inspiration</button>
+  </div>
+</div>
+
+<!-- ══ ARTICLE GRID ════════════════════════════════════════════════ -->
+<section class="article-grid-section">
+  <div class="article-grid" id="articleGrid">
+
+    <!-- Card 1 -->
+    <article class="article-card" data-category="lawn-care">
+      <div class="article-card-img">
+        <img src="assets/artificial lawns/artificial-00002.jpg" alt="Best artificial turf for Arizona" loading="lazy">
+      </div>
+      <div class="article-card-body">
+        <span class="cat-badge lawn-care">Lawn Care</span>
+        <h3>The Best Artificial Turf for Arizona: A Guide to Year-Round Green Spaces</h3>
+        <p class="article-card-excerpt">Not all synthetic grass is equal under the Arizona sun. Here's how to choose turf that stays cool, looks real, and lasts decades.</p>
+        <div class="article-card-footer">
+          <div class="card-meta">
+            <div class="card-avatar">AG</div>
+            <div>
+              <div class="card-meta-name">Always Green Team</div>
+              <div class="card-meta-text">May 28, 2025 &middot; 6 min</div>
+            </div>
+          </div>
+          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 2 -->
+    <article class="article-card" data-category="guides">
+      <div class="article-card-img">
+        <img src="assets/artificial lawns/artificial-00003.jpg" alt="How hot does artificial grass get in Arizona" loading="lazy">
+      </div>
+      <div class="article-card-body">
+        <span class="cat-badge guides">Guides</span>
+        <h3>How Hot Does Artificial Grass Get in Arizona? And How to Keep It Cool</h3>
+        <p class="article-card-excerpt">Arizona summers are brutal. We break down the heat science, the real temperature numbers, and the solutions that actually work.</p>
+        <div class="article-card-footer">
+          <div class="card-meta">
+            <div class="card-avatar">AG</div>
+            <div>
+              <div class="card-meta-name">Always Green Team</div>
+              <div class="card-meta-text">May 14, 2025 &middot; 5 min</div>
+            </div>
+          </div>
+          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 3 -->
+    <article class="article-card" data-category="pet-turf">
+      <div class="article-card-img">
+        <img src="assets/pet turf/pet-turf-0001.jpg" alt="Dog owner guide to artificial grass" loading="lazy">
+      </div>
+      <div class="article-card-body">
+        <span class="cat-badge pet-turf">Pet Turf</span>
+        <h3>The Dog Owner's Guide to Artificial Grass: Safety, Smell, and Durability</h3>
+        <p class="article-card-excerpt">Can artificial grass handle your dog? Here's the honest truth about odor control, durability, and which turf types are actually safe for pets.</p>
+        <div class="article-card-footer">
+          <div class="card-meta">
+            <div class="card-avatar">AG</div>
+            <div>
+              <div class="card-meta-name">Always Green Team</div>
+              <div class="card-meta-text">April 30, 2025 &middot; 7 min</div>
+            </div>
+          </div>
+          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 4 -->
+    <article class="article-card" data-category="putting-greens">
+      <div class="article-card-img">
+        <img src="assets/putting greens/putting-00001.jpg" alt="Backyard putting green installation Arizona" loading="lazy">
+      </div>
+      <div class="article-card-body">
+        <span class="cat-badge putting">Putting Greens</span>
+        <h3>Create a Golfer's Paradise: Putting Green Installation in Your Arizona Backyard</h3>
+        <p class="article-card-excerpt">Custom backyard putting greens are more affordable than you think. Here's what goes into building one that plays like the real thing.</p>
+        <div class="article-card-footer">
+          <div class="card-meta">
+            <div class="card-avatar">AG</div>
+            <div>
+              <div class="card-meta-name">Always Green Team</div>
+              <div class="card-meta-text">April 18, 2025 &middot; 5 min</div>
+            </div>
+          </div>
+          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 5 -->
+    <article class="article-card" data-category="playground">
+      <div class="article-card-img">
+        <img src="assets/playground/playground-00001.jpg" alt="Playground turf protects children" loading="lazy">
+      </div>
+      <div class="article-card-body">
+        <span class="cat-badge playground">Playground</span>
+        <h3>How Playground Turf Protects Children — and Your Arizona Landscape</h3>
+        <p class="article-card-excerpt">Impact padding, lead-free materials, and UV-resistant fibers — here's why playground-specific turf isn't just regular grass.</p>
+        <div class="article-card-footer">
+          <div class="card-meta">
+            <div class="card-avatar">AG</div>
+            <div>
+              <div class="card-meta-name">Always Green Team</div>
+              <div class="card-meta-text">April 3, 2025 &middot; 6 min</div>
+            </div>
+          </div>
+          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 6 -->
+    <article class="article-card" data-category="inspiration">
+      <div class="article-card-img">
+        <img src="assets/artificial lawns/artificial-00004.jpg" alt="Arizona backyard design ideas" loading="lazy">
+      </div>
+      <div class="article-card-body">
+        <span class="cat-badge inspiration">Inspiration</span>
+        <h3>Backyard Designs for Arizona: 8 Ideas for a Dream Outdoor Space</h3>
+        <p class="article-card-excerpt">From putting greens and pet zones to full yard renovations — real Arizona transformations from the Always Green portfolio.</p>
+        <div class="article-card-footer">
+          <div class="card-meta">
+            <div class="card-avatar">AG</div>
+            <div>
+              <div class="card-meta-name">Always Green Team</div>
+              <div class="card-meta-text">March 21, 2025 &middot; 4 min</div>
+            </div>
+          </div>
+          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 7 -->
+    <article class="article-card" data-category="guides">
+      <div class="article-card-img">
+        <img src="assets/artificial lawns/artificial-00005.jpg" alt="Turf vs real grass in Arizona" loading="lazy">
+      </div>
+      <div class="article-card-body">
+        <span class="cat-badge guides">Guides</span>
+        <h3>Turf vs. Real Grass in Arizona: Which Is Actually Better for Your Home?</h3>
+        <p class="article-card-excerpt">We compare the real costs, water usage, maintenance requirements, and long-term value of natural grass vs. synthetic turf in the desert.</p>
+        <div class="article-card-footer">
+          <div class="card-meta">
+            <div class="card-avatar">AG</div>
+            <div>
+              <div class="card-meta-name">Always Green Team</div>
+              <div class="card-meta-text">March 7, 2025 &middot; 9 min</div>
+            </div>
+          </div>
+          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 8 -->
+    <article class="article-card" data-category="inspiration">
+      <div class="article-card-img">
+        <img src="assets/putting greens/putting-00003.jpg" alt="Desert oasis pavers and artificial grass" loading="lazy">
+      </div>
+      <div class="article-card-body">
+        <span class="cat-badge inspiration">Inspiration</span>
+        <h3>Crafting a Desert Oasis: Pavers, Grass, and the Backyard You've Always Wanted</h3>
+        <p class="article-card-excerpt">See how the right combination of synthetic turf and natural stone pavers transforms bare Arizona yards into stunning outdoor retreats.</p>
+        <div class="article-card-footer">
+          <div class="card-meta">
+            <div class="card-avatar">AG</div>
+            <div>
+              <div class="card-meta-name">Always Green Team</div>
+              <div class="card-meta-text">February 19, 2025 &middot; 5 min</div>
+            </div>
+          </div>
+          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 9 -->
+    <article class="article-card" data-category="lawn-care">
+      <div class="article-card-img">
+        <img src="assets/pet turf/pet-turf-0004.jpg" alt="Maintaining artificial turf care guide" loading="lazy">
+      </div>
+      <div class="article-card-body">
+        <span class="cat-badge lawn-care">Lawn Care</span>
+        <h3>Maintaining Artificial Turf: The Only Care Guide You'll Ever Need</h3>
+        <p class="article-card-excerpt">Synthetic grass is low-maintenance — but it's not no-maintenance. Here's the exact routine that keeps your turf looking perfect year after year.</p>
+        <div class="article-card-footer">
+          <div class="card-meta">
+            <div class="card-avatar">AG</div>
+            <div>
+              <div class="card-meta-name">Always Green Team</div>
+              <div class="card-meta-text">February 5, 2025 &middot; 6 min</div>
+            </div>
+          </div>
+          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ══ NEWSLETTER STRIP ════════════════════════════════════════════ -->
+<section class="newsletter-strip">
+  <div class="newsletter-inner">
+    <h2>Get Turf Tips Straight to Your Inbox</h2>
+    <p>Arizona homeowner advice, project spotlights, and seasonal guides — free, monthly.</p>
+    <div class="newsletter-form">
+      <input type="email" placeholder="Your email address" aria-label="Email address">
+      <button type="button">Subscribe</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════════════ -->
+<footer>
+  <div class="wrap">
+    <div class="ft-grid">
+      <div>
+        <div class="n-brand" style="margin-bottom:0">
+          <img src="logo.webp" alt="Always Green Turf" class="n-logo-img">
+        </div>
+        <p class="ft-desc">Arizona's most trusted artificial turf installer. Transforming outdoor spaces across the Valley with premium, low-maintenance turf solutions.</p>
+        <div class="ft-socs">
+          <a href="#" class="ft-soc"><svg class="ico" width="15" height="15"><use href="#ico-users"/></svg></a>
+          <a href="#" class="ft-soc"><svg class="ico" width="15" height="15"><use href="#ico-star"/></svg></a>
+          <a href="#" class="ft-soc"><svg class="ico" width="15" height="15"><use href="#ico-award"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <div class="ft-col-h">Services</div>
+        <ul class="ft-links">
+          <li><a href="artificial-lawns.html"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Artificial Lawns</a></li>
+          <li><a href="pet-turf.html"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Pet Turf</a></li>
+          <li><a href="playground-turf.html"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Playground Turf</a></li>
+          <li><a href="putting-greens.html"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Putting Greens</a></li>
+          <li><a href="whole-yard-renovations.html"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Whole Yard Renovations</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="ft-col-h">Company</div>
+        <ul class="ft-links">
+          <li><a href="about.html"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>About Us</a></li>
+          <li><a href="process.html"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Installation Process</a></li>
+          <li><a href="service-areas.html"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Service Areas</a></li>
+          <li><a href="financing.html"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Financing</a></li>
+          <li><a href="blog.html"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Blog</a></li>
+          <li><a href="index.html#contact"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="ft-col-h">Contact</div>
+        <ul class="ft-links">
+          <li><a href="tel:4805305476"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>(480) 530-5476</a></li>
+          <li><a href="#"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>204 S. Mesa Dr.</a></li>
+          <li><a href="#"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Mesa, AZ 85210</a></li>
+          <li><a href="#"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Mon–Sun · 7am–9pm</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ft-bottom">
+      <div class="ft-copy">© 2026 Always Green Turf AZ. All rights reserved. · Demo Design</div>
+      <div class="ft-tag">The Grass Is Always Greener™</div>
+    </div>
+  </div>
+</footer>
+
+<!-- Float CTA -->
+<a href="index.html#contact" id="fcta">
+  <span id="fcta-dot"></span>
+  <span>Get Design Consultation</span>
+  <svg class="ico" width="13" height="13"><use href="#ico-arrow-r"/></svg>
+</a>
+
+<script>
+  /* ── Navbar scroll ── */
+  (function(){
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('solid', window.scrollY > 40), { passive:true });
+  })();
+
+  /* ── Float CTA ── */
+  (function(){
+    const fcta = document.getElementById('fcta');
+    window.addEventListener('scroll', () => fcta.classList.toggle('show', window.scrollY > 320), { passive:true });
+  })();
+
+  /* ── Hamburger / Mobile Menu ── */
+  (function(){
+    const ham = document.getElementById('nHam');
+    const mob = document.getElementById('nMob');
+    function openMob(){ ham.classList.add('open'); mob.classList.add('open'); mob.setAttribute('aria-hidden','false'); ham.setAttribute('aria-expanded','true'); }
+    function closeMob(){ ham.classList.remove('open'); mob.classList.remove('open'); mob.setAttribute('aria-hidden','true'); ham.setAttribute('aria-expanded','false'); }
+    ham.addEventListener('click', () => ham.classList.contains('open') ? closeMob() : openMob());
+    document.addEventListener('keydown', e => { if(e.key==='Escape') closeMob(); });
+    mob.addEventListener('click', e => { if(e.target===mob) closeMob(); });
+    const dropBtn = document.getElementById('nMobDrop');
+    const dropSub = document.getElementById('nMobSub');
+    if(dropBtn && dropSub){
+      dropBtn.addEventListener('click', () => {
+        const open = dropSub.classList.toggle('open');
+        dropBtn.classList.toggle('open', open);
+      });
+    }
+  })();
+
+  /* ── Category Filter ── */
+  (function(){
+    const pills  = document.querySelectorAll('.filter-pill');
+    const cards  = document.querySelectorAll('#articleGrid .article-card');
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const filter = pill.dataset.filter;
+        cards.forEach(card => {
+          if(filter === 'all' || card.dataset.category === filter){
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>
