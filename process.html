@@ -329,7 +329,8 @@
       .phases-hdr { padding:0 0 24px; }
       .phases-stack { position:relative; height:auto !important; display:flex; flex-direction:column; gap:20px; }
       .phase-card { position:relative !important; height:auto; margin-bottom:20px; }
-      .pc-inner { min-height:auto; position:relative; top:auto; grid-template-columns:1fr; }
+      .pc-inner,
+      .phase-card:nth-child(even) .pc-inner { height:auto; min-height:auto; position:relative; top:auto; grid-template-columns:1fr; }
       .pc-right { height:220px; order:1; }
       .pc-left { order:2; padding:28px 22px 26px; }
       .phase-card:nth-child(even) .pc-right { order:1; }
