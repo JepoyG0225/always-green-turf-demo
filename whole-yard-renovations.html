@@ -239,6 +239,11 @@
     @media(max-width:1024px) { .n-links { display:none; } .n-btn { display:none; } .n-ham { display:flex; } .svc-split { gap:44px; } }
     @media(max-width:900px)  { .svc-split { grid-template-columns:1fr; gap:36px; } .svc-gallery { order:-1; } .why-grid { grid-template-columns:1fr 1fr; } .ft-grid { grid-template-columns:1fr 1fr; gap:32px; } }
     @media(max-width:700px)  { .svc-nav-item { padding:12px 14px; font-size:.55rem; } }
+    @media(max-width:640px)  {
+      .svc-nav-inner { display:grid; grid-template-columns:repeat(3,1fr); }
+      .svc-nav-item { justify-content:center; border-bottom:none; border-right:none; padding:14px 8px; font-size:.52rem; white-space:normal; text-align:center; }
+      .svc-nav-item.active, .svc-nav-item:hover { background:rgba(255,255,255,.04); }
+    }
     @media(max-width:600px)  { .why-grid { grid-template-columns:1fr; } footer { padding:48px 18px 28px; } .ft-grid { grid-template-columns:1fr; gap:28px; } .cta-btns { flex-direction:column; align-items:center; } .hero { padding:130px 20px 64px; } .stat-item { padding:18px 20px; } }
   
     /* ── Quote Modal ── */
