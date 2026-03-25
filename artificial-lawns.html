@@ -350,6 +350,16 @@
     .qm-success p{font-size:.88rem;color:#6a8a6a;line-height:1.7;margin:0;}
     @media(max-width:540px){.qm-card{padding:32px 20px 28px;}.qm-row{grid-template-columns:1fr;}}
 
+    /* Mobile: image between title and body */
+    @media(max-width:960px) {
+      .split { display:flex !important; flex-direction:column; }
+      .split-text { display:contents; }
+      .split-header { order:1; }
+      .split-img-single { order:2; }
+      .split-detail { order:3; }
+      .split-detail .btn-primary { display:flex; justify-content:center; width:100%; box-sizing:border-box; }
+    }
+
   </style>
 </head>
 <body>
@@ -460,30 +470,34 @@
 <section class="section" id="lush-lawn">
   <div class="split">
     <div class="split-text">
-      <div class="eyebrow">
-        <svg class="ico" width="13" height="13"><use href="#ico-leaf"/></svg>
-        Year-Round Green
+      <div class="split-header">
+        <div class="eyebrow">
+          <svg class="ico" width="13" height="13"><use href="#ico-leaf"/></svg>
+          Year-Round Green
+        </div>
+        <h2>A Lawn That Looks Perfect — Every Day of the Year</h2>
       </div>
-      <h2>A Lawn That Looks Perfect — Every Day of the Year</h2>
-      <p>Natural grass in Arizona is a losing battle. It browns in summer, floods in monsoon season, and demands constant watering even under Stage 2 restrictions. Synthetic turf ends that cycle entirely. You get a yard that stays green and full in 115°F heat, looks stunning from the street, and never asks for a single hour of your time.</p>
-      <ul class="check-list">
-        <li>
-          <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-          UV-stabilized fibers rated for sustained 110°F+ exposure — they won't fade, mat, or die
-        </li>
-        <li>
-          <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-          Eliminate irrigation entirely — save $150–$300/month on your water bill starting immediately
-        </li>
-        <li>
-          <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-          Zero maintenance required — no mowing, no fertilizing, no re-seeding, ever
-        </li>
-      </ul>
-      <a href="contact.html" class="btn-primary">
-        <svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>
-        Get Design Consultation
-      </a>
+      <div class="split-detail">
+        <p>Natural grass in Arizona is a losing battle. It browns in summer, floods in monsoon season, and demands constant watering even under Stage 2 restrictions. Synthetic turf ends that cycle entirely. You get a yard that stays green and full in 115°F heat, looks stunning from the street, and never asks for a single hour of your time.</p>
+        <ul class="check-list">
+          <li>
+            <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
+            UV-stabilized fibers rated for sustained 110°F+ exposure — they won't fade, mat, or die
+          </li>
+          <li>
+            <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
+            Eliminate irrigation entirely — save $150–$300/month on your water bill starting immediately
+          </li>
+          <li>
+            <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
+            Zero maintenance required — no mowing, no fertilizing, no re-seeding, ever
+          </li>
+        </ul>
+        <a href="contact.html" class="btn-primary">
+          <svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>
+          Get Design Consultation
+        </a>
+      </div>
     </div>
     <div class="split-img-single">
       <img src="assets/artificial%20lawns/IMG_3081.jpg" alt="Residential artificial lawn Phoenix AZ" style="width:100%;height:100%;object-fit:cover;border-radius:20px;display:block;position:absolute;inset:0;">

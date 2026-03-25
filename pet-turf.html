@@ -320,6 +320,16 @@
     .qm-success p{font-size:.88rem;color:#6a8a6a;line-height:1.7;margin:0;}
     @media(max-width:540px){.qm-card{padding:32px 20px 28px;}.qm-row{grid-template-columns:1fr;}}
 
+    /* Mobile: image between title and body */
+    @media(max-width:960px) {
+      .split { display:flex !important; flex-direction:column; }
+      .split-text { display:contents; }
+      .split-header { order:1; }
+      .split-img-single { order:2; }
+      .split-detail { order:3; }
+      .split-detail .btn-primary { display:flex; justify-content:center; width:100%; box-sizing:border-box; }
+    }
+
   </style>
 </head>
 <body>
@@ -429,34 +439,38 @@
 <section class="section" id="pet-yard">
   <div class="split">
     <div class="split-text">
-      <div class="eyebrow">
-        <svg class="ico" width="13" height="13"><use href="#ico-paw"/></svg>
-        Safe for Your Pets
+      <div class="split-header">
+        <div class="eyebrow">
+          <svg class="ico" width="13" height="13"><use href="#ico-paw"/></svg>
+          Safe for Your Pets
+        </div>
+        <h2>The Clean, Safe Yard Your Pets Deserve — Without the Mess Coming Inside</h2>
       </div>
-      <h2>The Clean, Safe Yard Your Pets Deserve — Without the Mess Coming Inside</h2>
-      <p>Burnt paws on hot gravel. Dusty coats. Mud tracked through every room. Rock and dirt yards punish Arizona pets daily. Always Green pet turf gives your animals a cool, clean, cushioned surface 365 days a year — with drainage that handles anything your pets can produce and infill that neutralizes odors before you ever notice them. Your yard stays fresh. Your house stays clean.</p>
-      <ul class="check-list">
-        <li>
-          <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-          Zeolite antimicrobial infill neutralizes odors at the molecular level — not just masks them
-        </li>
-        <li>
-          <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-          Drains up to 30 inches/hour — pet waste passes straight through, no pooling, no smell
-        </li>
-        <li>
-          <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-          100% lead-free, non-toxic, certified safe for dogs, cats, and the kids who play alongside them
-        </li>
-        <li>
-          <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-          Heavy-duty construction — survives digging, sprinting, and years of hard use without thinning
-        </li>
-      </ul>
-      <a href="contact.html" class="btn-primary">
-        <svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>
-        Get Design Consultation
-      </a>
+      <div class="split-detail">
+        <p>Burnt paws on hot gravel. Dusty coats. Mud tracked through every room. Rock and dirt yards punish Arizona pets daily. Always Green pet turf gives your animals a cool, clean, cushioned surface 365 days a year — with drainage that handles anything your pets can produce and infill that neutralizes odors before you ever notice them. Your yard stays fresh. Your house stays clean.</p>
+        <ul class="check-list">
+          <li>
+            <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
+            Zeolite antimicrobial infill neutralizes odors at the molecular level — not just masks them
+          </li>
+          <li>
+            <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
+            Drains up to 30 inches/hour — pet waste passes straight through, no pooling, no smell
+          </li>
+          <li>
+            <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
+            100% lead-free, non-toxic, certified safe for dogs, cats, and the kids who play alongside them
+          </li>
+          <li>
+            <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
+            Heavy-duty construction — survives digging, sprinting, and years of hard use without thinning
+          </li>
+        </ul>
+        <a href="contact.html" class="btn-primary">
+          <svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>
+          Get Design Consultation
+        </a>
+      </div>
     </div>
     <div class="split-img-single">
       <img src="assets/pet%20turf/pet-turf-0002.jpg" alt="Dog on pet-safe artificial turf Phoenix AZ">

@@ -311,6 +311,16 @@
     .qm-success p{font-size:.88rem;color:#6a8a6a;line-height:1.7;margin:0;}
     @media(max-width:540px){.qm-card{padding:32px 20px 28px;}.qm-row{grid-template-columns:1fr;}}
 
+    /* Mobile: image between title and body */
+    @media(max-width:960px) {
+      .split { display:flex !important; flex-direction:column; }
+      .split-text { display:contents; }
+      .split-header { order:1; }
+      .split-img-single { order:2; }
+      .split-detail { order:3; }
+      .split-detail .btn-primary { display:flex; justify-content:center; width:100%; box-sizing:border-box; }
+    }
+
   </style>
 </head>
 <body>
@@ -423,34 +433,38 @@
 <section class="section" id="putting-intro">
   <div class="split">
     <div class="split-text">
-      <div class="eyebrow">
-        <svg class="ico" width="13" height="13"><use href="#ico-flag"/></svg>
-        Custom Putting Greens
+      <div class="split-header">
+        <div class="eyebrow">
+          <svg class="ico" width="13" height="13"><use href="#ico-flag"/></svg>
+          Custom Putting Greens
+        </div>
+        <h2>Drop Your Handicap Without Leaving — Your Driveway</h2>
       </div>
-      <h2>Drop Your Handicap Without Leaving — Your Driveway</h2>
-      <p>Consistent practice is the fastest way to lower your handicap — and you don't get consistency driving 20 minutes to a crowded course. Always Green custom putting greens deliver realistic ball roll, precise contours, and multiple hole configurations right in your backyard. Engineered for Arizona's relentless heat, maintained by nothing but an occasional rinse, and built to the exact spec you choose.</p>
-      <ul class="check-list">
-        <li>
-          <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-          Multiple turf styles — choose your exact ball speed from practice pace to competition pace
-        </li>
-        <li>
-          <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-          Fully custom contours, slopes, and breakers — built to your exact design, not a template
-        </li>
-        <li>
-          <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-          UV-stabilized, heat-rated fibers that hold their color and playing surface under 115°F Arizona sun
-        </li>
-        <li>
-          <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-          Lead-free, family-safe materials — backed by a 15–30 year product warranty and 10-year labor warranty
-        </li>
-      </ul>
-      <a href="contact.html" class="btn-primary">
-        <svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>
-        Get Design Consultation
-      </a>
+      <div class="split-detail">
+        <p>Consistent practice is the fastest way to lower your handicap — and you don't get consistency driving 20 minutes to a crowded course. Always Green custom putting greens deliver realistic ball roll, precise contours, and multiple hole configurations right in your backyard. Engineered for Arizona's relentless heat, maintained by nothing but an occasional rinse, and built to the exact spec you choose.</p>
+        <ul class="check-list">
+          <li>
+            <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
+            Multiple turf styles — choose your exact ball speed from practice pace to competition pace
+          </li>
+          <li>
+            <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
+            Fully custom contours, slopes, and breakers — built to your exact design, not a template
+          </li>
+          <li>
+            <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
+            UV-stabilized, heat-rated fibers that hold their color and playing surface under 115°F Arizona sun
+          </li>
+          <li>
+            <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
+            Lead-free, family-safe materials — backed by a 15–30 year product warranty and 10-year labor warranty
+          </li>
+        </ul>
+        <a href="contact.html" class="btn-primary">
+          <svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>
+          Get Design Consultation
+        </a>
+      </div>
     </div>
     <div class="split-img-single">
       <img src="assets/putting greens/putting-00002.jpg" alt="Custom backyard putting green installation Phoenix AZ">

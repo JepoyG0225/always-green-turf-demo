@@ -579,7 +579,7 @@
     }
     @media (max-width:980px) {
       .hero { grid-template-columns:1fr; min-height:auto; }
-      .hero-map { min-height:380px; order:-1; }
+      .hero-map { min-height:380px; }
       .hero-map-inner { inset:0; border-radius:0; box-shadow:none; }
       .hero-left { padding:48px 28px 56px; }
       .hero-left-inner { max-width:100%; }
@@ -667,6 +667,11 @@
     .qm-success h3{font-size:1.25rem;font-weight:900;color:#0e1e0e;margin:0 0 10px;}
     .qm-success p{font-size:.88rem;color:#6a8a6a;line-height:1.7;margin:0;}
     @media(max-width:540px){.qm-card{padding:32px 20px 28px;}.qm-row{grid-template-columns:1fr;}}
+
+    /* Mobile: center CTA in split sections */
+    @media(max-width:640px) {
+      .hero-cta { align-self:center; display:flex; justify-content:center; }
+    }
 
   </style>
   <link rel="stylesheet" href="shared-components.css">
