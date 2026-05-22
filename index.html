@@ -814,75 +814,8 @@
       transition:transform var(--t), box-shadow var(--t), filter var(--t);
     }
     .cf-sub:hover { transform:translateY(-3px); box-shadow:0 10px 30px rgba(30,138,30,.4); filter:brightness(1.07); }
-
-    /* ── POPUP ───────────────────────────────────────────── */
-    .pop-overlay {
-      position:fixed; inset:0; z-index:1200;
-      background:rgba(5,15,5,.62);
-      backdrop-filter:blur(6px);
-      display:flex; align-items:center; justify-content:center;
-      opacity:0; pointer-events:none;
-      transition:opacity .35s var(--ease);
-    }
-    .pop-overlay.show { opacity:1; pointer-events:auto; }
-    .pop-card {
-      width:min(680px, 92vw);
-      background:#fff; border-radius:26px;
-      box-shadow:0 40px 110px rgba(0,0,0,.35);
-      position:relative; overflow:hidden;
-      transform:translateY(18px) scale(.98);
-      transition:transform .45s var(--ease);
-    }
-    .pop-overlay.show .pop-card { transform:none; }
-    .pop-head {
-      padding:28px 34px 18px;
-      background:linear-gradient(135deg,var(--g3),var(--g5));
-      color:#fff; position:relative; overflow:hidden;
-    }
-    .pop-head::after {
-      content:''; position:absolute; right:-60px; top:-60px;
-      width:180px; height:180px; border-radius:50%;
-      background:rgba(255,255,255,.12);
-    }
-    .pop-badge {
-      display:inline-flex; align-items:center; gap:8px;
-      padding:7px 14px; border-radius:50px;
-      background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.24);
-      font-size:.62rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
-    }
-    .pop-title { margin-top:14px; font-size:1.7rem; font-weight:900; line-height:1.15; }
-    .pop-body { padding:22px 34px 30px; }
-    .pop-text { font-size:.95rem; color:var(--muted); line-height:1.75; }
-    .pop-list { margin:14px 0 22px; display:flex; flex-direction:column; gap:10px; }
-    .pop-item { display:flex; gap:10px; align-items:flex-start; font-size:.9rem; color:#2a3b2a; }
-    .pop-item svg { color:var(--g5); margin-top:3px; }
-    .pop-cta {
-      display:inline-flex; align-items:center; gap:10px;
-      padding:14px 30px; border-radius:50px;
-      background:linear-gradient(135deg,var(--g4),var(--g5));
-      color:#fff; font-size:.86rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
-      text-decoration:none; border:none; cursor:pointer;
-      box-shadow:0 10px 30px rgba(30,138,30,.45);
-      transition:transform var(--t), box-shadow var(--t), filter var(--t);
-    }
-    .pop-cta:hover { transform:translateY(-3px); box-shadow:0 16px 40px rgba(30,138,30,.6); filter:brightness(1.06); }
-    .pop-close {
-      position:absolute; right:16px; top:14px;
-      width:36px; height:36px; border-radius:50%;
-      border:1px solid rgba(255,255,255,.35);
-      background:rgba(255,255,255,.18); color:#fff;
-      display:flex; align-items:center; justify-content:center;
-      cursor:pointer; font-size:20px; line-height:1;
-      transition:transform var(--t), background var(--t);
-    }
-    .pop-close:hover { transform:scale(1.06); background:rgba(255,255,255,.3); }
-
-    @media(max-width:768px){
-      .pop-title { font-size:1.4rem; }
-      .pop-body { padding:18px 22px 26px; }
-      .pop-head { padding:22px 22px 16px; }
-      .pop-card { width:calc(100vw - 32px); max-height:90dvh; overflow-y:auto; border-radius:20px; }
-    }
+    .cf-status { margin-top:12px; font-size:.82rem; font-weight:700; line-height:1.45; color:var(--g4); }
+    .cf-status.error { color:#b42318; }
 
     /* ══ FOOTER ═══════════════════════════════════ */
     footer { background:var(--dark); color:rgba(255,255,255,.55); padding:68px 52px 30px; }
@@ -1269,47 +1202,54 @@
     <!-- RIGHT — QUOTE FORM -->
     <div class="h-form-card">
       <div class="h-form-head">
-        <div class="h-form-head-title">$0 Down and 12 Months</div>
-        <div class="h-form-head-sub">No Interest &amp; No Payments</div>
+        <div class="h-form-head-title">Get Your Design Quote</div>
+        <div class="h-form-head-sub">Free. No obligation. Same-day detailed quote.</div>
       </div>
       <div class="h-form-body">
+        <form id="hfForm" novalidate>
         <div class="hf-row">
           <div class="hf-grp">
-            <label class="hf-lbl">Full Name</label>
-            <input class="hf-inp" type="text" placeholder="John Doe" />
+            <label class="hf-lbl" for="hfFirstName">First Name *</label>
+            <input class="hf-inp" id="hfFirstName" name="first_name" type="text" placeholder="John" required />
           </div>
           <div class="hf-grp">
-            <label class="hf-lbl">Email</label>
-            <input class="hf-inp" type="email" placeholder="john@email.com" />
+            <label class="hf-lbl" for="hfLastName">Last Name *</label>
+            <input class="hf-inp" id="hfLastName" name="last_name" type="text" placeholder="Doe" required />
           </div>
         </div>
         <div class="hf-row">
           <div class="hf-grp">
-            <label class="hf-lbl">Phone Number</label>
-            <input class="hf-inp" type="tel" placeholder="(480) 000-0000" />
+            <label class="hf-lbl" for="hfPhone">Phone *</label>
+            <input class="hf-inp" id="hfPhone" name="phone" type="tel" placeholder="(480) 000-0000" required />
           </div>
           <div class="hf-grp">
-            <label class="hf-lbl">City</label>
-            <input class="hf-inp" type="text" placeholder="Mesa" />
+            <label class="hf-lbl" for="hfEmail">Email</label>
+            <input class="hf-inp" id="hfEmail" name="email" type="email" placeholder="john@email.com" />
           </div>
         </div>
         <div class="hf-grp">
-          <label class="hf-lbl">Where Did You Hear About Us?</label>
-          <select class="hf-inp">
-            <option value="" disabled selected>Select an option</option>
-            <option>Google</option>
-            <option>Facebook</option>
-            <option>Yelp</option>
-            <option>Friend / Family Referral</option>
-            <option>Nextdoor</option>
-            <option>Drove By / Yard Sign</option>
-            <option>Other</option>
+          <label class="hf-lbl" for="hfService">Service Interested In</label>
+          <select class="hf-inp" id="hfService" name="service">
+            <option value="">Select a service...</option>
+            <option>Residential Lawn</option>
+            <option>Pet Turf</option>
+            <option>Putting Green</option>
+            <option>Playground Turf</option>
+            <option>Whole Yard Renovation</option>
+            <option>Commercial Turf</option>
+            <option>Other / Not Sure</option>
           </select>
         </div>
-        <button class="hf-submit" id="hfSubmit">
-          Get Design Consultation
+        <div class="hf-grp">
+          <label class="hf-lbl" for="hfMessage">Project Details <span class="qm-opt">(optional)</span></label>
+          <textarea class="hf-inp" id="hfMessage" name="message" rows="3" placeholder="Approximate sq ft, goals, timeline..."></textarea>
+        </div>
+        <button class="hf-submit" id="hfSubmit" type="submit">
+          Send My Free Quote Request
         </button>
         <div class="hf-note">No spam. Your info is safe with us.</div>
+        </form>
+        <div id="hfStatus" class="cf-status" aria-live="polite"></div>
       </div>
     </div>
 
@@ -1317,8 +1257,8 @@
 
   <div class="h-bar">
     <div class="h-bar-row">
-      <div class="h-bar-item"><div class="h-bar-num">500<span>+</span></div><div class="h-bar-lbl">Projects Completed</div></div>
-      <div class="h-bar-item"><div class="h-bar-num">4.8<span>★</span></div><div class="h-bar-lbl">Google Rating</div></div>
+      <div class="h-bar-item"><div class="h-bar-num">1500<span>+</span></div><div class="h-bar-lbl">Projects Completed</div></div>
+      <div class="h-bar-item"><div class="h-bar-num">5.0<span>★</span></div><div class="h-bar-lbl">Review Rating</div></div>
       <div class="h-bar-item"><div class="h-bar-num"><span>$</span>0</div><div class="h-bar-lbl">Down Financing</div></div>
       <div class="h-bar-item"><div class="h-bar-num">365</div><div class="h-bar-lbl">Days a Year Green</div></div>
     </div>
@@ -1559,7 +1499,7 @@
       </div>
       <div data-r="right">
         <div class="eyebrow">Why Choose Us</div>
-        <h2 class="sec-h">Why 500+ Phoenix Homeowners <span class="hi">Chose Always Green</span></h2>
+        <h2 class="sec-h">Why 1500+ Phoenix Homeowners <span class="hi">Chose Always Green</span></h2>
         <p class="sec-p">We've earned the Valley's trust one installation at a time. Here's what makes every job different — and better.</p>
         <div class="ba-slider ba-mobile" data-r="up">
           <img src="After.jpg" class="ba-after" alt="After">
@@ -1592,14 +1532,14 @@
             <div class="why-pt-ico"><svg class="ico" width="20" height="20"><use href="#ico-star"/></svg></div>
             <div>
               <div class="why-pt-h">5-Star Verified Reviews</div>
-              <p class="why-pt-p">4.8 stars across 120+ Google reviews. Real customers in Mesa, Scottsdale, Gilbert, Chandler, and across the Valley — not paid testimonials.</p>
+              <p class="why-pt-p">5.0 stars across 120+ Google reviews. Real customers in Mesa, Scottsdale, Gilbert, Chandler, and across the Valley — not paid testimonials.</p>
             </div>
           </li>
           <li class="why-pt">
             <div class="why-pt-ico"><svg class="ico" width="20" height="20"><use href="#ico-award"/></svg></div>
             <div>
               <div class="why-pt-h">Over A Decade Of Experience</div>
-              <p class="why-pt-p">10+ years and 500+ Arizona installations. We've worked in every soil type, every backyard shape, and every neighborhood in the Valley.</p>
+              <p class="why-pt-p">10+ years and 1500+ Arizona installations. We've worked in every soil type, every backyard shape, and every neighborhood in the Valley.</p>
             </div>
           </li>
           <li class="why-pt">
@@ -1666,9 +1606,9 @@
           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
         </svg>
         <span class="rp-name">Google</span>
-        <!-- 4.8 / 5 = 96% -->
+        <!-- 5.0 / 5 = 96% -->
         <span class="rp-stars" style="--pct:96%"><span class="s-empty">★★★★★</span><span class="s-full">★★★★★</span></span>
-        <span class="rp-score">4.8</span>
+        <span class="rp-score">5.0</span>
       </div>
       <div class="rp-pill">
         <!-- Yelp icon -->
@@ -1686,9 +1626,9 @@
           <path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
         </svg>
         <span class="rp-name">Facebook</span>
-        <!-- 4.8 / 5 = 96% -->
+        <!-- 5.0 / 5 = 96% -->
         <span class="rp-stars" style="--pct:96%"><span class="s-empty">★★★★★</span><span class="s-full">★★★★★</span></span>
-        <span class="rp-score">4.8</span>
+        <span class="rp-score">5.0</span>
       </div>
     </div>
     <div class="slider-wrap" data-r="up" data-d="2">
@@ -1795,17 +1735,18 @@
       </div>
       <div class="c-form" data-r="right">
         <div class="cf-title">Get Your <span>Design Estimate</span></div>
+        <form id="cfForm" novalidate>
         <div class="cf-row">
-          <div class="cf-grp"><label class="cf-lbl">First Name</label><input class="cf-inp" type="text" placeholder="John" /></div>
-          <div class="cf-grp"><label class="cf-lbl">Last Name</label><input class="cf-inp" type="text" placeholder="Doe" /></div>
+          <div class="cf-grp"><label class="cf-lbl" for="cfFirstName">First Name</label><input class="cf-inp" id="cfFirstName" name="first_name" type="text" placeholder="John" required /></div>
+          <div class="cf-grp"><label class="cf-lbl" for="cfLastName">Last Name</label><input class="cf-inp" id="cfLastName" name="last_name" type="text" placeholder="Doe" required /></div>
         </div>
         <div class="cf-row">
-          <div class="cf-grp"><label class="cf-lbl">Phone</label><input class="cf-inp" type="tel" placeholder="(480) 000-0000" /></div>
-          <div class="cf-grp"><label class="cf-lbl">Email</label><input class="cf-inp" type="email" placeholder="john@email.com" /></div>
+          <div class="cf-grp"><label class="cf-lbl" for="cfPhone">Phone</label><input class="cf-inp" id="cfPhone" name="phone" type="tel" placeholder="(480) 000-0000" required /></div>
+          <div class="cf-grp"><label class="cf-lbl" for="cfEmail">Email</label><input class="cf-inp" id="cfEmail" name="email" type="email" placeholder="john@email.com" /></div>
         </div>
         <div class="cf-grp">
-          <label class="cf-lbl">Service Interested In</label>
-          <select class="cf-inp">
+          <label class="cf-lbl" for="cfService">Service Interested In</label>
+          <select class="cf-inp" id="cfService" name="service">
             <option>Residential Lawn Turf</option>
             <option>Commercial Turf</option>
             <option>Putting Green</option>
@@ -1815,13 +1756,15 @@
           </select>
         </div>
         <div class="cf-grp">
-          <label class="cf-lbl">Tell Us About Your Project</label>
-          <textarea class="cf-inp" placeholder="Describe your space, approximate sq ft, and any specific needs..."></textarea>
+          <label class="cf-lbl" for="cfMessage">Tell Us About Your Project</label>
+          <textarea class="cf-inp" id="cfMessage" name="message" placeholder="Describe your space, approximate sq ft, and any specific needs..."></textarea>
         </div>
-        <button class="cf-sub" id="cfSubmit">
+        <button class="cf-sub" id="cfSubmit" type="submit">
           <svg class="ico" width="15" height="15"><use href="#ico-send"/></svg>
           Get Design Consultation
         </button>
+        </form>
+        <div id="cfStatus" class="cf-status" aria-live="polite"></div>
       </div>
     </div>
     <div class="c-map" data-r="up" data-d="2">
@@ -1892,37 +1835,7 @@
   <span class="fcta-text">Get Design Consultation</span>
   <svg class="ico" width="13" height="13"><use href="#ico-arrow-r"/></svg>
 </a>
-
-<!-- ── POPUP DIALOG ───────────────────────────────────────── -->
-<div class="pop-overlay" id="ratePopup" aria-hidden="true">
-  <div class="pop-card" role="dialog" aria-modal="true" aria-labelledby="popTitle" aria-describedby="popDesc">
-    <div class="pop-head">
-      <button class="pop-close" id="popClose" aria-label="Close">×</button>
-      <div class="pop-badge">
-        <svg class="ico" width="12" height="12"><use href="#ico-droplet"/></svg>
-        Water Alert
-      </div>
-      <div class="pop-title" id="popTitle">Arizona water rates could rise up to 30% in 2026!</div>
-    </div>
-    <div class="pop-body">
-      <p class="pop-text" id="popDesc">
-        Rising water costs are hitting homeowners across the Valley. Switching to premium turf can cut outdoor
-        water use dramatically while keeping your yard green year-round.
-      </p>
-      <div class="pop-list">
-        <div class="pop-item"><svg class="ico" width="16" height="16"><use href="#ico-check"/></svg>Lock in predictable outdoor costs with low‑maintenance turf.</div>
-        <div class="pop-item"><svg class="ico" width="16" height="16"><use href="#ico-check"/></svg>Stay compliant with potential watering restrictions.</div>
-        <div class="pop-item"><svg class="ico" width="16" height="16"><use href="#ico-check"/></svg>Boost curb appeal with a lush, clean look every season.</div>
-      </div>
-      <a href="#contact" class="pop-cta">
-        Get Design Consultation
-        <svg class="ico" width="14" height="14"><use href="#ico-arrow-r"/></svg>
-      </a>
-    </div>
-  </div>
-</div>
-
-<!-- ══ SCRIPTS ════════════════════════════════════ -->
+`r`n<!-- ══ SCRIPTS ════════════════════════════════════ -->
 <script>
   /* ── Services showcase ── */
   (function() {
@@ -2058,47 +1971,76 @@
       if (t) { e.preventDefault(); t.scrollIntoView({behavior:'smooth'}); }
     });
   });
+  /* Lead form submissions */
+  (function(){
+    const WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/dpp7zOnwhkHGWhn5lGRd/webhook-trigger/8cef90fe-8443-49bf-9b15-4829a138e0ce';
 
-  /* Popup (water rates) */
-  const ratePopup = document.getElementById('ratePopup');
-  const popClose = document.getElementById('popClose');
-  if (ratePopup && popClose) {
-    setTimeout(() => {
-      ratePopup.classList.add('show');
-      ratePopup.setAttribute('aria-hidden', 'false');
-    }, 5000);
-    const closePopup = () => {
-      ratePopup.classList.remove('show');
-      ratePopup.setAttribute('aria-hidden', 'true');
-    };
-    popClose.addEventListener('click', closePopup);
-    ratePopup.addEventListener('click', (e) => {
-      if (e.target === ratePopup) closePopup();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closePopup();
-    });
-  }
+    function field(form, name) {
+      const el = form.querySelector('[name="' + name + '"]');
+      return el ? el.value.trim() : '';
+    }
 
-  /* Form feedback (hero) */
-  document.getElementById('hfSubmit').addEventListener('click', function(e) {
-    e.preventDefault();
-    const orig = this.innerHTML;
-    this.innerHTML = '<svg class="ico" width="15" height="15"><use href="#ico-check"/></svg> Sent! We\'ll call you shortly.';
-    this.style.background = 'linear-gradient(135deg,#0e300e,#165f16)';
-    setTimeout(() => { this.innerHTML = orig; this.style.background = ''; }, 3500);
-  });
+    function showStatus(status, message, isError) {
+      if (!status) return;
+      status.textContent = message;
+      status.classList.toggle('error', !!isError);
+    }
 
-  /* Form feedback (contact) */
-  document.getElementById('cfSubmit').addEventListener('click', function(e) {
-    e.preventDefault();
-    const orig = this.innerHTML;
-    this.innerHTML = '<svg class="ico" width="15" height="15"><use href="#ico-check"/></svg> Sent! We\'ll be in touch shortly.';
-    this.style.background = 'linear-gradient(135deg,#0e300e,#165f16)';
-    setTimeout(() => { this.innerHTML = orig; this.style.background = ''; }, 3500);
-  });
+    function bindLeadForm(formId, buttonId, statusId, source) {
+      const form = document.getElementById(formId);
+      const button = document.getElementById(buttonId);
+      const status = document.getElementById(statusId);
+      if (!form || !button) return;
 
-      /* ?????? Before/After Slider ?????? */
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const payload = {
+          name: field(form, 'name') || (field(form, 'first_name') + ' ' + field(form, 'last_name')).trim(),
+          first_name: field(form, 'first_name'),
+          last_name: field(form, 'last_name'),
+          phone: field(form, 'phone'),
+          email: field(form, 'email'),
+          service_interested: field(form, 'service'),
+          project_details: field(form, 'message'),
+          source: source,
+          submitted_at: new Date().toISOString()
+        };
+
+        if (!payload.name || !payload.phone) {
+          showStatus(status, 'Please enter your name and phone number.', true);
+          return;
+        }
+
+        const original = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = 'Sending...';
+        showStatus(status, '', false);
+
+        try {
+          const res = await fetch(WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            mode: 'cors'
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          form.reset();
+          form.style.display = 'none';
+          showStatus(status, "Sent. We'll be in touch shortly.", false);
+        } catch (err) {
+          console.error('Webhook error:', err);
+          showStatus(status, 'Could not submit right now. Please try again in a moment.', true);
+        } finally {
+          button.disabled = false;
+          button.innerHTML = original;
+        }
+      });
+    }
+
+    bindLeadForm('hfForm', 'hfSubmit', 'hfStatus', 'Homepage Hero Form');
+    bindLeadForm('cfForm', 'cfSubmit', 'cfStatus', 'Homepage Contact Form');
+  })();
+/* ?????? Before/After Slider ?????? */
   (function() {
     const sliders = document.querySelectorAll('.ba-slider');
     if (!sliders.length) return;
@@ -2267,3 +2209,4 @@
 </script>
 </body>
 </html>
+

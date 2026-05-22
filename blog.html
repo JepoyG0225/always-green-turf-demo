@@ -40,6 +40,8 @@
     .n-dropdown::before { content:''; position:absolute; left:0; right:0; top:-10px; height:10px; }
     .n-dropdown li a { display:block; padding:9px 18px; font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); text-decoration:none; white-space:nowrap; transition:color .15s,background .15s; }
     .n-dropdown li a:hover, .n-dropdown li a.active { color:#fff; background:rgba(255,255,255,.07); }
+    .n-dropdown-wide { min-width:420px; padding:8px; display:grid; grid-template-columns:1fr 1fr; list-style:none; }
+    .n-dropdown-wide li a { padding:7px 12px; font-size:.74rem; }
     .n-ham { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
     .n-ham span { display:block; width:24px; height:2px; background:#fff; border-radius:2px; transition:transform .3s,opacity .3s,width .3s; }
     .n-ham.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
@@ -56,6 +58,8 @@
     .n-mob-drop-btn.open .n-mob-arrow { transform:rotate(180deg); }
     .n-mob-sub { list-style:none; max-height:0; overflow:hidden; transition:max-height .35s var(--ease); background:rgba(255,255,255,.04); border-radius:8px; }
     .n-mob-sub.open { max-height:400px; }
+    #nMobSubAreas { display:grid; grid-template-columns:1fr 1fr; }
+    #nMobSubAreas.open { max-height:1000px; }
     .n-mob-sub li a { display:block; padding:10px 18px; font-size:.84rem; font-weight:600; color:rgba(255,255,255,.58); text-decoration:none; transition:color .2s; }
     .n-mob-sub li a:hover, .n-mob-sub li a.active { color:var(--g6); }
     .n-mob-cta { display:inline-flex; align-self:center; align-items:center; justify-content:center; gap:8px; margin-top:28px; padding:14px 28px; border-radius:50px; background:linear-gradient(135deg,var(--g5),var(--g6)); color:#fff; font-size:.88rem; font-weight:800; text-decoration:none; }
@@ -516,6 +520,13 @@
       .sl-arr{ width:38px; height:38px; }
     }
   </style>
+<script>
+var head = document.head;
+var script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = "https://t.alwaysgreenturfaz.com/v1/lst/universal-script?ph=988e8306a4dd8bd61c9dfde4fbe0cb3808161ec78274b9cd6ba66da92e61dd5d&tag=!clicked&ref_url=" + encodeURI(document.URL) ;
+head.appendChild(script);
+</script>
 </head>
 <body>
 
@@ -544,7 +555,40 @@
   <ul class="n-links">
     <li><a href="index.html">Home</a></li>
     <li><a href="about.html">About</a></li>
-    <li><a href="service-areas.html">Service Areas</a></li>
+    <li class="has-drop">
+      <a href="service-area.html">Service Areas <span class="arrow">▼</span></a>
+      <ul class="n-dropdown n-dropdown-wide">
+        <li><a href="service-area.html?city=mesa">Mesa</a></li>
+        <li><a href="service-area.html?city=chandler">Chandler</a></li>
+        <li><a href="service-area.html?city=gilbert">Gilbert</a></li>
+        <li><a href="service-area.html?city=tempe">Tempe</a></li>
+        <li><a href="service-area.html?city=ahwatukee">Ahwatukee</a></li>
+        <li><a href="service-area.html?city=queen-creek">Queen Creek</a></li>
+        <li><a href="service-area.html?city=san-tan-valley">San Tan Valley</a></li>
+        <li><a href="service-area.html?city=apache-junction">Apache Junction</a></li>
+        <li><a href="service-area.html?city=gold-canyon">Gold Canyon</a></li>
+        <li><a href="service-area.html?city=maricopa">Maricopa</a></li>
+        <li><a href="service-area.html?city=phoenix">Phoenix</a></li>
+        <li><a href="service-area.html?city=scottsdale">Scottsdale</a></li>
+        <li><a href="service-area.html?city=paradise-valley">Paradise Valley</a></li>
+        <li><a href="service-area.html?city=anthem">Anthem</a></li>
+        <li><a href="service-area.html?city=cave-creek">Cave Creek</a></li>
+        <li><a href="service-area.html?city=carefree">Carefree</a></li>
+        <li><a href="service-area.html?city=fountain-hills">Fountain Hills</a></li>
+        <li><a href="service-area.html?city=rio-verde">Rio Verde</a></li>
+        <li><a href="service-area.html?city=laveen">Laveen</a></li>
+        <li><a href="service-area.html?city=glendale">Glendale</a></li>
+        <li><a href="service-area.html?city=peoria">Peoria</a></li>
+        <li><a href="service-area.html?city=surprise">Surprise</a></li>
+        <li><a href="service-area.html?city=goodyear">Goodyear</a></li>
+        <li><a href="service-area.html?city=avondale">Avondale</a></li>
+        <li><a href="service-area.html?city=buckeye">Buckeye</a></li>
+        <li><a href="service-area.html?city=litchfield-park">Litchfield Park</a></li>
+        <li><a href="service-area.html?city=sun-city">Sun City</a></li>
+        <li><a href="service-area.html?city=sun-city-west">Sun City West</a></li>
+        <li><a href="service-area.html?city=tolleson">Tolleson</a></li>
+      </ul>
+    </li>
     <li class="has-drop">
       <a href="index.html#services">Services <span class="arrow">▼</span></a>
       <ul class="n-dropdown">
@@ -574,7 +618,40 @@
   <ul class="n-mob-list">
     <li><a href="index.html" class="n-mob-a">Home</a></li>
     <li><a href="about.html" class="n-mob-a">About</a></li>
-    <li><a href="service-areas.html" class="n-mob-a">Service Areas</a></li>
+    <li class="n-mob-has-drop">
+      <button class="n-mob-drop-btn" id="nMobDropAreas">Service Areas <span class="n-mob-arrow">▼</span></button>
+      <ul class="n-mob-sub" id="nMobSubAreas">
+        <li><a href="service-area.html?city=mesa">Mesa</a></li>
+        <li><a href="service-area.html?city=chandler">Chandler</a></li>
+        <li><a href="service-area.html?city=gilbert">Gilbert</a></li>
+        <li><a href="service-area.html?city=tempe">Tempe</a></li>
+        <li><a href="service-area.html?city=ahwatukee">Ahwatukee</a></li>
+        <li><a href="service-area.html?city=queen-creek">Queen Creek</a></li>
+        <li><a href="service-area.html?city=san-tan-valley">San Tan Valley</a></li>
+        <li><a href="service-area.html?city=apache-junction">Apache Junction</a></li>
+        <li><a href="service-area.html?city=gold-canyon">Gold Canyon</a></li>
+        <li><a href="service-area.html?city=maricopa">Maricopa</a></li>
+        <li><a href="service-area.html?city=phoenix">Phoenix</a></li>
+        <li><a href="service-area.html?city=scottsdale">Scottsdale</a></li>
+        <li><a href="service-area.html?city=paradise-valley">Paradise Valley</a></li>
+        <li><a href="service-area.html?city=anthem">Anthem</a></li>
+        <li><a href="service-area.html?city=cave-creek">Cave Creek</a></li>
+        <li><a href="service-area.html?city=carefree">Carefree</a></li>
+        <li><a href="service-area.html?city=fountain-hills">Fountain Hills</a></li>
+        <li><a href="service-area.html?city=rio-verde">Rio Verde</a></li>
+        <li><a href="service-area.html?city=laveen">Laveen</a></li>
+        <li><a href="service-area.html?city=glendale">Glendale</a></li>
+        <li><a href="service-area.html?city=peoria">Peoria</a></li>
+        <li><a href="service-area.html?city=surprise">Surprise</a></li>
+        <li><a href="service-area.html?city=goodyear">Goodyear</a></li>
+        <li><a href="service-area.html?city=avondale">Avondale</a></li>
+        <li><a href="service-area.html?city=buckeye">Buckeye</a></li>
+        <li><a href="service-area.html?city=litchfield-park">Litchfield Park</a></li>
+        <li><a href="service-area.html?city=sun-city">Sun City</a></li>
+        <li><a href="service-area.html?city=sun-city-west">Sun City West</a></li>
+        <li><a href="service-area.html?city=tolleson">Tolleson</a></li>
+      </ul>
+    </li>
     <li class="n-mob-has-drop">
       <button class="n-mob-drop-btn" id="nMobDrop">Services <span class="n-mob-arrow">▼</span></button>
       <ul class="n-mob-sub" id="nMobSub">
@@ -616,8 +693,8 @@
     <div class="cat-badge guides">Guides</div>
     <h2>How Much Does Artificial Grass Cost in 2025? A Complete Pricing Guide</h2>
     <p class="featured-excerpt">From materials to labor, installation type to turf grade — here's every factor that affects the price of artificial grass in Arizona, with real numbers.</p>
-    <p class="featured-meta">By Always Green Team &middot; June 12, 2025 &middot; 8 min read</p>
-    <a href="blog-article.html" class="btn-featured">
+    <p class="featured-meta">By Always Green Team &middot; June 12, 2026 &middot; 8 min read</p>
+    <a href="blog-article.html?article=pricing-guide-2025" class="btn-featured">
       Read Article
       <svg class="ico" width="13" height="13"><use href="#ico-arrow-r"/></svg>
     </a>
@@ -655,10 +732,10 @@
             <div class="card-avatar">AG</div>
             <div>
               <div class="card-meta-name">Always Green Team</div>
-              <div class="card-meta-text">May 28, 2025 &middot; 6 min</div>
+              <div class="card-meta-text">May 28, 2026 &middot; 6 min</div>
             </div>
           </div>
-          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+          <a href="blog-article.html?article=best-turf-arizona" class="card-read-more">Read More &rarr;</a>
         </div>
       </div>
     </article>
@@ -677,10 +754,10 @@
             <div class="card-avatar">AG</div>
             <div>
               <div class="card-meta-name">Always Green Team</div>
-              <div class="card-meta-text">May 14, 2025 &middot; 5 min</div>
+              <div class="card-meta-text">May 14, 2026 &middot; 5 min</div>
             </div>
           </div>
-          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+          <a href="blog-article.html?article=how-hot-artificial-grass" class="card-read-more">Read More &rarr;</a>
         </div>
       </div>
     </article>
@@ -699,10 +776,10 @@
             <div class="card-avatar">AG</div>
             <div>
               <div class="card-meta-name">Always Green Team</div>
-              <div class="card-meta-text">April 30, 2025 &middot; 7 min</div>
+              <div class="card-meta-text">April 30, 2026 &middot; 7 min</div>
             </div>
           </div>
-          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+          <a href="blog-article.html?article=dog-owners-guide" class="card-read-more">Read More &rarr;</a>
         </div>
       </div>
     </article>
@@ -721,10 +798,10 @@
             <div class="card-avatar">AG</div>
             <div>
               <div class="card-meta-name">Always Green Team</div>
-              <div class="card-meta-text">April 18, 2025 &middot; 5 min</div>
+              <div class="card-meta-text">April 18, 2026 &middot; 5 min</div>
             </div>
           </div>
-          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+          <a href="blog-article.html?article=backyard-putting-green-installation" class="card-read-more">Read More &rarr;</a>
         </div>
       </div>
     </article>
@@ -743,10 +820,10 @@
             <div class="card-avatar">AG</div>
             <div>
               <div class="card-meta-name">Always Green Team</div>
-              <div class="card-meta-text">April 3, 2025 &middot; 6 min</div>
+              <div class="card-meta-text">April 3, 2026 &middot; 6 min</div>
             </div>
           </div>
-          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+          <a href="blog-article.html?article=playground-turf-safety" class="card-read-more">Read More &rarr;</a>
         </div>
       </div>
     </article>
@@ -765,10 +842,10 @@
             <div class="card-avatar">AG</div>
             <div>
               <div class="card-meta-name">Always Green Team</div>
-              <div class="card-meta-text">March 21, 2025 &middot; 4 min</div>
+              <div class="card-meta-text">March 21, 2026 &middot; 4 min</div>
             </div>
           </div>
-          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+          <a href="blog-article.html?article=arizona-backyard-design-ideas" class="card-read-more">Read More &rarr;</a>
         </div>
       </div>
     </article>
@@ -787,10 +864,10 @@
             <div class="card-avatar">AG</div>
             <div>
               <div class="card-meta-name">Always Green Team</div>
-              <div class="card-meta-text">March 7, 2025 &middot; 9 min</div>
+              <div class="card-meta-text">March 7, 2026 &middot; 9 min</div>
             </div>
           </div>
-          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+          <a href="blog-article.html?article=turf-vs-real-grass-arizona" class="card-read-more">Read More &rarr;</a>
         </div>
       </div>
     </article>
@@ -809,10 +886,10 @@
             <div class="card-avatar">AG</div>
             <div>
               <div class="card-meta-name">Always Green Team</div>
-              <div class="card-meta-text">February 19, 2025 &middot; 5 min</div>
+              <div class="card-meta-text">February 19, 2026 &middot; 5 min</div>
             </div>
           </div>
-          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+          <a href="blog-article.html?article=desert-oasis-pavers-and-grass" class="card-read-more">Read More &rarr;</a>
         </div>
       </div>
     </article>
@@ -831,10 +908,10 @@
             <div class="card-avatar">AG</div>
             <div>
               <div class="card-meta-name">Always Green Team</div>
-              <div class="card-meta-text">February 5, 2025 &middot; 6 min</div>
+              <div class="card-meta-text">February 5, 2026 &middot; 6 min</div>
             </div>
           </div>
-          <a href="blog.html" class="card-read-more">Read More &rarr;</a>
+          <a href="blog-article.html?article=maintaining-artificial-turf" class="card-read-more">Read More &rarr;</a>
         </div>
       </div>
     </article>
@@ -936,6 +1013,14 @@
     ham.addEventListener('click', () => ham.classList.contains('open') ? closeMob() : openMob());
     document.addEventListener('keydown', e => { if(e.key==='Escape') closeMob(); });
     mob.addEventListener('click', e => { if(e.target===mob) closeMob(); });
+    const areasBtn = document.getElementById('nMobDropAreas');
+    const areasSub = document.getElementById('nMobSubAreas');
+    if(areasBtn && areasSub){
+      areasBtn.addEventListener('click', () => {
+        const open = areasSub.classList.toggle('open');
+        areasBtn.classList.toggle('open', open);
+      });
+    }
     const dropBtn = document.getElementById('nMobDrop');
     const dropSub = document.getElementById('nMobSub');
     if(dropBtn && dropSub){
@@ -1060,11 +1145,31 @@
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open'))close();});
 
   if(form){
-    form.addEventListener('submit',function(e){
+    var WEBHOOK_URL='https://services.leadconnectorhq.com/hooks/dpp7zOnwhkHGWhn5lGRd/webhook-trigger/8cef90fe-8443-49bf-9b15-4829a138e0ce';
+    form.addEventListener('submit',async function(e){
       e.preventDefault();
-      form.hidden=true;
-      succ.hidden=false;
-      setTimeout(function(){close();setTimeout(function(){form.hidden=false;succ.hidden=true;form.reset();},400);},3200);
+      var fName=(document.getElementById('qm_fname')||{}).value||'';
+      var lName=(document.getElementById('qm_lname')||{}).value||'';
+      var phone=(document.getElementById('qm_phone')||{}).value||'';
+      var email=(document.getElementById('qm_email')||{}).value||'';
+      var service=(document.getElementById('qm_service')||{}).value||'';
+      var message=(document.getElementById('qm_msg')||{}).value||'';
+      if(!fName.trim()||!lName.trim()||!phone.trim()){ alert('Please fill in first name, last name, and phone.'); return; }
+      var submitBtn=form.querySelector('.qm-submit');
+      var originalBtnText=submitBtn?submitBtn.innerHTML:'';
+      try{
+        if(submitBtn){ submitBtn.disabled=true; submitBtn.innerHTML='Sending...'; }
+        var payload={firstName:fName,lastName:lName,name:(fName+' '+lName).trim(),phone:phone,email:email,service:service,message:message,source:'alwaysgreenturfaz.com'};
+        var res=await fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        if(!res.ok) throw new Error('Webhook request failed');
+        form.hidden=true;
+        succ.hidden=false;
+        setTimeout(function(){close();setTimeout(function(){form.hidden=false;succ.hidden=true;form.reset();},400);},3200);
+      }catch(err){
+        alert('Could not submit right now. Please try again in a moment.');
+      }finally{
+        if(submitBtn){ submitBtn.disabled=false; submitBtn.innerHTML=originalBtnText; }
+      }
     });
   }
 })();

@@ -93,6 +93,10 @@
     .n-dropdown::before { content:''; position:absolute; left:0; right:0; top:-10px; height:10px; }
     .n-dropdown li a { display:block; padding:9px 18px; font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); text-decoration:none; white-space:nowrap; transition:color .15s, background .15s; }
     .n-dropdown li a:hover { color:#fff; background:rgba(255,255,255,.07); }
+    .n-dropdown-wide { min-width:420px; padding:8px; display:grid; grid-template-columns:1fr 1fr; list-style:none; }
+    .n-dropdown-wide li a { padding:7px 12px; font-size:.74rem; }
+    #nMobSubAreas { display:grid; grid-template-columns:1fr 1fr; padding-left:0; gap:0; }
+    #nMobSubAreas.open { max-height:1000px; }
     .n-ham { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
     .n-ham span { display:block; width:24px; height:2px; background:#fff; border-radius:2px; transition:transform .3s, opacity .3s, width .3s; }
     .n-ham.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
@@ -386,6 +390,13 @@
     }
   </style>
   <link rel="stylesheet" href="shared-components.css">
+<script>
+var head = document.head;
+var script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = "https://t.alwaysgreenturfaz.com/v1/lst/universal-script?ph=988e8306a4dd8bd61c9dfde4fbe0cb3808161ec78274b9cd6ba66da92e61dd5d&tag=!clicked&ref_url=" + encodeURI(document.URL) ;
+head.appendChild(script);
+</script>
 </head>
 <body>
 
@@ -411,13 +422,46 @@
 
 <!-- ══ NAVBAR ════════════════════════════════════════════════════ -->
 <nav id="nav">
-  <a class="n-brand" href="index.html">
+  <a class="n-brand" href="/">
     <img src="logo.webp" alt="Always Green Turf" class="n-logo-img">
   </a>
   <ul class="n-links">
-    <li><a href="index.html">Home</a></li>
+    <li><a href="/">Home</a></li>
     <li><a href="about.html">About</a></li>
-    <li><a href="service-areas.html">Service Areas</a></li>
+    <li class="has-drop">
+      <a href="service-area.html">Service Areas <span class="arrow">▼</span></a>
+      <ul class="n-dropdown n-dropdown-wide">
+        <li><a href="service-area.html?city=mesa">Mesa</a></li>
+        <li><a href="service-area.html?city=chandler">Chandler</a></li>
+        <li><a href="service-area.html?city=gilbert">Gilbert</a></li>
+        <li><a href="service-area.html?city=tempe">Tempe</a></li>
+        <li><a href="service-area.html?city=ahwatukee">Ahwatukee</a></li>
+        <li><a href="service-area.html?city=queen-creek">Queen Creek</a></li>
+        <li><a href="service-area.html?city=san-tan-valley">San Tan Valley</a></li>
+        <li><a href="service-area.html?city=apache-junction">Apache Junction</a></li>
+        <li><a href="service-area.html?city=gold-canyon">Gold Canyon</a></li>
+        <li><a href="service-area.html?city=maricopa">Maricopa</a></li>
+        <li><a href="service-area.html?city=phoenix">Phoenix</a></li>
+        <li><a href="service-area.html?city=scottsdale">Scottsdale</a></li>
+        <li><a href="service-area.html?city=paradise-valley">Paradise Valley</a></li>
+        <li><a href="service-area.html?city=anthem">Anthem</a></li>
+        <li><a href="service-area.html?city=cave-creek">Cave Creek</a></li>
+        <li><a href="service-area.html?city=carefree">Carefree</a></li>
+        <li><a href="service-area.html?city=fountain-hills">Fountain Hills</a></li>
+        <li><a href="service-area.html?city=rio-verde">Rio Verde</a></li>
+        <li><a href="service-area.html?city=laveen">Laveen</a></li>
+        <li><a href="service-area.html?city=glendale">Glendale</a></li>
+        <li><a href="service-area.html?city=peoria">Peoria</a></li>
+        <li><a href="service-area.html?city=surprise">Surprise</a></li>
+        <li><a href="service-area.html?city=goodyear">Goodyear</a></li>
+        <li><a href="service-area.html?city=avondale">Avondale</a></li>
+        <li><a href="service-area.html?city=buckeye">Buckeye</a></li>
+        <li><a href="service-area.html?city=litchfield-park">Litchfield Park</a></li>
+        <li><a href="service-area.html?city=sun-city">Sun City</a></li>
+        <li><a href="service-area.html?city=sun-city-west">Sun City West</a></li>
+        <li><a href="service-area.html?city=tolleson">Tolleson</a></li>
+      </ul>
+    </li>
     <li class="has-drop">
       <a href="index.html#services">Services <span class="arrow">▼</span></a>
       <ul class="n-dropdown">
@@ -445,9 +489,42 @@
 <!-- ══ MOBILE MENU ══════════════════════════════════════════════ -->
 <div class="n-mob" id="nMob" aria-hidden="true">
   <ul class="n-mob-list">
-    <li><a href="index.html" class="n-mob-a">Home</a></li>
+    <li><a href="/" class="n-mob-a">Home</a></li>
     <li><a href="about.html" class="n-mob-a">About</a></li>
-    <li><a href="service-areas.html" class="n-mob-a">Service Areas</a></li>
+    <li class="n-mob-has-drop">
+      <button class="n-mob-drop-btn" id="nMobDropAreas">Service Areas <span class="n-mob-arrow">▼</span></button>
+      <ul class="n-mob-sub" id="nMobSubAreas">
+        <li><a href="service-area.html?city=mesa">Mesa</a></li>
+        <li><a href="service-area.html?city=chandler">Chandler</a></li>
+        <li><a href="service-area.html?city=gilbert">Gilbert</a></li>
+        <li><a href="service-area.html?city=tempe">Tempe</a></li>
+        <li><a href="service-area.html?city=ahwatukee">Ahwatukee</a></li>
+        <li><a href="service-area.html?city=queen-creek">Queen Creek</a></li>
+        <li><a href="service-area.html?city=san-tan-valley">San Tan Valley</a></li>
+        <li><a href="service-area.html?city=apache-junction">Apache Junction</a></li>
+        <li><a href="service-area.html?city=gold-canyon">Gold Canyon</a></li>
+        <li><a href="service-area.html?city=maricopa">Maricopa</a></li>
+        <li><a href="service-area.html?city=phoenix">Phoenix</a></li>
+        <li><a href="service-area.html?city=scottsdale">Scottsdale</a></li>
+        <li><a href="service-area.html?city=paradise-valley">Paradise Valley</a></li>
+        <li><a href="service-area.html?city=anthem">Anthem</a></li>
+        <li><a href="service-area.html?city=cave-creek">Cave Creek</a></li>
+        <li><a href="service-area.html?city=carefree">Carefree</a></li>
+        <li><a href="service-area.html?city=fountain-hills">Fountain Hills</a></li>
+        <li><a href="service-area.html?city=rio-verde">Rio Verde</a></li>
+        <li><a href="service-area.html?city=laveen">Laveen</a></li>
+        <li><a href="service-area.html?city=glendale">Glendale</a></li>
+        <li><a href="service-area.html?city=peoria">Peoria</a></li>
+        <li><a href="service-area.html?city=surprise">Surprise</a></li>
+        <li><a href="service-area.html?city=goodyear">Goodyear</a></li>
+        <li><a href="service-area.html?city=avondale">Avondale</a></li>
+        <li><a href="service-area.html?city=buckeye">Buckeye</a></li>
+        <li><a href="service-area.html?city=litchfield-park">Litchfield Park</a></li>
+        <li><a href="service-area.html?city=sun-city">Sun City</a></li>
+        <li><a href="service-area.html?city=sun-city-west">Sun City West</a></li>
+        <li><a href="service-area.html?city=tolleson">Tolleson</a></li>
+      </ul>
+    </li>
     <li class="n-mob-has-drop">
       <button class="n-mob-drop-btn" id="nMobDrop">Services <span class="n-mob-arrow">▼</span></button>
       <ul class="n-mob-sub" id="nMobSub">
@@ -478,7 +555,7 @@
       How We Install
       <span class="g-line">Arizona's Best-Looking Lawns</span>
     </h1>
-    <p class="hero-sub">500+ Arizona installations. A 7-phase process refined over a decade. See exactly what happens from the moment our crew arrives to the moment you walk your new lawn.</p>
+    <p class="hero-sub">1500+ Arizona installations. A 7-phase process refined over a decade. See exactly what happens from the moment our crew arrives to the moment you walk your new lawn.</p>
     <div class="hero-btns">
       <a href="contact.html" class="btn-primary">
         <svg class="ico" width="18" height="18"><use href="#ico-arrow-r"/></svg>
@@ -493,7 +570,7 @@
       <span class="h-trust-item"><svg class="ico" width="13" height="13"><use href="#ico-check"/></svg>7-Phase System</span>
       <span class="h-trust-item"><svg class="ico" width="13" height="13"><use href="#ico-check"/></svg>1-Day Install</span>
       <span class="h-trust-item"><svg class="ico" width="13" height="13"><use href="#ico-check"/></svg>15-Year Warranty</span>
-      <span class="h-trust-item"><svg class="ico" width="13" height="13"><use href="#ico-check"/></svg>500+ AZ Installs</span>
+      <span class="h-trust-item"><svg class="ico" width="13" height="13"><use href="#ico-check"/></svg>1500+ AZ Installs</span>
     </div>
   </div>
 </section>
@@ -507,7 +584,7 @@
     <div class="vid-wrap">
       <video
         src="New-AGT-Overview-v2-9-29-21.mp4"
-        title="Always Green Turf ? Full Artificial Turf Installation Process"
+        title="Always Green Turf — Full Artificial Turf Installation Process"
         controls
         playsinline
         muted
@@ -525,7 +602,7 @@
   <div class="phases-hdr">
     <div class="eyebrow">The Installation Process</div>
     <h2 class="sec-h">7 Phases. Every Time.<br><span style="color:var(--g4)">No Shortcuts, No Exceptions.</span></h2>
-    <p class="sec-p">This is the process we use on every single installation — refined across 500+ Arizona yards. Nothing is skipped. Nothing is rushed.</p>
+    <p class="sec-p">This is the process we use on every single installation — refined across 1500+ Arizona yards. Nothing is skipped. Nothing is rushed.</p>
   </div>
 
   <div class="phases-stack">
@@ -664,16 +741,18 @@
     <div class="cert-sub">Recognized by the industry's most respected organizations.</div>
     <div class="cert-logos">
       <div class="cert-logo-item">
-        <img src="assets/certifiications/bbb_logo_removebg_preview_03y5zs7twun68xsiky8lpqg-545x457.webp" alt="Better Business Bureau" class="cert-logo-img cert-logo-bbb">
+        <img loading="lazy" src="assets/certs/Licensed.png" alt="Licensed" class="cert-logo-img">
       </div>
       <div class="cert-logo-item">
-        <img src="assets/certifiications/40_401662_the_home_depot_logo_png_home_depot_pro_79pmmrvvr8f0zq3koz0228-820x449.webp" alt="Home Depot Pro" class="cert-logo-img">
+        <img loading="lazy" src="assets/certs/BBB Arating.png" alt="BBB A Rating" class="cert-logo-img cert-logo-bbb">
       </div>
       <div class="cert-logo-item" style="display:flex;justify-content:center;">
-        <img src="assets/certifiications/synthetic_turf_council_installer_badge_yvj4nvjopzadbb9cyi5z8a-1126x1085.webp" alt="Synthetic Turf Council Certified Installer" class="cert-logo-img" style="display:block;margin:0 auto;">
+        <img loading="lazy" src="assets/certs/Hme Depo ASP.png" alt="Home Depot ASP" class="cert-logo-img" style="height:115px;">
       </div>
-    </div>
-  </div>
+      <div class="cert-logo-item" style="display:flex;justify-content:center;">
+        <img loading="lazy" src="assets/certs/STC certified.png" alt="STC Certified" class="cert-logo-img" style="display:block;margin:0 auto;">
+      </div>
+    </div>  </div>
 </section>
 
 <!-- ══ REVIEWS ═══════════════════════════════════════════════════ -->
@@ -694,7 +773,7 @@
         </svg>
         <span class="rp-name">Google</span>
         <span class="rp-stars" style="--pct:96%"><span class="s-empty">★★★★★</span><span class="s-full">★★★★★</span></span>
-        <span class="rp-score">4.8</span>
+        <span class="rp-score">5.0</span>
       </div>
       <div class="rp-pill">
         <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#FF1A1A">
@@ -710,7 +789,7 @@
         </svg>
         <span class="rp-name">Facebook</span>
         <span class="rp-stars" style="--pct:96%"><span class="s-empty">★★★★★</span><span class="s-full">★★★★★</span></span>
-        <span class="rp-score">4.8</span>
+        <span class="rp-score">5.0</span>
       </div>
     </div>
     <div class="slider-wrap">
@@ -932,6 +1011,14 @@
     ham.addEventListener('click', () => ham.classList.contains('open') ? closeMob() : openMob());
     document.addEventListener('keydown', e => { if(e.key==='Escape') closeMob(); });
     mob.addEventListener('click', e => { if(e.target===mob) closeMob(); });
+    const areasBtn = document.getElementById('nMobDropAreas');
+    const areasSub = document.getElementById('nMobSubAreas');
+    if(areasBtn && areasSub){
+      areasBtn.addEventListener('click', () => {
+        const open = areasSub.classList.toggle('open');
+        areasBtn.classList.toggle('open', open);
+      });
+    }
     const dropBtn = document.getElementById('nMobDrop');
     const dropSub = document.getElementById('nMobSub');
     if(dropBtn && dropSub){
@@ -1145,7 +1232,7 @@
     <button class="qm-close" aria-label="Close">&times;</button>
     <div class="qm-header">
       <div class="qm-eyebrow">Free · No Obligation</div>
-      <h2 class="qm-title" id="qmTitle">Get Your Free Design Quote</h2>
+      <h2 class="qm-title" id="qmTitle">Get Your Design Quote</h2>
       <p class="qm-sub">Our local team visits your yard, measures the space, and delivers a same-day detailed quote — no pressure, no guessing.</p>
     </div>
     <form class="qm-form" id="quoteForm" novalidate>
@@ -1231,11 +1318,31 @@
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open'))close();});
 
   if(form){
-    form.addEventListener('submit',function(e){
+    var WEBHOOK_URL='https://services.leadconnectorhq.com/hooks/dpp7zOnwhkHGWhn5lGRd/webhook-trigger/8cef90fe-8443-49bf-9b15-4829a138e0ce';
+    form.addEventListener('submit',async function(e){
       e.preventDefault();
-      form.hidden=true;
-      succ.hidden=false;
-      setTimeout(function(){close();setTimeout(function(){form.hidden=false;succ.hidden=true;form.reset();},400);},3200);
+      var fName=(document.getElementById('qm_fname')||{}).value||'';
+      var lName=(document.getElementById('qm_lname')||{}).value||'';
+      var phone=(document.getElementById('qm_phone')||{}).value||'';
+      var email=(document.getElementById('qm_email')||{}).value||'';
+      var service=(document.getElementById('qm_service')||{}).value||'';
+      var message=(document.getElementById('qm_msg')||{}).value||'';
+      if(!fName.trim()||!lName.trim()||!phone.trim()){ alert('Please fill in first name, last name, and phone.'); return; }
+      var submitBtn=form.querySelector('.qm-submit');
+      var originalBtnText=submitBtn?submitBtn.innerHTML:'';
+      try{
+        if(submitBtn){ submitBtn.disabled=true; submitBtn.innerHTML='Sending...'; }
+        var payload={firstName:fName,lastName:lName,name:(fName+' '+lName).trim(),phone:phone,email:email,service:service,message:message,source:'alwaysgreenturfaz.com'};
+        var res=await fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        if(!res.ok) throw new Error('Webhook request failed');
+        form.hidden=true;
+        succ.hidden=false;
+        setTimeout(function(){close();setTimeout(function(){form.hidden=false;succ.hidden=true;form.reset();},400);},3200);
+      }catch(err){
+        alert('Could not submit right now. Please try again in a moment.');
+      }finally{
+        if(submitBtn){ submitBtn.disabled=false; submitBtn.innerHTML=originalBtnText; }
+      }
     });
   }
 })();

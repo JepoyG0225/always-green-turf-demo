@@ -1,2 +1,7 @@
 .vercel
 .claude/
+
+# Local backups and one-off artifacts (not for commit)
+CLEAN_RECOVER/
+wp-media-upload.zip
+screenshot_temp.png

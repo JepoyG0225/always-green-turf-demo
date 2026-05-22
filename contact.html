@@ -40,6 +40,8 @@
     .n-dropdown::before { content:''; position:absolute; left:0; right:0; top:-10px; height:10px; }
     .n-dropdown li a { display:block; padding:9px 18px; font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); text-decoration:none; white-space:nowrap; transition:color .15s,background .15s; }
     .n-dropdown li a:hover, .n-dropdown li a.active { color:#fff; background:rgba(255,255,255,.07); }
+    .n-dropdown-wide { min-width:420px; padding:8px; display:grid; grid-template-columns:1fr 1fr; list-style:none; }
+    .n-dropdown-wide li a { padding:7px 12px; font-size:.74rem; }
     .n-ham { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
     .n-ham span { display:block; width:24px; height:2px; background:#fff; border-radius:2px; transition:transform .3s,opacity .3s,width .3s; }
     .n-ham.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
@@ -56,6 +58,8 @@
     .n-mob-drop-btn.open .n-mob-arrow { transform:rotate(180deg); }
     .n-mob-sub { list-style:none; max-height:0; overflow:hidden; transition:max-height .35s var(--ease); background:rgba(255,255,255,.04); border-radius:8px; }
     .n-mob-sub.open { max-height:400px; }
+    #nMobSubAreas { display:grid; grid-template-columns:1fr 1fr; }
+    #nMobSubAreas.open { max-height:1000px; }
     .n-mob-sub li a { display:block; padding:10px 18px; font-size:.84rem; font-weight:600; color:rgba(255,255,255,.58); text-decoration:none; transition:color .2s; }
     .n-mob-sub li a:hover, .n-mob-sub li a.active { color:var(--g6); }
     .n-mob-cta { display:inline-flex; align-self:center; align-items:center; justify-content:center; gap:8px; margin-top:28px; padding:14px 28px; border-radius:50px; background:linear-gradient(135deg,var(--g5),var(--g6)); color:#fff; font-size:.88rem; font-weight:800; text-decoration:none; }
@@ -90,66 +94,17 @@
     .ft-tag { font-size:.72rem; font-weight:700; color:rgba(255,255,255,.2); letter-spacing:.06em; }
 
     /* ══ HERO ════════════════════════════════════════════════════ */
-    .hero {
-      padding-top:70px;
-      min-height:540px;
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      overflow:hidden;
-      position:relative;
-    }
-    .hero-left {
-      background:var(--g1);
-      display:flex;
-      align-items:center;
-      padding:68px 56px 68px 60px;
-      position:relative;
-      overflow:hidden;
-    }
-    .hero-left::before {
-      content:'';
-      position:absolute;
-      inset:0;
-      background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
-      background-size:52px 52px;
-      pointer-events:none;
-    }
-    .hero-left::after {
-      content:'';
-      position:absolute;
-      left:-80px; bottom:-80px;
-      width:360px; height:360px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(30,138,30,.18) 0%, transparent 70%);
-      pointer-events:none;
-    }
-    .hero-left-inner {
-      position:relative;
-      z-index:2;
-      max-width:480px;
-    }
-    .hero-left .eyebrow { color:var(--g6); }
-    .hero-left h1 {
-      font-size:clamp(2rem,3.5vw,3rem);
-      font-weight:900;
-      color:#fff;
-      line-height:1.1;
-      letter-spacing:-.035em;
-      margin:10px 0 16px;
-    }
-    .hero-left h1 span { color:var(--g5); }
-    .hero-left p {
-      font-size:.95rem;
-      color:rgba(255,255,255,.58);
-      line-height:1.72;
-      margin-bottom:32px;
-    }
-    .hero-btns {
-      display:flex;
-      gap:14px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
+    .hero { padding:150px 24px 100px; background:url('assets/artificial lawns/artificial-00004.jpg') center/cover no-repeat; position:relative; overflow:hidden; text-align:center; }
+    .hero::before { content:''; position:absolute; inset:0; background:linear-gradient(160deg,rgba(0,0,0,.72) 0%,rgba(4,18,4,.58) 50%,rgba(0,0,0,.70) 100%); pointer-events:none; }
+    .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px); background-size:64px 64px; mask-image:linear-gradient(to bottom,transparent 0%,black 25%,black 75%,transparent 100%); pointer-events:none; }
+    .hero-inner { position:relative; z-index:2; max-width:860px; margin:0 auto; }
+    .hero-tag { display:inline-flex; align-items:center; gap:8px; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--g6); margin-bottom:20px; }
+    .hero-tag-dot { width:7px; height:7px; border-radius:50%; background:var(--g5); animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(40,184,40,.5)} 50%{box-shadow:0 0 0 8px rgba(40,184,40,0)} }
+    .hero h1 { font-size:clamp(2.2rem,5vw,4rem); font-weight:900; color:#fff; line-height:1.1; letter-spacing:-.03em; margin-bottom:22px; }
+    .g-line { background:linear-gradient(90deg,var(--g5),var(--g6)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .hero-sub { font-size:1.05rem; color:rgba(255,255,255,.78); line-height:1.72; max-width:680px; margin:0 auto 38px; }
+    .hero-btns { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
     .btn-primary {
       display:inline-flex; align-items:center; gap:10px; padding:14px 30px;
       border-radius:50px; background:linear-gradient(135deg,var(--g4),var(--g5));
@@ -157,36 +112,8 @@
       box-shadow:0 8px 28px rgba(30,138,30,.38); transition:transform var(--t),box-shadow var(--t);
     }
     .btn-primary:hover { transform:translateY(-3px); box-shadow:0 14px 40px rgba(30,138,30,.52); }
-    .btn-phone {
-      display:inline-flex; align-items:center; gap:8px;
-      font-size:.88rem; font-weight:700; color:rgba(255,255,255,.7);
-      text-decoration:none; transition:color .2s;
-    }
-    .btn-phone:hover { color:#fff; }
-    .btn-phone svg { color:var(--g5); }
-
-    /* Hero image */
-    .hero-right {
-      position:relative;
-      overflow:hidden;
-      min-height:480px;
-    }
-    .hero-right img {
-      width:100%; height:100%;
-      object-fit:cover;
-      display:block;
-      transition:transform 8s ease;
-    }
-    .hero-right:hover img { transform:scale(1.04); }
-    /* left-edge fade into dark green */
-    .hero-right::before {
-      content:'';
-      position:absolute;
-      inset:0;
-      background:linear-gradient(to right, var(--g1) 0%, transparent 25%);
-      z-index:1;
-      pointer-events:none;
-    }
+    .btn-ghost { display:inline-flex; align-items:center; gap:10px; padding:15px 34px; border-radius:50px; border:2px solid rgba(255,255,255,.3); color:#fff; font-size:.9rem; font-weight:700; text-decoration:none; transition:border-color var(--t),background var(--t); }
+    .btn-ghost:hover { border-color:#fff; background:rgba(255,255,255,.08); }
 
     /* ══ CONTACT SECTION ════════════════════════════════════════ */
     #contact { padding:84px 0 88px; background:#fff; }
@@ -253,7 +180,7 @@
     /* ══ CERTIFIED ════════════════════════════════════════════════ */
     #certified { padding:0; overflow:hidden; position:relative; background:#e8f5e8; }
     .cert-wrap { max-width:1000px; margin:0 auto; padding:56px 40px; text-align:center; position:relative; }
-    .cert-label { font-size:1.6rem; font-weight:800; letter-spacing:-.02em; color:#1a4a1a; margin-bottom:12px; }
+.cert-label { font-size:clamp(1.8rem,3.4vw,2.6rem); font-weight:800; letter-spacing:-.02em; color:#1a4a1a; margin-bottom:12px; }
     .cert-sub { font-size:.95rem; color:#3a6a3a; line-height:1.6; max-width:560px; margin:0 auto 36px; }
     .cert-logos { display:flex; align-items:center; justify-content:center; gap:60px; flex-wrap:wrap; }
     .cert-logo-item { display:flex; align-items:center; justify-content:center; opacity:.9; transition:opacity .25s; }
@@ -295,15 +222,11 @@
     @media(max-width:1200px) {
       #nav { padding:0 28px; }
       footer { padding:60px 28px 30px; }
-      .hero-left { padding:60px 40px 60px 44px; }
+      .hero { padding:136px 24px 90px; }
     }
     @media(max-width:960px) {
       .n-links { display:none; } .n-btn { display:none; } .n-ham { display:flex; }
-      .hero { grid-template-columns:1fr; min-height:auto; }
-      .hero-right { min-height:300px; order:-1; }
-      .hero-right::before { background:linear-gradient(to bottom, var(--g1) 0%, transparent 30%); }
-      .hero-left { padding:48px 28px 56px; }
-      .hero-left-inner { max-width:100%; }
+      .hero { min-height:auto; padding:124px 22px 84px; }
       .contact-grid { grid-template-columns:1fr; gap:48px; }
       footer { padding:60px 28px 30px; }
       .cert-logos { gap:36px; }
@@ -311,7 +234,9 @@
     @media(max-width:640px) {
       .cf-row { grid-template-columns:1fr; gap:0; }
       .c-form { padding:28px 22px; }
-      .hero-right { min-height:240px; }
+      .hero { padding:112px 16px 72px; }
+      .hero h1 { font-size:clamp(2rem,7vw,2.7rem); }
+      .hero-sub { font-size:.95rem; }
       footer { padding:48px 18px 28px; }
       .ft-grid { grid-template-columns:1fr; gap:28px; }
       .cert-logo-img { height:72px; }
@@ -332,6 +257,13 @@
       .sl-arr{ width:38px; height:38px; }
     }
   </style>
+<script>
+var head = document.head;
+var script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = "https://t.alwaysgreenturfaz.com/v1/lst/universal-script?ph=988e8306a4dd8bd61c9dfde4fbe0cb3808161ec78274b9cd6ba66da92e61dd5d&tag=!clicked&ref_url=" + encodeURI(document.URL) ;
+head.appendChild(script);
+</script>
 </head>
 <body>
 
@@ -352,13 +284,46 @@
 
 <!-- ══ NAVBAR ══════════════════════════════════════════════════════ -->
 <nav id="nav">
-  <a href="index.html" class="n-brand">
+  <a href="/" class="n-brand">
     <img src="logo.webp" alt="Always Green Turf" class="n-logo-img">
   </a>
   <ul class="n-links">
-    <li><a href="index.html">Home</a></li>
+    <li><a href="/">Home</a></li>
     <li><a href="about.html">About</a></li>
-    <li><a href="service-areas.html">Service Areas</a></li>
+    <li class="has-drop">
+      <a href="service-area.html">Service Areas <span class="arrow">▼</span></a>
+      <ul class="n-dropdown n-dropdown-wide">
+        <li><a href="service-area.html?city=mesa">Mesa</a></li>
+        <li><a href="service-area.html?city=chandler">Chandler</a></li>
+        <li><a href="service-area.html?city=gilbert">Gilbert</a></li>
+        <li><a href="service-area.html?city=tempe">Tempe</a></li>
+        <li><a href="service-area.html?city=ahwatukee">Ahwatukee</a></li>
+        <li><a href="service-area.html?city=queen-creek">Queen Creek</a></li>
+        <li><a href="service-area.html?city=san-tan-valley">San Tan Valley</a></li>
+        <li><a href="service-area.html?city=apache-junction">Apache Junction</a></li>
+        <li><a href="service-area.html?city=gold-canyon">Gold Canyon</a></li>
+        <li><a href="service-area.html?city=maricopa">Maricopa</a></li>
+        <li><a href="service-area.html?city=phoenix">Phoenix</a></li>
+        <li><a href="service-area.html?city=scottsdale">Scottsdale</a></li>
+        <li><a href="service-area.html?city=paradise-valley">Paradise Valley</a></li>
+        <li><a href="service-area.html?city=anthem">Anthem</a></li>
+        <li><a href="service-area.html?city=cave-creek">Cave Creek</a></li>
+        <li><a href="service-area.html?city=carefree">Carefree</a></li>
+        <li><a href="service-area.html?city=fountain-hills">Fountain Hills</a></li>
+        <li><a href="service-area.html?city=rio-verde">Rio Verde</a></li>
+        <li><a href="service-area.html?city=laveen">Laveen</a></li>
+        <li><a href="service-area.html?city=glendale">Glendale</a></li>
+        <li><a href="service-area.html?city=peoria">Peoria</a></li>
+        <li><a href="service-area.html?city=surprise">Surprise</a></li>
+        <li><a href="service-area.html?city=goodyear">Goodyear</a></li>
+        <li><a href="service-area.html?city=avondale">Avondale</a></li>
+        <li><a href="service-area.html?city=buckeye">Buckeye</a></li>
+        <li><a href="service-area.html?city=litchfield-park">Litchfield Park</a></li>
+        <li><a href="service-area.html?city=sun-city">Sun City</a></li>
+        <li><a href="service-area.html?city=sun-city-west">Sun City West</a></li>
+        <li><a href="service-area.html?city=tolleson">Tolleson</a></li>
+      </ul>
+    </li>
     <li class="has-drop">
       <a href="index.html#services">Services <span class="arrow">▼</span></a>
       <ul class="n-dropdown">
@@ -386,9 +351,42 @@
 <!-- ══ MOBILE MENU ══════════════════════════════════════════════════ -->
 <div class="n-mob" id="nMob" aria-hidden="true">
   <ul class="n-mob-list">
-    <li><a href="index.html" class="n-mob-a">Home</a></li>
+    <li><a href="/" class="n-mob-a">Home</a></li>
     <li><a href="about.html" class="n-mob-a">About</a></li>
-    <li><a href="service-areas.html" class="n-mob-a">Service Areas</a></li>
+    <li class="n-mob-has-drop">
+      <button class="n-mob-drop-btn" id="nMobDropAreas">Service Areas <span class="n-mob-arrow">▼</span></button>
+      <ul class="n-mob-sub" id="nMobSubAreas">
+        <li><a href="service-area.html?city=mesa">Mesa</a></li>
+        <li><a href="service-area.html?city=chandler">Chandler</a></li>
+        <li><a href="service-area.html?city=gilbert">Gilbert</a></li>
+        <li><a href="service-area.html?city=tempe">Tempe</a></li>
+        <li><a href="service-area.html?city=ahwatukee">Ahwatukee</a></li>
+        <li><a href="service-area.html?city=queen-creek">Queen Creek</a></li>
+        <li><a href="service-area.html?city=san-tan-valley">San Tan Valley</a></li>
+        <li><a href="service-area.html?city=apache-junction">Apache Junction</a></li>
+        <li><a href="service-area.html?city=gold-canyon">Gold Canyon</a></li>
+        <li><a href="service-area.html?city=maricopa">Maricopa</a></li>
+        <li><a href="service-area.html?city=phoenix">Phoenix</a></li>
+        <li><a href="service-area.html?city=scottsdale">Scottsdale</a></li>
+        <li><a href="service-area.html?city=paradise-valley">Paradise Valley</a></li>
+        <li><a href="service-area.html?city=anthem">Anthem</a></li>
+        <li><a href="service-area.html?city=cave-creek">Cave Creek</a></li>
+        <li><a href="service-area.html?city=carefree">Carefree</a></li>
+        <li><a href="service-area.html?city=fountain-hills">Fountain Hills</a></li>
+        <li><a href="service-area.html?city=rio-verde">Rio Verde</a></li>
+        <li><a href="service-area.html?city=laveen">Laveen</a></li>
+        <li><a href="service-area.html?city=glendale">Glendale</a></li>
+        <li><a href="service-area.html?city=peoria">Peoria</a></li>
+        <li><a href="service-area.html?city=surprise">Surprise</a></li>
+        <li><a href="service-area.html?city=goodyear">Goodyear</a></li>
+        <li><a href="service-area.html?city=avondale">Avondale</a></li>
+        <li><a href="service-area.html?city=buckeye">Buckeye</a></li>
+        <li><a href="service-area.html?city=litchfield-park">Litchfield Park</a></li>
+        <li><a href="service-area.html?city=sun-city">Sun City</a></li>
+        <li><a href="service-area.html?city=sun-city-west">Sun City West</a></li>
+        <li><a href="service-area.html?city=tolleson">Tolleson</a></li>
+      </ul>
+    </li>
     <li class="n-mob-has-drop">
       <button class="n-mob-drop-btn" id="nMobDrop">Services <span class="n-mob-arrow">▼</span></button>
       <ul class="n-mob-sub" id="nMobSub">
@@ -411,28 +409,24 @@
 </div>
 
 <!-- ══ HERO ════════════════════════════════════════════════════════ -->
-<div class="hero">
-  <div class="hero-left">
-    <div class="hero-left-inner">
-      <div class="eyebrow">Always Green Turf · Mesa, AZ</div>
-      <h1>Get Your Free<br><span>On-Site Design Quote</span></h1>
-      <p>We come to your yard, measure every inch, and hand you a detailed written quote — same day. No pressure, no callbacks, no generic pricing sheets. We respond to every inquiry within the hour, seven days a week.</p>
-      <div class="hero-btns">
-        <a href="#contact" class="btn-primary">
-          <svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>
-          Get Design Consultation
-        </a>
-        <a href="tel:4805305476" class="btn-phone">
-          <svg class="ico" width="15" height="15"><use href="#ico-phone"/></svg>
-          (480) 530-5476
-        </a>
-      </div>
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-tag"><span class="hero-tag-dot"></span> Always Green Turf · Mesa, AZ</div>
+    <h1>Get Your<br><span class="g-line">On-Site Design Quote</span></h1>
+    <p class="hero-sub">We come to your yard, measure every inch, and hand you a detailed written quote — same day. No pressure, no callbacks, no generic pricing sheets. We respond to every inquiry within the hour, seven days a week.</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-primary">
+        <svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>
+        Get Design Consultation
+      </a>
+      <a href="tel:4805305476" class="btn-ghost">
+        <svg class="ico" width="15" height="15"><use href="#ico-phone"/></svg>
+        (480) 530-5476
+      </a>
     </div>
   </div>
-  <div class="hero-right">
-    <img src="assets/artificial lawns/artificial-00004.jpg" alt="Beautiful artificial lawn installation Arizona" />
-  </div>
-</div>
+</section>
 
 <!-- ══ CONTACT SECTION ════════════════════════════════════════════ -->
 <section id="contact">
@@ -467,7 +461,7 @@
 
     <div class="c-form">
       <div id="cfFormHeader">
-        <div class="cf-title">Request Your <span>Free On-Site Quote</span></div>
+        <div class="cf-title">Request Your <span>On-Site Quote</span></div>
         <div class="cf-subtitle">We'll confirm your appointment within the hour and send a local specialist to your yard — usually within the same week.</div>
       </div>
       <form id="contactForm" novalidate>
@@ -477,7 +471,7 @@
         </div>
         <div class="cf-row">
           <div class="cf-grp"><label class="cf-lbl" for="phone">Phone</label><input class="cf-inp" id="phone" type="tel" placeholder="(480) 000-0000" required /></div>
-          <div class="cf-grp"><label class="cf-lbl" for="email">Email</label><input class="cf-inp" id="email" type="email" placeholder="john@email.com" /></div>
+          <div class="cf-grp"><label class="cf-lbl" for="email">Email</label><input class="cf-inp" id="email" type="email" placeholder="john@email.com" required /></div>
         </div>
         <div class="cf-grp">
           <label class="cf-lbl" for="service">Service Interested In</label>
@@ -521,16 +515,18 @@
     <div class="cert-sub">Recognized by the industry's most respected organizations.</div>
     <div class="cert-logos">
       <div class="cert-logo-item">
-        <img src="assets/certifiications/bbb_logo_removebg_preview_03y5zs7twun68xsiky8lpqg-545x457.webp" alt="Better Business Bureau" class="cert-logo-img cert-logo-bbb">
+        <img loading="lazy" src="assets/certs/Licensed.png" alt="Licensed" class="cert-logo-img">
       </div>
       <div class="cert-logo-item">
-        <img src="assets/certifiications/40_401662_the_home_depot_logo_png_home_depot_pro_79pmmrvvr8f0zq3koz0228-820x449.webp" alt="Home Depot Pro" class="cert-logo-img">
+        <img loading="lazy" src="assets/certs/BBB Arating.png" alt="BBB A Rating" class="cert-logo-img cert-logo-bbb">
       </div>
       <div class="cert-logo-item" style="display:flex;justify-content:center;">
-        <img src="assets/certifiications/synthetic_turf_council_installer_badge_yvj4nvjopzadbb9cyi5z8a-1126x1085.webp" alt="Synthetic Turf Council Certified Installer" class="cert-logo-img" style="display:block;margin:0 auto;">
+        <img loading="lazy" src="assets/certs/Hme Depo ASP.png" alt="Home Depot ASP" class="cert-logo-img" style="height:115px;">
       </div>
-    </div>
-  </div>
+      <div class="cert-logo-item" style="display:flex;justify-content:center;">
+        <img loading="lazy" src="assets/certs/STC certified.png" alt="STC Certified" class="cert-logo-img" style="display:block;margin:0 auto;">
+      </div>
+    </div>  </div>
 </section>
 
 <!-- ══ FAQ ════════════════════════════════════════════════════════ -->
@@ -689,6 +685,14 @@
     ham.addEventListener('click', () => ham.classList.contains('open') ? closeMob() : openMob());
     document.addEventListener('keydown', e => { if(e.key==='Escape') closeMob(); });
     mob.addEventListener('click', e => { if(e.target===mob) closeMob(); });
+    const areasBtn = document.getElementById('nMobDropAreas');
+    const areasSub = document.getElementById('nMobSubAreas');
+    if(areasBtn && areasSub){
+      areasBtn.addEventListener('click', () => {
+        const open = areasSub.classList.toggle('open');
+        areasBtn.classList.toggle('open', open);
+      });
+    }
     const dropBtn = document.getElementById('nMobDrop');
     const dropSub = document.getElementById('nMobSub');
     if(dropBtn && dropSub){
@@ -713,16 +717,49 @@
 
   /* ── Form Submit (cosmetic) ── */
   (function(){
+    const WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/dpp7zOnwhkHGWhn5lGRd/webhook-trigger/8cef90fe-8443-49bf-9b15-4829a138e0ce';
     const form = document.getElementById('contactForm');
     const success = document.getElementById('cfSuccess');
     const header = document.getElementById('cfFormHeader');
+    const submitBtn = document.getElementById('cfSubmit');
     if(!form) return;
-    form.addEventListener('submit', e => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if(!document.getElementById('firstName').value.trim() || !document.getElementById('phone').value.trim()) return;
-      form.style.display = 'none';
-      header.style.display = 'none';
-      success.classList.add('show');
+      const payload = {
+        first_name: (document.getElementById('firstName')?.value || '').trim(),
+        last_name: (document.getElementById('lastName')?.value || '').trim(),
+        phone: (document.getElementById('phone')?.value || '').trim(),
+        email: (document.getElementById('email')?.value || '').trim(),
+        service_interested: (document.getElementById('service')?.value || '').trim(),
+        project_details: (document.getElementById('message')?.value || '').trim(),
+        source: 'Website Contact Form',
+        submitted_at: new Date().toISOString()
+      };
+      if(!payload.first_name || !payload.last_name || !payload.phone || !payload.email) return;
+      const original = submitBtn ? submitBtn.innerHTML : '';
+      if(submitBtn){
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Sending...';
+      }
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          mode: 'cors'
+        });
+        if(!res.ok) throw new Error('HTTP ' + res.status);
+        form.style.display = 'none';
+        header.style.display = 'none';
+        success.classList.add('show');
+      } catch (err) {
+        console.error('Webhook error:', err);
+      } finally {
+        if(submitBtn){
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = original;
+        }
+      }
     });
   })();
 </script>

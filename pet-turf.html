@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -60,7 +60,7 @@
     body { width:100%; overflow-x:clip; font-family:'Poppins',sans-serif; color:var(--text); background:#fff; }
     svg.ico { display:inline-block; flex-shrink:0; }
 
-    /* ── Navbar ── */
+    /* â”€â”€ Navbar â”€â”€ */
     #nav { position:fixed; inset:0 0 auto; z-index:900; height:70px; padding:0 52px; display:flex; align-items:center; justify-content:space-between; width:100%; box-sizing:border-box; background:rgba(6,15,6,.96); backdrop-filter:blur(20px); box-shadow:0 1px 0 rgba(255,255,255,.06),0 8px 32px rgba(0,0,0,.3); }
     #nav.solid { background:rgba(6,15,6,.99); }
     .n-brand { display:flex; align-items:center; gap:12px; text-decoration:none; }
@@ -99,13 +99,13 @@
     .n-mob-sub li a:hover, .n-mob-sub li a.active { color:var(--g6); }
     .n-mob-cta { display:inline-flex; align-self:center; align-items:center; justify-content:center; gap:8px; margin-top:28px; padding:14px 28px; border-radius:50px; background:linear-gradient(135deg,var(--g5),var(--g6)); color:#fff; font-size:.88rem; font-weight:800; text-decoration:none; }
 
-    /* ── Buttons ── */
+    /* â”€â”€ Buttons â”€â”€ */
     .btn-primary { display:inline-flex; align-items:center; gap:10px; padding:15px 34px; border-radius:50px; background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; font-size:.9rem; font-weight:800; text-decoration:none; box-shadow:0 8px 28px rgba(30,138,30,.38); transition:transform var(--t),box-shadow var(--t); }
     .btn-primary:hover { transform:translateY(-3px); box-shadow:0 14px 40px rgba(30,138,30,.52); }
     .btn-ghost { display:inline-flex; align-items:center; gap:10px; padding:15px 34px; border-radius:50px; border:2px solid rgba(255,255,255,.3); color:#fff; font-size:.9rem; font-weight:700; text-decoration:none; transition:border-color var(--t),background var(--t); }
     .btn-ghost:hover { border-color:#fff; background:rgba(255,255,255,.08); }
 
-    /* ── Layout ── */
+    /* â”€â”€ Layout â”€â”€ */
     .wrap { max-width:1140px; margin:0 auto; padding:0 24px; }
     .section { padding:88px 24px; }
     .section.alt { background:var(--off); }
@@ -118,7 +118,7 @@
     .sec-p { font-size:.95rem; color:var(--muted); line-height:1.82; max-width:720px; margin:0 auto 48px; }
     .section.dark .sec-p { color:rgba(255,255,255,.58); }
 
-    /* ── Hero ── */
+    /* â”€â”€ Hero â”€â”€ */
     .hero { padding:150px 24px 100px; background:url('assets/pet%20turf/pet-turf-0001.jpg') center/cover no-repeat; position:relative; overflow:hidden; text-align:center; }
     .hero::before { content:''; position:absolute; inset:0; background:linear-gradient(160deg,rgba(0,0,0,.74) 0%,rgba(4,18,4,.60) 50%,rgba(0,0,0,.72) 100%); pointer-events:none; }
     .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px); background-size:64px 64px; mask-image:linear-gradient(to bottom,transparent 0%,black 25%,black 75%,transparent 100%); pointer-events:none; }
@@ -131,7 +131,7 @@
     .hero-sub { font-size:1.05rem; color:rgba(255,255,255,.78); line-height:1.72; max-width:680px; margin:0 auto 38px; }
     .hero-btns { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
 
-    /* ── Stats bar ── */
+    /* â”€â”€ Stats bar â”€â”€ */
     .stats-bar { background:var(--g1); border-bottom:1px solid rgba(255,255,255,.06); }
     .stats-inner { max-width:1140px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); padding:0 24px; }
     .stat-item { padding:26px 24px; text-align:center; border-right:1px solid rgba(255,255,255,.07); }
@@ -139,7 +139,7 @@
     .stat-num { font-size:1.9rem; font-weight:900; color:var(--g6); line-height:1; }
     .stat-lbl { font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.45); margin-top:5px; }
 
-    /* ── Split section ── */
+    /* â”€â”€ Split section â”€â”€ */
     .split { display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:center; max-width:1140px; margin:0 auto; }
     .split.rev { direction:rtl; }
     .split.rev > * { direction:ltr; }
@@ -150,14 +150,14 @@
     .check-list li { display:flex; align-items:flex-start; gap:12px; font-size:.9rem; color:var(--text); line-height:1.5; }
     .check-icon { width:22px; height:22px; border-radius:50%; background:rgba(30,138,30,.12); color:var(--g4); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
 
-    /* ── Split image (single) ── */
+    /* â”€â”€ Split image (single) â”€â”€ */
     .split-img-single { overflow:hidden; border-radius:20px; position:relative; min-height:420px; }
     .split-img-single img { transition:transform .6s var(--ease), filter .4s; width:100%; height:100%; object-fit:cover; border-radius:20px; display:block; position:absolute; inset:0; }
     .split-img-single:hover img { transform:scale(1.04); filter:brightness(1.04); }
     .split-img-single::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg, rgba(40,184,40,.08) 0%, transparent 60%); opacity:0; transition:opacity .4s; pointer-events:none; border-radius:20px; }
     .split-img-single:hover::after { opacity:1; }
 
-    /* ── Feature cards ── */
+    /* â”€â”€ Feature cards â”€â”€ */
     .feat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; max-width:1140px; margin:0 auto; }
     .feat-card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); border-radius:20px; padding:36px 30px; transition:transform var(--t),background var(--t); }
     .feat-card:hover { transform:translateY(-5px); background:rgba(255,255,255,.07); }
@@ -165,7 +165,7 @@
     .feat-h { font-size:1rem; font-weight:800; color:#fff; margin-bottom:10px; }
     .feat-p { font-size:.83rem; color:rgba(255,255,255,.52); line-height:1.72; }
 
-    /* ── Photo gallery ── */
+    /* â”€â”€ Photo gallery â”€â”€ */
     .gal-grid { display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:260px 260px; gap:12px; max-width:1140px; margin:0 auto; }
     .gal-item { border-radius:16px; overflow:hidden; cursor:zoom-in; position:relative; }
     .gal-item img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s var(--ease); }
@@ -184,7 +184,7 @@
     #gal-lb-prev { left:20px; }
     #gal-lb-next { right:20px; }
 
-    /* ── Material features ── */
+    /* â”€â”€ Material features â”€â”€ */
     .mat-split { display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:center; max-width:1140px; margin:0 auto; }
     .mat-img { border-radius:24px; overflow:hidden; aspect-ratio:4/3; position:relative; }
     .mat-img img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .6s var(--ease), filter .4s; }
@@ -197,7 +197,7 @@
     .mat-item-text h4 { font-size:.9rem; font-weight:800; color:var(--text); margin-bottom:4px; }
     .mat-item-text p { font-size:.83rem; color:var(--muted); line-height:1.65; }
 
-    /* ── Certified Trusted Proven ── */
+    /* â”€â”€ Certified Trusted Proven â”€â”€ */
     #certified { padding:0; overflow:hidden; position:relative; background:#e8f5e8; }
     .cert-wrap { max-width:1000px; margin:0 auto; padding:56px 40px; text-align:center; position:relative; }
     .cert-label { font-size:1.6rem; font-weight:800; letter-spacing:-.02em; color:#1a4a1a; margin-bottom:12px; }
@@ -208,7 +208,7 @@
     .cert-logo-img { height:100px; width:auto; object-fit:contain; }
     .cert-logo-bbb { height:140px; }
 
-    /* ── Testimonials slider ── */
+    /* â”€â”€ Testimonials slider â”€â”€ */
     .slider-wrap { overflow:hidden; }
     #sTrack { display:flex; gap:18px; transition:transform .5s var(--ease); }
     .r-card { flex-shrink:0; background:#fff; border:1px solid var(--border); border-radius:20px; padding:30px; box-shadow:0 4px 18px rgba(0,0,0,.06); }
@@ -225,7 +225,7 @@
     .sl-dot { width:8px; height:8px; border-radius:50%; background:var(--border); border:none; cursor:pointer; transition:background .3s,transform .3s; }
     .sl-dot.on { background:var(--g4); transform:scale(1.35); }
 
-    /* ── CTA section ── */
+    /* â”€â”€ CTA section â”€â”€ */
     .cta-section { padding:100px 24px; background:url('assets/cta.jpg') center/cover no-repeat; text-align:center; position:relative; overflow:hidden; }
     .cta-section::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(0,0,0,.62) 0%,rgba(4,18,4,.72) 100%); pointer-events:none; }
     .cta-section > * { position:relative; z-index:1; }
@@ -233,12 +233,12 @@
     .cta-section p { font-size:1rem; color:rgba(255,255,255,.75); line-height:1.72; max-width:640px; margin:0 auto 36px; }
     .cta-btns { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
 
-    /* ── Float CTA ── */
+    /* â”€â”€ Float CTA â”€â”€ */
     #fcta { position:fixed; bottom:28px; right:28px; z-index:800; display:flex; align-items:center; gap:10px; padding:13px 24px; border-radius:50px; background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; font-size:.82rem; font-weight:800; text-decoration:none; box-shadow:0 8px 28px rgba(30,138,30,.42); transform:translateY(120px); opacity:0; transition:transform .5s var(--ease),opacity .5s ease; }
     #fcta.show { transform:none; opacity:1; }
     #fcta-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.6); animation:pulse 2s infinite; }
 
-    /* ── Footer ── */
+    /* â”€â”€ Footer â”€â”€ */
     footer { background:var(--dark); color:rgba(255,255,255,.55); padding:68px 52px 30px; }
     .ft-grid { display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:50px; margin-bottom:52px; }
     .ft-desc { font-size:.82rem; line-height:1.72; margin:16px 0 18px; }
@@ -254,7 +254,7 @@
     .ft-copy { font-size:.72rem; color:rgba(255,255,255,.25); }
     .ft-tag { font-size:.72rem; font-weight:700; color:rgba(255,255,255,.2); letter-spacing:.06em; }
 
-    /* ── Process Grid ── */
+    /* â”€â”€ Process Grid â”€â”€ */
     .process-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; max-width:1140px; margin:0 auto; }
     .proc-card { background:#fff; border:1px solid var(--border); border-radius:20px; padding:32px 26px; position:relative; transition:transform var(--t),box-shadow var(--t); overflow:hidden; }
     .proc-card:hover { transform:translateY(-5px); box-shadow:0 12px 40px rgba(0,0,0,.09); }
@@ -263,7 +263,7 @@
     .proc-h { font-size:1rem; font-weight:800; color:var(--text); margin-bottom:10px; }
     .proc-p { font-size:.83rem; color:var(--muted); line-height:1.72; }
 
-    /* ── Financing bar ── */
+    /* â”€â”€ Financing bar â”€â”€ */
     .financing-bar { background:linear-gradient(135deg,var(--g2),var(--g1)); padding:80px 24px; text-align:center; position:relative; overflow:hidden; }
     .financing-bar::before { content:''; position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px); background-size:48px 48px; pointer-events:none; }
     .fin-inner { max-width:760px; margin:0 auto; position:relative; z-index:1; }
@@ -272,7 +272,7 @@
     .fin-p { font-size:.97rem; color:rgba(255,255,255,.62); line-height:1.75; margin-bottom:30px; max-width:560px; margin-left:auto; margin-right:auto; }
     .fin-p { margin-bottom:30px; }
 
-    /* ── Responsive ── */
+    /* â”€â”€ Responsive â”€â”€ */
     @media(max-width:1200px) { #nav { padding:0 28px; } footer { padding:60px 28px 30px; } }
     @media(max-width:960px)  {
       .n-links { display:none; } .n-btn { display:none; } .n-ham { display:flex; }
@@ -291,7 +291,7 @@
       footer { padding:48px 18px 28px; } .ft-grid { grid-template-columns:1fr; gap:28px; }
     }
   
-    /* ── Quote Modal ── */
+    /* â”€â”€ Quote Modal â”€â”€ */
     #quoteModal{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .3s ease;}
     #quoteModal.open{opacity:1;pointer-events:auto;}
     .qm-backdrop{position:absolute;inset:0;background:rgba(4,12,4,.72);backdrop-filter:blur(6px);cursor:pointer;}
@@ -331,13 +331,13 @@
     }
 
   
-    /* ── Cert logos: stack one-per-row on mobile ── */
+    /* â”€â”€ Cert logos: stack one-per-row on mobile â”€â”€ */
     @media(max-width:640px){
       .cert-logos{ flex-direction:column; gap:28px; align-items:center; }
       .cert-logos img{ max-width:200px; width:80%; }
     }
   
-    /* ── Reviews slider: better mobile layout ── */
+    /* â”€â”€ Reviews slider: better mobile layout â”€â”€ */
     @media(max-width:640px){
       .r-card{ padding:22px 18px; }
       .slider-track{ gap:10px; }
@@ -365,7 +365,7 @@
   <symbol id="ico-paw"       viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="6.5" cy="15.5" r="2.5"/><path d="M17 15.5c.83 1.17 1.17 2.33 1 3-.83 3-4.5 3-6.5 3s-5.67 0-6.5-3c-.17-.67.17-1.83 1-3l1.16-2.5c.56-1.22 1.45-2.22 2.56-2.84A4.32 4.32 0 0 1 12 10c.88 0 1.73.22 2.48.65 1.11.63 2 1.62 2.52 2.85z"/></symbol>
 </svg>
 
-<!-- ══ NAVBAR ══════════════════════════════════════════════════════ -->
+<!-- â•â• NAVBAR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <nav id="nav">
   <a href="index.html" class="n-brand">
     <img src="logo.webp" alt="Always Green Turf" class="n-logo-img">
@@ -375,7 +375,7 @@
     <li><a href="about.html">About</a></li>
     <li><a href="service-areas.html">Service Areas</a></li>
     <li class="has-drop">
-      <a href="index.html#services" class="active">Services <span class="arrow">▼</span></a>
+      <a href="index.html#services" class="active">Services <span class="arrow">â–¼</span></a>
       <ul class="n-dropdown">
         <li><a href="artificial-lawns.html">Artificial Lawns</a></li>
         <li><a href="pet-turf.html" class="active">Pet Turf</a></li>
@@ -398,14 +398,14 @@
   </button>
 </nav>
 
-<!-- ══ MOBILE MENU ══════════════════════════════════════════════════ -->
+<!-- â•â• MOBILE MENU â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <div class="n-mob" id="nMob" aria-hidden="true">
   <ul class="n-mob-list">
     <li><a href="index.html" class="n-mob-a">Home</a></li>
     <li><a href="about.html" class="n-mob-a">About</a></li>
     <li><a href="service-areas.html" class="n-mob-a">Service Areas</a></li>
     <li class="n-mob-has-drop">
-      <button class="n-mob-drop-btn" id="nMobDrop">Services <span class="n-mob-arrow">▼</span></button>
+      <button class="n-mob-drop-btn" id="nMobDrop">Services <span class="n-mob-arrow">â–¼</span></button>
       <ul class="n-mob-sub" id="nMobSub">
         <li><a href="artificial-lawns.html">Artificial Lawns</a></li>
         <li><a href="pet-turf.html" class="active">Pet Turf</a></li>
@@ -425,16 +425,16 @@
   </a>
 </div>
 
-<!-- ══ HERO ════════════════════════════════════════════════════════ -->
+<!-- â•â• HERO â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section class="hero">
   <div class="hero-grid"></div>
   <div class="hero-inner">
-    <div class="hero-tag"><span class="hero-tag-dot"></span> Phoenix Metro · Pet-Safe &amp; Lead-Free</div>
+    <div class="hero-tag"><span class="hero-tag-dot"></span> Phoenix Metro Â· Pet-Safe &amp; Lead-Free</div>
     <h1>
       No More Mud. No Odors.<br>
       <span class="g-line">No More Dirty Paws.</span>
     </h1>
-    <p class="hero-sub">Arizona's dirt and rock yards are miserable for pets — and for the floors inside your house. Purpose-built pet turf with superior drainage, antimicrobial infill, and a surface that rinses clean in seconds. Your animals love it. Your floors will too.</p>
+    <p class="hero-sub">Arizona's dirt and rock yards are miserable for pets â€” and for the floors inside your house. Purpose-built pet turf with superior drainage, antimicrobial infill, and a surface that rinses clean in seconds. Your animals love it. Your floors will too.</p>
     <div class="hero-btns">
       <a href="contact.html" class="btn-primary">
         <svg class="ico" width="18" height="18"><use href="#ico-arrow-r"/></svg>
@@ -448,7 +448,7 @@
   </div>
 </section>
 
-<!-- ══ PET YARD SECTION ══════════════════════════════════════════════ -->
+<!-- â•â• PET YARD SECTION â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section class="section" id="pet-yard">
   <div class="split">
     <div class="split-text">
@@ -457,18 +457,18 @@
           <svg class="ico" width="13" height="13"><use href="#ico-paw"/></svg>
           Safe for Your Pets
         </div>
-        <h2>The Clean, Safe Yard Your Pets Deserve — Without the Mess Coming Inside</h2>
+        <h2>The Clean, Safe Yard Your Pets Deserve â€” Without the Mess Coming Inside</h2>
       </div>
       <div class="split-detail">
-        <p>Burnt paws on hot gravel. Dusty coats. Mud tracked through every room. Rock and dirt yards punish Arizona pets daily. Always Green pet turf gives your animals a cool, clean, cushioned surface 365 days a year — with drainage that handles anything your pets can produce and infill that neutralizes odors before you ever notice them. Your yard stays fresh. Your house stays clean.</p>
+        <p>Burnt paws on hot gravel. Dusty coats. Mud tracked through every room. Rock and dirt yards punish Arizona pets daily. Always Green pet turf gives your animals a cool, clean, cushioned surface 365 days a year â€” with drainage that handles anything your pets can produce and infill that neutralizes odors before you ever notice them. Your yard stays fresh. Your house stays clean.</p>
         <ul class="check-list">
           <li>
             <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-            Zeolite antimicrobial infill neutralizes odors at the molecular level — not just masks them
+            Zeolite antimicrobial infill neutralizes odors at the molecular level â€” not just masks them
           </li>
           <li>
             <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-            Drains up to 30 inches/hour — pet waste passes straight through, no pooling, no smell
+            Drains up to 30 inches/hour â€” pet waste passes straight through, no pooling, no smell
           </li>
           <li>
             <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
@@ -476,7 +476,7 @@
           </li>
           <li>
             <span class="check-icon"><svg class="ico" width="12" height="12"><use href="#ico-check"/></svg></span>
-            Heavy-duty construction — survives digging, sprinting, and years of hard use without thinning
+            Heavy-duty construction â€” survives digging, sprinting, and years of hard use without thinning
           </li>
         </ul>
         <a href="contact.html" class="btn-primary">
@@ -491,7 +491,7 @@
   </div>
 </section>
 
-<!-- ══ PET TURF GALLERY ═══════════════════════════════════════════════ -->
+<!-- â•â• PET TURF GALLERY â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section class="section alt" id="gallery">
   <div class="section-inner" style="margin-bottom:40px">
     <div class="eyebrow">
@@ -499,7 +499,7 @@
       Real Arizona Pet Yards
     </div>
     <h2 class="sec-h">Real Arizona Pet Yards. Before &amp; After.</h2>
-    <p class="sec-p">From dedicated dog runs to full backyard transformations — see what a clean, green, odor-free pet yard looks like in real Arizona homes.</p>
+    <p class="sec-p">From dedicated dog runs to full backyard transformations â€” see what a clean, green, odor-free pet yard looks like in real Arizona homes.</p>
   </div>
   <div class="gal-grid" style="max-width:1140px;margin:0 auto;">
     <div class="gal-item" data-idx="0" style="grid-row:span 2"><img src="assets/pet%20turf/pet-turf-0001.jpg" alt="Pet-safe artificial turf backyard Phoenix AZ" loading="lazy"></div>
@@ -518,7 +518,7 @@
   <button id="gal-lb-next" aria-label="Next">&#x203A;</button>
 </div>
 
-<!-- ══ WHY PET TURF ══════════════════════════════════════════════════ -->
+<!-- â•â• WHY PET TURF â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section class="section dark" id="features">
   <div class="section-inner">
     <div class="eyebrow">
@@ -526,34 +526,34 @@
       Built for Pets
     </div>
     <h2 class="sec-h">Engineered for Pets. Proven in Arizona's Heat.</h2>
-    <p class="sec-p">Standard turf traps odors, holds moisture, and mats under heavy pet traffic. Our pet-specific system — from the drainage backing to the antimicrobial infill to the fiber density — is engineered specifically to handle animals. Every detail is designed for hygiene, durability, and your pet's comfort.</p>
+    <p class="sec-p">Standard turf traps odors, holds moisture, and mats under heavy pet traffic. Our pet-specific system â€” from the drainage backing to the antimicrobial infill to the fiber density â€” is engineered specifically to handle animals. Every detail is designed for hygiene, durability, and your pet's comfort.</p>
     <div class="feat-grid">
       <div class="feat-card">
         <div class="feat-icon">
           <svg class="ico" width="24" height="24"><use href="#ico-droplet"/></svg>
         </div>
         <div class="feat-h">Drains 30 Inches Per Hour</div>
-        <p class="feat-p">Our perforated backing removes waste immediately — no pooling, no soaking in. A quick rinse with a hose leaves your yard completely fresh. Even after multiple dogs. Even in Arizona's summer heat.</p>
+        <p class="feat-p">Our perforated backing removes waste immediately â€” no pooling, no soaking in. A quick rinse with a hose leaves your yard completely fresh. Even after multiple dogs. Even in Arizona's summer heat.</p>
       </div>
       <div class="feat-card">
         <div class="feat-icon">
           <svg class="ico" width="24" height="24"><use href="#ico-leaf"/></svg>
         </div>
         <div class="feat-h">Antimicrobial Infill</div>
-        <p class="feat-p">Our zeolite and antimicrobial infill don't just mask pet odors — they break down ammonia at the molecular level. Your yard smells clean even in 110°F heat, even with multiple pets using it daily.</p>
+        <p class="feat-p">Our zeolite and antimicrobial infill don't just mask pet odors â€” they break down ammonia at the molecular level. Your yard smells clean even in 110Â°F heat, even with multiple pets using it daily.</p>
       </div>
       <div class="feat-card">
         <div class="feat-icon">
           <svg class="ico" width="24" height="24"><use href="#ico-shield"/></svg>
         </div>
         <div class="feat-h">Lead-Free &amp; Non-Toxic</div>
-        <p class="feat-p">Every product we install is 100% lead-free, non-toxic, and certified safe for dogs, cats, and the kids who roll around in the same grass. No compromises on materials — your pet's health is non-negotiable.</p>
+        <p class="feat-p">Every product we install is 100% lead-free, non-toxic, and certified safe for dogs, cats, and the kids who roll around in the same grass. No compromises on materials â€” your pet's health is non-negotiable.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ PET TURF MATERIALS ════════════════════════════════════════════ -->
+<!-- â•â• PET TURF MATERIALS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section class="section alt" id="materials">
   <div class="mat-split">
     <div class="mat-img">
@@ -565,13 +565,13 @@
         Engineered for Pets
       </div>
       <h2 style="font-size:clamp(1.6rem,3vw,2.3rem);font-weight:900;line-height:1.15;letter-spacing:-.025em;margin-bottom:16px">Why Our Pet Turf Outperforms Standard Artificial Grass</h2>
-      <p style="font-size:.93rem;color:var(--muted);line-height:1.82;margin-bottom:8px">Standard artificial turf isn't built for pets — and it shows after a few months of heavy use. We source pet-specific products with shorter pile, higher density, reinforced backing, and cooler fibers because your animals deserve better.</p>
+      <p style="font-size:.93rem;color:var(--muted);line-height:1.82;margin-bottom:8px">Standard artificial turf isn't built for pets â€” and it shows after a few months of heavy use. We source pet-specific products with shorter pile, higher density, reinforced backing, and cooler fibers because your animals deserve better.</p>
       <div class="mat-list">
         <div class="mat-item">
           <div class="mat-dot"></div>
           <div class="mat-item-text">
-            <h4>Short Pile — Easier to Clean, Harder to Soil</h4>
-            <p>Waste sits on top and rinses straight through — not trapped in long fiber bundles. Cleanup takes seconds, not scrubbing.</p>
+            <h4>Short Pile â€” Easier to Clean, Harder to Soil</h4>
+            <p>Waste sits on top and rinses straight through â€” not trapped in long fiber bundles. Cleanup takes seconds, not scrubbing.</p>
           </div>
         </div>
         <div class="mat-item">
@@ -584,8 +584,8 @@
         <div class="mat-item">
           <div class="mat-dot"></div>
           <div class="mat-item-text">
-            <h4>Cool-Touch — Even in July</h4>
-            <p>Paw pads blister on hot concrete and gravel. Our turf stays significantly cooler — safe for bare paws even during Phoenix's brutal summer afternoons.</p>
+            <h4>Cool-Touch â€” Even in July</h4>
+            <p>Paw pads blister on hot concrete and gravel. Our turf stays significantly cooler â€” safe for bare paws even during Phoenix's brutal summer afternoons.</p>
           </div>
         </div>
         <div class="mat-item">
@@ -600,7 +600,7 @@
   </div>
 </section>
 
-<!-- ══ INSTALLATION PROCESS ══════════════════════════════════════════ -->
+<!-- â•â• INSTALLATION PROCESS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section class="section" id="process">
   <div class="section-inner" style="margin-bottom:48px">
     <div class="eyebrow">
@@ -615,7 +615,7 @@
       <div class="proc-num">01</div>
       <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-phone"/></svg></div>
       <h3 class="proc-h">Consultation</h3>
-      <p class="proc-p">We come to you for a free on-site assessment of your space and your pets' needs — no pressure, no obligation, just honest answers.</p>
+      <p class="proc-p">We come to you for a free on-site assessment of your space and your pets' needs â€” no pressure, no obligation, just honest answers.</p>
     </div>
     <div class="proc-card">
       <div class="proc-num">02</div>
@@ -627,13 +627,13 @@
       <div class="proc-num">03</div>
       <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-leaf"/></svg></div>
       <h3 class="proc-h">Turf Selection</h3>
-      <p class="proc-p">Choose from our pet-specific product lines — each selected for softness, fiber density, and performance with active animals.</p>
+      <p class="proc-p">Choose from our pet-specific product lines â€” each selected for softness, fiber density, and performance with active animals.</p>
     </div>
     <div class="proc-card">
       <div class="proc-num">04</div>
       <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-award"/></svg></div>
       <h3 class="proc-h">Professional Installation</h3>
-      <p class="proc-p">Our certified crew handles precise seam placement, secure edging, and expert turf laying — finished clean and on schedule.</p>
+      <p class="proc-p">Our certified crew handles precise seam placement, secure edging, and expert turf laying â€” finished clean and on schedule.</p>
     </div>
     <div class="proc-card">
       <div class="proc-num">05</div>
@@ -645,12 +645,12 @@
       <div class="proc-num">06</div>
       <div class="proc-icon"><svg class="ico" width="22" height="22"><use href="#ico-check"/></svg></div>
       <h3 class="proc-h">Final Walkthrough</h3>
-      <p class="proc-p">We walk you through rinsing, maintenance, and getting the most from your turf — before we leave your property.</p>
+      <p class="proc-p">We walk you through rinsing, maintenance, and getting the most from your turf â€” before we leave your property.</p>
     </div>
   </div>
 </section>
 
-<!-- ══ TRUSTED & CERTIFIED ════════════════════════ -->
+<!-- â•â• TRUSTED & CERTIFIED â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section id="certified">
   <div class="cert-wrap">
     <div class="cert-label">Certified. Trusted. Proven.</div>
@@ -672,12 +672,12 @@
   </div>
 </section>
 
-<!-- ══ FINANCING BANNER ══════════════════════════════════════════════ -->
+<!-- â•â• FINANCING BANNER â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section class="financing-bar">
   <div class="fin-inner">
     <div class="fin-badge">Special Offer</div>
     <h3 class="fin-h">$0 Down. 0% Interest. 12 Months Same-As-Cash.</h3>
-    <p class="fin-p">Most pet turf installs pay for themselves in reduced cleaning costs, pet care products, and water savings. Apply in minutes — most approvals in under 60 seconds.</p>
+    <p class="fin-p">Most pet turf installs pay for themselves in reduced cleaning costs, pet care products, and water savings. Apply in minutes â€” most approvals in under 60 seconds.</p>
     <a href="financing.html" class="btn-primary">
       <svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>
       Learn About Financing
@@ -685,7 +685,7 @@
   </div>
 </section>
 
-<!-- ══ TESTIMONIALS ═════════════════════════════════════════════════════ -->
+<!-- â•â• TESTIMONIALS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section class="section" id="reviews">
   <div class="section-inner" style="margin-bottom:44px">
     <div class="eyebrow">
@@ -699,7 +699,7 @@
     <div class="slider-wrap">
       <div id="sTrack">
         <div class="r-card">
-          <div class="r-stars">★★★★★</div>
+          <div class="r-stars">â˜…â˜…â˜…â˜…â˜…</div>
           <p class="r-text">"We are very happy with Always Green Turf from start to finish. The company is very easy to work with. But best of all, our furbabies LOVE their new dog run."</p>
           <div class="r-author">
             <div class="r-avatar">KR</div>
@@ -707,7 +707,7 @@
           </div>
         </div>
         <div class="r-card">
-          <div class="r-stars">★★★★★</div>
+          <div class="r-stars">â˜…â˜…â˜…â˜…â˜…</div>
           <p class="r-text">"Very happy with our new back yard. They took our yard from a post apocalyptic wasteland to a modern oasis. Even our dogs approve!"</p>
           <div class="r-author">
             <div class="r-avatar">CR</div>
@@ -715,7 +715,7 @@
           </div>
         </div>
         <div class="r-card">
-          <div class="r-stars">★★★★★</div>
+          <div class="r-stars">â˜…â˜…â˜…â˜…â˜…</div>
           <p class="r-text">"No more mud tracked inside and our dogs are outside all day. Best investment we've made for our home. The team was efficient, professional, and incredibly communicative."</p>
           <div class="r-author">
             <div class="r-avatar">GL</div>
@@ -723,7 +723,7 @@
           </div>
         </div>
         <div class="r-card">
-          <div class="r-stars">★★★★★</div>
+          <div class="r-stars">â˜…â˜…â˜…â˜…â˜…</div>
           <p class="r-text">"From the initial phone call to project completion, Always Green delivered. Our three dogs have a real yard for the first time and we couldn't be more thrilled."</p>
           <div class="r-author">
             <div class="r-avatar">NI</div>
@@ -731,7 +731,7 @@
           </div>
         </div>
         <div class="r-card">
-          <div class="r-stars">★★★★★</div>
+          <div class="r-stars">â˜…â˜…â˜…â˜…â˜…</div>
           <p class="r-text">"Thank you Always Green Turf. We are very happy with your service, very professional. It was the best decision we made for our pets. 100% recommended."</p>
           <div class="r-author">
             <div class="r-avatar">MA</div>
@@ -752,14 +752,14 @@
   </div>
 </section>
 
-<!-- ══ CTA SECTION ══════════════════════════════════════════════════════ -->
+<!-- â•â• CTA SECTION â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section class="cta-section">
   <div class="eyebrow" style="justify-content:center">
     <svg class="ico" width="13" height="13"><use href="#ico-paw"/></svg>
     Your Pets Are Waiting
   </div>
   <h2>Your Pets Deserve Better Than Dirt and Gravel.</h2>
-  <p>Stop mopping floors, fighting odors, and watching your pets suffer on hot gravel. A clean, green, odor-free pet yard is one call away — installed in a day, backed by a 15-year warranty, and built specifically for Arizona animals.</p>
+  <p>Stop mopping floors, fighting odors, and watching your pets suffer on hot gravel. A clean, green, odor-free pet yard is one call away â€” installed in a day, backed by a 15-year warranty, and built specifically for Arizona animals.</p>
   <div class="cta-btns">
     <a href="contact.html" class="btn-primary">
       <svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>
@@ -772,7 +772,7 @@
   </div>
 </section>
 
-<!-- ══ FOOTER ══════════════════════════════════════════════════════════ -->
+<!-- â•â• FOOTER â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <footer>
   <div class="wrap">
     <div class="ft-grid">
@@ -813,13 +813,13 @@
           <li><a href="tel:4805305476"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>(480) 530-5476</a></li>
           <li><a href="#"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>204 S. Mesa Dr.</a></li>
           <li><a href="#"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Mesa, AZ 85210</a></li>
-          <li><a href="#"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Mon–Sun · 7am–9pm</a></li>
+          <li><a href="#"><svg class="ico fl-arrow" width="10" height="10"><use href="#ico-chevron-r"/></svg>Monâ€“Sun Â· 7amâ€“9pm</a></li>
         </ul>
       </div>
     </div>
     <div class="ft-bottom">
-      <div class="ft-copy">© 2026 Always Green Turf AZ. All rights reserved. · Demo Design</div>
-      <div class="ft-tag">The Grass Is Always Greener™</div>
+      <div class="ft-copy">Â© 2026 Always Green Turf AZ. All rights reserved. Â· Demo Design</div>
+      <div class="ft-tag">The Grass Is Always Greenerâ„¢</div>
     </div>
   </div>
 </footer>
@@ -832,19 +832,19 @@
 </a>
 
 <script>
-  /* ── Navbar scroll ── */
+  /* â”€â”€ Navbar scroll â”€â”€ */
   (function(){
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => nav.classList.toggle('solid', window.scrollY > 40), { passive:true });
   })();
 
-  /* ── Float CTA ── */
+  /* â”€â”€ Float CTA â”€â”€ */
   (function(){
     const fcta = document.getElementById('fcta');
     window.addEventListener('scroll', () => fcta.classList.toggle('show', window.scrollY > 320), { passive:true });
   })();
 
-  /* ── Hamburger / Mobile Menu ── */
+  /* â”€â”€ Hamburger / Mobile Menu â”€â”€ */
   (function(){
     const ham = document.getElementById('nHam');
     const mob = document.getElementById('nMob');
@@ -863,7 +863,7 @@
     }
   })();
 
-  /* ── Review Slider ── */
+  /* â”€â”€ Review Slider â”€â”€ */
   (function(){
     const track  = document.getElementById('sTrack');
     const slWrap = track.closest('.slider-wrap');
@@ -904,7 +904,7 @@
     window.addEventListener('resize', () => { setCardWidths(); goTo(slide); });
   })();
 
-  /* ── Gallery lightbox ── */
+  /* â”€â”€ Gallery lightbox â”€â”€ */
   (function(){
     const imgs = [...document.querySelectorAll('.gal-item img')];
     const lb = document.getElementById('gal-lb');
@@ -921,15 +921,15 @@
   })();
 </script>
 
-<!-- ══════════════════════ QUOTE POPUP MODAL ═════════════════════════════ -->
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• QUOTE POPUP MODAL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <div id="quoteModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="qmTitle">
   <div class="qm-backdrop"></div>
   <div class="qm-card">
     <button class="qm-close" aria-label="Close">&times;</button>
     <div class="qm-header">
-      <div class="qm-eyebrow">Free · No Obligation</div>
+      <div class="qm-eyebrow">Free Â· No Obligation</div>
       <h2 class="qm-title" id="qmTitle">Get Your Free Design Quote</h2>
-      <p class="qm-sub">Our local team visits your yard, measures the space, and delivers a same-day detailed quote — no pressure, no guessing.</p>
+      <p class="qm-sub">Our local team visits your yard, measures the space, and delivers a same-day detailed quote â€” no pressure, no guessing.</p>
     </div>
     <form class="qm-form" id="quoteForm" novalidate>
       <div class="qm-row">
@@ -955,7 +955,7 @@
       <div class="qm-grp">
         <label class="qm-lbl" for="qm_service">Service Interested In</label>
         <select class="qm-inp" id="qm_service">
-          <option value="">Select a service…</option>
+          <option value="">Select a serviceâ€¦</option>
           <option>Residential Lawn</option>
           <option>Pet Turf</option>
           <option>Putting Green</option>
@@ -967,7 +967,7 @@
       </div>
       <div class="qm-grp">
         <label class="qm-lbl" for="qm_msg">Project Details <span class="qm-opt">(optional)</span></label>
-        <textarea class="qm-inp" id="qm_msg" placeholder="Approximate sq ft, goals, timeline…"></textarea>
+        <textarea class="qm-inp" id="qm_msg" placeholder="Approximate sq ft, goals, timelineâ€¦"></textarea>
       </div>
       <button type="submit" class="qm-submit">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -976,7 +976,7 @@
       <p class="qm-fine">By submitting you agree to be contacted by Always Green Turf. No spam, ever.</p>
     </form>
     <div class="qm-success" id="qmSuccess" hidden>
-      <div class="qm-success-ico">✓</div>
+      <div class="qm-success-ico">âœ“</div>
       <h3>We'll be in touch soon!</h3>
       <p>A member of our team will call or email you within 1 business day to schedule your free on-site visit.</p>
     </div>
@@ -1014,11 +1014,61 @@
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open'))close();});
 
   if(form){
-    form.addEventListener('submit',function(e){
+    var WEBHOOK_URL='https://services.leadconnectorhq.com/hooks/dpp7zOnwhkHGWhn5lGRd/webhook-trigger/8cef90fe-8443-49bf-9b15-4829a138e0ce';
+    form.addEventListener('submit',async function(e){
       e.preventDefault();
-      form.hidden=true;
-      succ.hidden=false;
-      setTimeout(function(){close();setTimeout(function(){form.hidden=false;succ.hidden=true;form.reset();},400);},3200);
+
+      var fName=(document.getElementById('qm_fname')||{}).value||'';
+      var lName=(document.getElementById('qm_lname')||{}).value||'';
+      var phone=(document.getElementById('qm_phone')||{}).value||'';
+      var email=(document.getElementById('qm_email')||{}).value||'';
+      var service=(document.getElementById('qm_service')||{}).value||'';
+      var message=(document.getElementById('qm_msg')||{}).value||'';
+
+      if(!fName.trim()||!lName.trim()||!phone.trim()){
+        alert('Please fill in first name, last name, and phone.');
+        return;
+      }
+
+      var submitBtn=form.querySelector('.qm-submit');
+      var originalBtnText=submitBtn?submitBtn.innerHTML:'';
+
+      try{
+        if(submitBtn){
+          submitBtn.disabled=true;
+          submitBtn.innerHTML='Sending...';
+        }
+
+        var payload={
+          firstName:fName,
+          lastName:lName,
+          name:(fName+' '+lName).trim(),
+          phone:phone,
+          email:email,
+          service:service,
+          message:message,
+          source:'alwaysgreenturfaz.com'
+        };
+
+        var res=await fetch(WEBHOOK_URL,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(payload)
+        });
+
+        if(!res.ok) throw new Error('Webhook request failed');
+
+        form.hidden=true;
+        succ.hidden=false;
+        setTimeout(function(){close();setTimeout(function(){form.hidden=false;succ.hidden=true;form.reset();},400);},3200);
+      }catch(err){
+        alert('Could not submit right now. Please try again in a moment.');
+      }finally{
+        if(submitBtn){
+          submitBtn.disabled=false;
+          submitBtn.innerHTML=originalBtnText;
+        }
+      }
     });
   }
 })();
@@ -1026,3 +1076,4 @@
 
 </body>
 </html>
+

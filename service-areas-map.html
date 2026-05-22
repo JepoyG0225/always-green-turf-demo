@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Service Areas Map</title>
+  <title>Service Areas Map | Always Green Turf AZ</title>
+  <meta name="description" content="Explore the Always Green Turf AZ service area map across Phoenix and surrounding cities. Find your location and request a free turf design consultation." />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <style>
     html, body, #map { height:100%; margin:0; }
@@ -47,6 +48,13 @@
       .sl-arr{ width:38px; height:38px; }
     }
   </style>
+<script>
+var head = document.head;
+var script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = "https://t.alwaysgreenturfaz.com/v1/lst/universal-script?ph=988e8306a4dd8bd61c9dfde4fbe0cb3808161ec78274b9cd6ba66da92e61dd5d&tag=!clicked&ref_url=" + encodeURI(document.URL) ;
+head.appendChild(script);
+</script>
 </head>
 <body>
   <div id="map"></div>

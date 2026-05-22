@@ -644,6 +644,13 @@
       .sl-arr{ width:38px; height:38px; }
     }
   </style>
+<script>
+var head = document.head;
+var script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = "https://t.alwaysgreenturfaz.com/v1/lst/universal-script?ph=988e8306a4dd8bd61c9dfde4fbe0cb3808161ec78274b9cd6ba66da92e61dd5d&tag=!clicked&ref_url=" + encodeURI(document.URL) ;
+head.appendChild(script);
+</script>
 </head>
 <body>
 
@@ -747,7 +754,7 @@
       <div class="meta-divider"></div>
       <div class="meta-item">
         <svg class="ico" width="13" height="13"><use href="#ico-calendar"/></svg>
-        June 12, 2025
+        June 12, 2026
       </div>
       <div class="meta-divider"></div>
       <div class="meta-item">
@@ -757,7 +764,7 @@
       <div class="meta-divider"></div>
       <div class="meta-item">
         <svg class="ico" width="13" height="13"><use href="#ico-book"/></svg>
-        Updated for 2025
+        Updated for 2026
       </div>
     </div>
     <div class="article-tags">
@@ -987,7 +994,7 @@
     <div class="sidebar-related">
       <div class="related-label">Related Articles</div>
 
-      <a href="blog.html" class="related-card">
+      <a href="blog-article.html?article=best-turf-arizona" class="related-card">
         <div class="related-thumb">
           <img src="assets/artificial lawns/artificial-00002.jpg" alt="Best artificial turf for Arizona" loading="lazy">
         </div>
@@ -997,7 +1004,7 @@
         </div>
       </a>
 
-      <a href="blog.html" class="related-card">
+      <a href="blog-article.html?article=turf-vs-real-grass-arizona" class="related-card">
         <div class="related-thumb">
           <img src="assets/artificial lawns/artificial-00005.jpg" alt="Turf vs real grass Arizona" loading="lazy">
         </div>
@@ -1007,7 +1014,7 @@
         </div>
       </a>
 
-      <a href="blog.html" class="related-card">
+      <a href="blog-article.html?article=how-hot-artificial-grass" class="related-card">
         <div class="related-thumb">
           <img src="assets/artificial lawns/artificial-00003.jpg" alt="How hot does artificial grass get" loading="lazy">
         </div>
@@ -1133,6 +1140,43 @@
 
   /* ── TOC Active Section Highlighting ── */
   (function(){
+    const slug = new URLSearchParams(window.location.search).get('article');
+    if(!slug || slug === 'pricing-guide-2025') return;
+    const articles = {
+      'best-turf-arizona': { c:'lawn-care', cl:'Lawn Care', b:'Best Turf for Arizona', t:'The Best Artificial Turf for Arizona: A Guide to Year-Round Green Spaces', s:'How to choose turf that stays realistic, durable, and lower-maintenance in Arizona heat.', d:'May 28, 2026', r:'6 min read', u:'Arizona Buyer Guide', tags:['Lawn Care','Turf Selection','Arizona','Homeowners'], toc:[['turf-needs','What Arizona Turf Must Handle'],['fiber-types','Fiber Types and Face Weight'],['pile-height','Best Pile Height by Use'],['backing-drainage','Backing and Drainage'],['warranty-signals','Warranty and Installer Signals']], body:'<h2 id="turf-needs">What Arizona Turf Must Handle</h2><p>Arizona turf must resist UV fade, handle heavy traffic, and drain efficiently after rinse-downs.</p><h2 id="fiber-types">Fiber Types and Face Weight</h2><p>Multi-yarn systems with realistic thatch usually keep appearance longer than entry-level options.</p><h2 id="pile-height">Best Pile Height by Use</h2><p>For lawns, 1.5&quot;–1.75&quot; tends to balance realism and durability.</p><h2 id="backing-drainage">Backing and Drainage</h2><p>Drainage performance depends on both backing and base prep.</p><h2 id="warranty-signals">Warranty and Installer Signals</h2><p>Strong quotes include base depth, infill type, seam process, and workmanship warranty in writing.</p>' },
+      'how-hot-artificial-grass': { c:'guides', cl:'Guides', b:'Heat & Cooling', t:'How Hot Does Artificial Grass Get in Arizona? And How to Keep It Cool', s:'What surface temperatures to expect and the cooling methods that actually work.', d:'May 14, 2026', r:'5 min read', u:'Heat Guide', tags:['Guides','Summer','Cooling','Arizona'], toc:[['heat-range','Typical Surface Temperatures'],['what-affects','What Affects Heat'],['cooling-options','Cooling Methods'],['pets-kids','Pets and Kids Timing'],['bottom-line','Bottom Line']], body:'<h2 id="heat-range">Typical Surface Temperatures</h2><p>In direct summer sun, synthetic turf can run hotter than ambient air.</p><h2 id="what-affects">What Affects Heat</h2><p>Darker tones and unshaded exposure raise peak temperatures.</p><h2 id="cooling-options">Cooling Methods</h2><p>Short hose-downs, shade sails, and pergolas significantly improve daytime comfort.</p><h2 id="pets-kids">Pets and Kids Timing</h2><p>Use mornings/evenings for extended activity during peak summer.</p><h2 id="bottom-line">Bottom Line</h2><p>Heat is manageable when planned into material selection and layout.</p>' },
+      'dog-owners-guide': { c:'pet-turf', cl:'Pet Turf', b:'Dog Owner Guide', t:'The Dog Owner\'s Guide to Artificial Grass: Safety, Smell, and Durability', s:'How to build pet turf that drains fast, stays clean, and controls odor over time.', d:'April 30, 2026', r:'7 min read', u:'Pet Turf Guide', tags:['Pet Turf','Dogs','Drainage','Odor Control'], toc:[['pet-safety','Pet Safety Basics'],['odor-control','Odor Control Setup'],['drainage','Drainage Design'],['cleaning','Cleaning Routine'],['durability','Durability Expectations']], body:'<h2 id="pet-safety">Pet Safety Basics</h2><p>Choose lead-free systems from reputable suppliers with clear specs and warranty coverage.</p><h2 id="odor-control">Odor Control Setup</h2><p>Odor issues are usually installation issues.</p><h2 id="drainage">Drainage Design</h2><p>Pet areas need fast percolation and no low spots.</p><h2 id="cleaning">Cleaning Routine</h2><p>Weekly rinse plus enzymatic cleaning keeps the surface fresh.</p><h2 id="durability">Durability Expectations</h2><p>High-traffic pet zones perform well long-term when seam work is done correctly.</p>' },
+      'backyard-putting-green-installation': { c:'putting', cl:'Putting Greens', b:'Putting Greens', t:'Create a Golfer\'s Paradise: Putting Green Installation in Your Arizona Backyard', s:'Key decisions that make backyard greens roll true and stay consistent through Arizona seasons.', d:'April 18, 2026', r:'5 min read', u:'Putting Green Guide', tags:['Putting Greens','Backyard Golf','Design','Arizona'], toc:[['design','Contour Design'],['speed','Speed and Roll'],['fringe','Fringe and Collar'],['maint','Maintenance'],['cost','Cost Range']], body:'<h2 id="design">Contour Design</h2><p>Subtle contouring creates realistic breaks without sacrificing everyday usability.</p><h2 id="speed">Speed and Roll</h2><p>Roll consistency depends on surface yarn, infill balance, and compaction quality.</p><h2 id="fringe">Fringe and Collar</h2><p>Dual-surface layouts add realism and improve short-game variety.</p><h2 id="maint">Maintenance</h2><p>Routine brushing and debris removal keep speed predictable.</p><h2 id="cost">Cost Range</h2><p>Putting greens cost more per square foot than standard lawns.</p>' },
+      'playground-turf-safety': { c:'playground', cl:'Playground', b:'Playground Safety', t:'How Playground Turf Protects Children — and Your Arizona Landscape', s:'Why playground projects need impact systems, certification targets, and disciplined installation.', d:'April 3, 2026', r:'6 min read', u:'Safety Guide', tags:['Playground','Safety','Impact Pad','Family'], toc:[['fall','Fall Protection'],['materials','Material Safety'],['heat','Heat Planning'],['maintenance','Safety Maintenance'],['zones','Play Zone Design']], body:'<h2 id="fall">Fall Protection</h2><p>Play areas require impact attenuation systems designed for expected fall heights.</p><h2 id="materials">Material Safety</h2><p>Use certified child-safe products and keep documentation available.</p><h2 id="heat">Heat Planning</h2><p>Shade integration is essential for mid-day comfort and safer play conditions.</p><h2 id="maintenance">Safety Maintenance</h2><p>Inspect seams and edges regularly and correct wear early.</p><h2 id="zones">Play Zone Design</h2><p>Separate active play from lounge and pet areas for cleaner flow.</p>' },
+      'arizona-backyard-design-ideas': { c:'inspiration', cl:'Inspiration', b:'Design Ideas', t:'Backyard Designs for Arizona: 8 Ideas for a Dream Outdoor Space', s:'Practical combinations of turf, shade, and hardscape for everyday use in Arizona.', d:'March 21, 2026', r:'4 min read', u:'Design Ideas', tags:['Inspiration','Backyard Design','Arizona','Landscape'], toc:[['zones','Zone the Yard'],['shade','Start with Shade'],['flow','Pet and Family Flow'],['lights','Night Lighting'],['pairing','Material Pairing']], body:'<h2 id="zones">Zone the Yard</h2><p>Divide space by function: active use, dining, lounge, and circulation.</p><h2 id="shade">Start with Shade</h2><p>Comfort-first design starts with shade structure placement.</p><h2 id="flow">Pet and Family Flow</h2><p>Dedicated pet relief paths keep social zones cleaner.</p><h2 id="lights">Night Lighting</h2><p>Layer low-glare lighting to extend usability.</p><h2 id="pairing">Material Pairing</h2><p>Turf plus stone and pavers creates a durable visual balance.</p>' },
+      'turf-vs-real-grass-arizona': { c:'guides', cl:'Guides', b:'Turf vs Real Grass', t:'Turf vs. Real Grass in Arizona: Which Is Actually Better for Your Home?', s:'A practical side-by-side view of costs, upkeep, water usage, and long-term ownership.', d:'March 7, 2026', r:'9 min read', u:'Comparison Guide', tags:['Guides','Comparison','Water','Costs'], toc:[['water','Water Usage'],['maint','Maintenance'],['fiveyear','5-Year Cost View'],['look','Appearance'],['decision','Decision Framework']], body:'<h2 id="water">Water Usage</h2><p>Natural lawns carry recurring irrigation demand; turf shifts cost toward upfront installation.</p><h2 id="maint">Maintenance</h2><p>Real grass requires mowing, fertilizing, reseeding, and weed control.</p><h2 id="fiveyear">5-Year Cost View</h2><p>Ownership costs often converge once water and service costs are included.</p><h2 id="look">Appearance</h2><p>Turf offers consistency year-round while natural lawns vary with heat stress.</p><h2 id="decision">Decision Framework</h2><p>Choose based on monthly effort, water predictability, and preferred feel.</p>' },
+      'desert-oasis-pavers-and-grass': { c:'inspiration', cl:'Inspiration', b:'Desert Oasis', t:'Crafting a Desert Oasis: Pavers, Grass, and the Backyard You\'ve Always Wanted', s:'How to combine turf and pavers into a polished, low-maintenance Arizona backyard.', d:'February 19, 2026', r:'5 min read', u:'Backyard Inspiration', tags:['Inspiration','Pavers','Turf','Outdoor Living'], toc:[['layout','Layout Strategy'],['patterns','Paver Patterns'],['integration','Turf Integration'],['drainage','Drainage'],['budget','Budget Priorities']], body:'<h2 id="layout">Layout Strategy</h2><p>Define clear movement paths and gathering zones before selecting finishes.</p><h2 id="patterns">Paver Patterns</h2><p>Simple modular patterns are easier to maintain and age better.</p><h2 id="integration">Turf Integration</h2><p>Clean edge details between pavers and turf create premium results.</p><h2 id="drainage">Drainage</h2><p>Coordinate surface slope and runoff before final installation.</p><h2 id="budget">Budget Priorities</h2><p>Spend first on structure and base quality, then layer visual upgrades.</p>' },
+      'maintaining-artificial-turf': { c:'lawn-care', cl:'Lawn Care', b:'Maintenance Guide', t:'Maintaining Artificial Turf: The Only Care Guide You\'ll Ever Need', s:'A practical routine to keep turf clean, upright, and long-lasting in Arizona conditions.', d:'February 5, 2026', r:'6 min read', u:'Maintenance Guide', tags:['Lawn Care','Maintenance','Cleaning','Longevity'], toc:[['weekly','Weekly Tasks'],['monthly','Monthly Checks'],['seasonal','Seasonal Care'],['pet','Pet Zone Upkeep'],['service','When to Call Service']], body:'<h2 id="weekly">Weekly Tasks</h2><p>Remove debris and rinse high-use areas to prevent buildup.</p><h2 id="monthly">Monthly Checks</h2><p>Brush traffic paths and inspect seams, edges, and transitions.</p><h2 id="seasonal">Seasonal Care</h2><p>After storms, perform a deeper clean and verify drainage performance.</p><h2 id="pet">Pet Zone Upkeep</h2><p>Use enzyme cleaners routinely in pet areas for better odor control.</p><h2 id="service">When to Call Service</h2><p>Address seam lift or drainage issues early to avoid larger repairs.</p>' }
+    };
+    const a = articles[slug];
+    if(!a) return;
+    const bc = document.querySelector('.breadcrumb span:last-child');
+    const badge = document.querySelector('.article-hero-cat .cat-badge');
+    const h1 = document.querySelector('.article-hero h1');
+    const sub = document.querySelector('.article-hero-sub');
+    const metas = document.querySelectorAll('.article-meta-strip .meta-item');
+    const tags = document.querySelector('.article-tags');
+    const body = document.querySelector('.article-body');
+    const toc = document.getElementById('tocList');
+    if(bc) bc.textContent = a.b;
+    if(badge){ badge.className = 'cat-badge ' + a.c; badge.textContent = a.cl; }
+    if(h1) h1.textContent = a.t;
+    if(sub) sub.textContent = a.s;
+    if(metas[0]) metas[0].innerHTML = '<svg class="ico" width="13" height="13"><use href="#ico-calendar"/></svg> ' + a.d;
+    if(metas[1]) metas[1].innerHTML = '<svg class="ico" width="13" height="13"><use href="#ico-clock"/></svg> ' + a.r;
+    if(metas[2]) metas[2].innerHTML = '<svg class="ico" width="13" height="13"><use href="#ico-book"/></svg> ' + a.u;
+    if(tags) tags.innerHTML = a.tags.map((x) => '<span class="tag-chip">'+x+'</span>').join('');
+    if(body) body.innerHTML = a.body + '<a href="contact.html" class="article-cta-inline"><svg class="ico" width="16" height="16"><use href="#ico-arrow-r"/></svg>Get Design Consultation</a>';
+    if(toc) toc.innerHTML = a.toc.map((row) => '<li><a href="#'+row[0]+'" class="toc-link"><span class="toc-dot"></span>'+row[1]+'</a></li>').join('');
+    document.title = a.t + ' | Always Green Turf Blog';
+  })();
+
+  (function(){
     const headings = document.querySelectorAll('.article-body h2[id]');
     const tocLinks = document.querySelectorAll('.toc-link');
     if(!headings.length || !tocLinks.length) return;
@@ -1178,8 +1222,8 @@
           <input class="qm-inp" id="qm_phone" type="tel" placeholder="(480) 000-0000" required>
         </div>
         <div class="qm-grp">
-          <label class="qm-lbl" for="qm_email">Email</label>
-          <input class="qm-inp" id="qm_email" type="email" placeholder="john@email.com">
+          <label class="qm-lbl" for="qm_email">Email *</label>
+          <input class="qm-inp" id="qm_email" type="email" placeholder="john@email.com" required>
         </div>
       </div>
       <div class="qm-grp">
@@ -1214,10 +1258,12 @@
 </div>
 <script>
 (function(){
+  var WEBHOOK_URL='https://services.leadconnectorhq.com/hooks/dpp7zOnwhkHGWhn5lGRd/webhook-trigger/8cef90fe-8443-49bf-9b15-4829a138e0ce';
   var modal=document.getElementById('quoteModal');
   if(!modal)return;
   var form=document.getElementById('quoteForm');
   var succ=document.getElementById('qmSuccess');
+  var submitBtn=form?form.querySelector('.qm-submit'):null;
 
   function open(e){
     e.preventDefault();
@@ -1244,11 +1290,37 @@
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open'))close();});
 
   if(form){
-    form.addEventListener('submit',function(e){
+    form.addEventListener('submit',async function(e){
       e.preventDefault();
-      form.hidden=true;
-      succ.hidden=false;
-      setTimeout(function(){close();setTimeout(function(){form.hidden=false;succ.hidden=true;form.reset();},400);},3200);
+      var payload={
+        first_name:(document.getElementById('qm_fname')?.value||'').trim(),
+        last_name:(document.getElementById('qm_lname')?.value||'').trim(),
+        phone:(document.getElementById('qm_phone')?.value||'').trim(),
+        email:(document.getElementById('qm_email')?.value||'').trim(),
+        service_interested:(document.getElementById('qm_service')?.value||'').trim(),
+        project_details:(document.getElementById('qm_msg')?.value||'').trim(),
+        source:'Website Blog Modal Form',
+        submitted_at:new Date().toISOString()
+      };
+      if(!payload.first_name||!payload.last_name||!payload.phone||!payload.email)return;
+      var original=submitBtn?submitBtn.innerHTML:'';
+      if(submitBtn){submitBtn.disabled=true;submitBtn.innerHTML='Sending...';}
+      try{
+        var res=await fetch(WEBHOOK_URL,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(payload),
+          mode:'cors'
+        });
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        form.hidden=true;
+        succ.hidden=false;
+        setTimeout(function(){close();setTimeout(function(){form.hidden=false;succ.hidden=true;form.reset();},400);},3200);
+      }catch(err){
+        console.error('Webhook error:',err);
+      }finally{
+        if(submitBtn){submitBtn.disabled=false;submitBtn.innerHTML=original;}
+      }
     });
   }
 })();
