@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Internal tool — keep out of search engines & social previews. -->
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+  <title>Time-Off Request | Always Green Turf — Internal</title>
+  <link rel="canonical" href="https://alwaysgreenturfaz.com/time-off-requests" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --g1:#071a07; --g2:#0e300e; --g3:#165f16; --g4:#1e8a1e; --g5:#28b828; --g6:#52d652;
+      --text:#162016; --muted:#5a7a5a; --border:rgba(0,0,0,.08);
+      --ease:cubic-bezier(.22,1,.36,1); --t:.4s var(--ease);
+      --danger:#b91c1c;
+    }
+    html, body { width:100%; }
+    body {
+      font-family:'Poppins',sans-serif;
+      background:linear-gradient(135deg,#f6faf6 0%,#eaf5ea 100%);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    /* Top bar */
+    .top-bar {
+      background:linear-gradient(135deg,var(--g2),var(--g1));
+      padding:18px 28px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      color:#fff;
+      box-shadow:0 4px 18px rgba(6,15,6,.18);
+    }
+    .top-bar .brand {
+      display:flex; align-items:center; gap:12px;
+      color:#fff; text-decoration:none;
+    }
+    .top-bar .brand img { height:36px; width:auto; display:block; }
+    .top-bar .brand-text {
+      font-size:.78rem; font-weight:700; letter-spacing:.04em;
+    }
+    .top-bar .badge {
+      display:inline-block;
+      font-size:.62rem; font-weight:800; letter-spacing:.14em;
+      text-transform:uppercase;
+      background:rgba(82,214,82,.18);
+      color:var(--g6);
+      padding:5px 12px; border-radius:50px;
+      border:1px solid rgba(82,214,82,.3);
+    }
+
+    .wrap { max-width:720px; margin:48px auto 80px; padding:0 20px; }
+    .card {
+      background:#fff;
+      border-radius:18px;
+      padding:36px 36px 28px;
+      box-shadow:0 18px 50px rgba(14,30,14,.10);
+    }
+    .header { text-align:center; margin-bottom:24px; }
+    .header h1 {
+      font-size:1.6rem; font-weight:900; color:#0e1e0e;
+      letter-spacing:-.02em; line-height:1.2;
+    }
+    .header p { margin-top:10px; color:#4b5563; font-size:.92rem; }
+
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .grid-1 { grid-template-columns:1fr; }
+    @media (max-width:640px) { .grid { grid-template-columns:1fr; } }
+
+    label {
+      display:block; font-weight:700;
+      margin:14px 0 6px;
+      font-size:.84rem; color:#1f2937;
+    }
+    .required-mark { color:var(--danger); font-weight:700; }
+    input, select, textarea {
+      width:100%; padding:12px 14px;
+      border:1.5px solid #d1d5db; border-radius:12px;
+      background:#fff; font:inherit; font-size:.92rem; color:var(--text);
+      transition:box-shadow .2s,border-color .2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline:none;
+      border-color:var(--g5);
+      box-shadow:0 0 0 4px rgba(82,214,82,.18);
+    }
+    textarea { min-height:110px; resize:vertical; font-family:inherit; }
+    select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a7a5a' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; }
+
+    .helper { font-size:.78rem; color:var(--muted); margin-top:6px; }
+
+    .summary-box {
+      margin-top:18px;
+      padding:14px 16px;
+      background:rgba(82,214,82,.08);
+      border:1px solid rgba(82,214,82,.25);
+      border-radius:12px;
+      font-size:.88rem;
+      color:#0e3a0e;
+      display:none;
+    }
+    .summary-box.show { display:block; }
+    .summary-box strong { color:#0e1e0e; }
+
+    .actions { margin-top:24px; }
+    #submitBtn {
+      width:100%;
+      padding:15px 16px;
+      border:0;
+      border-radius:50px;
+      background:linear-gradient(135deg,var(--g4),var(--g5));
+      color:#fff;
+      font-weight:800; font-size:.95rem; letter-spacing:.02em;
+      cursor:pointer;
+      box-shadow:0 8px 28px rgba(30,138,30,.38);
+      transition:transform .25s,box-shadow .25s;
+    }
+    #submitBtn:hover { transform:translateY(-2px); box-shadow:0 14px 38px rgba(30,138,30,.52); }
+    #submitBtn[disabled] { opacity:.6; cursor:not-allowed; transform:none; }
+
+    .bar { height:6px; background:#e5efe8; border-radius:999px; overflow:hidden; margin-top:14px; display:none; }
+    .bar > span { display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--g5),var(--g4)); transition:width .2s ease; }
+
+    .error {
+      display:none;
+      margin-top:14px;
+      color:#b91c1c;
+      background:#fee2e2;
+      border:1px solid #fecaca;
+      padding:10px 12px;
+      border-radius:10px;
+      font-size:.86rem;
+    }
+
+    .success { display:none; text-align:center; padding:42px 12px 10px; }
+    .check-wrap {
+      width:92px; height:92px; margin:0 auto 16px; border-radius:50%;
+      background:radial-gradient(120% 120% at 30% 20%, #d7f4df 0%, #baf0c6 35%, #8de3a2 65%, #53c97a 100%);
+      display:grid; place-items:center; box-shadow:0 8px 22px rgba(29,78,49,.25);
+    }
+    .check-wrap svg { width:44px; height:44px; stroke:#0b3b20; stroke-width:3; fill:none; }
+    .success h2 { margin:6px 0 6px; color:#1e4d2b; font-size:1.4rem; font-weight:900; }
+    .success p { color:#374151; font-size:.95rem; line-height:1.7; }
+
+    .hidden { display:none !important; }
+
+    .footnote {
+      text-align:center;
+      margin-top:24px;
+      color:#9ca3af;
+      font-size:.78rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="/" class="brand">
+      <img src="logo.webp" alt="Always Green Turf" />
+      <span class="brand-text">Always Green Turf</span>
+    </a>
+    <span class="badge">Internal · HR</span>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <h1>Time-Off Request</h1>
+        <p>Submit your vacation, sick, or personal-leave request. Your manager will review it and follow up within one business day.</p>
+      </div>
+
+      <form id="timeOffForm" novalidate>
+        <div class="form-body">
+          <div class="grid">
+            <div>
+              <label for="employeeName">Full Name <span class="required-mark">*</span></label>
+              <input id="employeeName" name="employeeName" type="text" autocomplete="name" required />
+            </div>
+            <div>
+              <label for="employeeEmail">Work Email <span class="required-mark">*</span></label>
+              <input id="employeeEmail" name="employeeEmail" type="email" autocomplete="email" required />
+            </div>
+          </div>
+
+          <div class="grid">
+            <div>
+              <label for="department">Department / Role</label>
+              <input id="department" name="department" type="text" placeholder="e.g. Install Crew, Sales, Office" />
+            </div>
+            <div>
+              <label for="leaveType">Leave Type <span class="required-mark">*</span></label>
+              <select id="leaveType" name="leaveType" required>
+                <option value="">Select…</option>
+                <option value="Vacation">Vacation / PTO</option>
+                <option value="Sick">Sick</option>
+                <option value="Personal">Personal</option>
+                <option value="Bereavement">Bereavement</option>
+                <option value="Jury Duty">Jury Duty</option>
+                <option value="Unpaid">Unpaid</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div>
+              <label for="startDate">Start Date <span class="required-mark">*</span></label>
+              <input id="startDate" name="startDate" type="date" required />
+            </div>
+            <div>
+              <label for="endDate">End Date <span class="required-mark">*</span></label>
+              <input id="endDate" name="endDate" type="date" required />
+            </div>
+          </div>
+
+          <div class="summary-box" id="daysSummary">
+            <strong>Total days requested:</strong> <span id="daysCount">—</span>
+            <span id="daysHint" class="helper" style="display:block;margin-top:4px;"></span>
+          </div>
+
+          <div class="grid grid-1">
+            <div>
+              <label for="reason">Reason / Notes</label>
+              <textarea id="reason" name="reason" placeholder="Briefly explain (optional, but helps your manager plan coverage)…"></textarea>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div>
+              <label for="coverageBy">Coverage By</label>
+              <input id="coverageBy" name="coverageBy" type="text" placeholder="Who will cover your duties (if known)?" />
+            </div>
+            <div>
+              <label for="contactDuring">Reachable During Leave?</label>
+              <select id="contactDuring" name="contactDuring">
+                <option value="No">No — not reachable</option>
+                <option value="Email only">Email only</option>
+                <option value="Emergency only">Emergency only</option>
+                <option value="Yes">Yes — fully reachable</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="submitBtn" type="submit">Submit Request</button>
+            <div class="bar" id="progressBar"><span id="progressFill"></span></div>
+            <div class="error" id="errorBox"></div>
+          </div>
+        </div>
+      </form>
+
+      <div class="success" id="successState" aria-live="polite">
+        <div class="check-wrap" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </div>
+        <h2>Request submitted</h2>
+        <p>Your request has been logged. Your manager will review it and you'll hear back within one business day.</p>
+      </div>
+    </div>
+
+    <p class="footnote">For HR questions, contact your manager directly.</p>
+  </div>
+
+<script type="module">
+  import { supabase } from "./js/supabase-client.js";
+
+  const REQUEST_TIMEOUT_MS = 15000;
+
+  const byId = id => document.getElementById(id);
+  const showError = m => { const el = byId("errorBox"); el.textContent = m || "Something went wrong. Please try again."; el.style.display = "block"; el.scrollIntoView({behavior:"smooth", block:"center"}); };
+  const hideError = () => { const el = byId("errorBox"); el.textContent = ""; el.style.display = "none"; };
+  const setBusy = b => { byId("submitBtn").disabled = b; byId("progressBar").style.display = b ? "block" : "none"; };
+  const updateProgress = p => { byId("progressFill").style.width = Math.max(0, Math.min(100, p)) + "%"; };
+  function withTimeout(promise, ms = REQUEST_TIMEOUT_MS) {
+    return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error(`Request timed out after ${ms}ms`)), ms))]);
+  }
+
+  /* ── Days-between live summary ── */
+  function daysBetween(start, end) {
+    if (!start || !end) return null;
+    const s = new Date(start + "T00:00:00");
+    const e = new Date(end + "T00:00:00");
+    if (isNaN(s) || isNaN(e)) return null;
+    const ms = e - s;
+    if (ms < 0) return -1;
+    return Math.round(ms / (1000 * 60 * 60 * 24)) + 1; // inclusive
+  }
+  function workdaysBetween(start, end) {
+    if (!start || !end) return null;
+    const s = new Date(start + "T00:00:00");
+    const e = new Date(end + "T00:00:00");
+    if (isNaN(s) || isNaN(e) || e < s) return null;
+    let count = 0;
+    const d = new Date(s);
+    while (d <= e) {
+      const day = d.getDay();
+      if (day !== 0 && day !== 6) count++;
+      d.setDate(d.getDate() + 1);
+    }
+    return count;
+  }
+  function updateDaysSummary() {
+    const start = byId("startDate").value;
+    const end = byId("endDate").value;
+    const box = byId("daysSummary");
+    const total = daysBetween(start, end);
+    const work = workdaysBetween(start, end);
+    if (total === null) { box.classList.remove("show"); return; }
+    if (total < 0) {
+      box.classList.add("show");
+      byId("daysCount").textContent = "—";
+      byId("daysHint").textContent = "End date is before start date.";
+      byId("daysHint").style.color = "#b91c1c";
+      return;
+    }
+    byId("daysHint").style.color = "";
+    byId("daysCount").textContent = `${total} calendar day${total === 1 ? "" : "s"}`;
+    byId("daysHint").textContent = `(${work} work day${work === 1 ? "" : "s"}, excluding weekends)`;
+    box.classList.add("show");
+  }
+  ["startDate", "endDate"].forEach(id => byId(id).addEventListener("change", updateDaysSummary));
+
+  /* ── Default start date to today, end date to today as well ── */
+  (function setDefaults() {
+    const today = new Date().toISOString().split("T")[0];
+    byId("startDate").min = today;
+    byId("endDate").min = today;
+  })();
+  byId("startDate").addEventListener("change", () => {
+    byId("endDate").min = byId("startDate").value || new Date().toISOString().split("T")[0];
+    if (byId("endDate").value && byId("endDate").value < byId("startDate").value) {
+      byId("endDate").value = byId("startDate").value;
+    }
+    updateDaysSummary();
+  });
+
+  /* ── Email validation (lightweight) ── */
+  function isValidEmail(v) {
+    return /^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,24}$/i.test((v || "").trim());
+  }
+
+  /* ── Slack payload builder ── */
+  function buildSlackPayload(data) {
+    const leaveEmoji = {
+      "Vacation": ":palm_tree:",
+      "Sick": ":face_with_thermometer:",
+      "Personal": ":calendar:",
+      "Bereavement": ":bouquet:",
+      "Jury Duty": ":balance_scale:",
+      "Unpaid": ":money_with_wings:",
+      "Other": ":memo:"
+    }[data.leaveType] || ":calendar:";
+
+    const totalDays = daysBetween(data.startDate, data.endDate);
+    const workDays = workdaysBetween(data.startDate, data.endDate);
+
+    const fmtDate = (s) => {
+      const d = new Date(s + "T00:00:00");
+      return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+    };
+
+    return {
+      // Plain-text fallback (shown in notifications)
+      text: `${leaveEmoji} ${data.employeeName} requested ${totalDays} day${totalDays === 1 ? "" : "s"} off (${data.leaveType}) — ${fmtDate(data.startDate)} to ${fmtDate(data.endDate)}`,
+      blocks: [
+        {
+          type: "header",
+          text: { type: "plain_text", text: `${leaveEmoji}  New Time-Off Request`, emoji: true }
+        },
+        {
+          type: "section",
+          fields: [
+            { type: "mrkdwn", text: `*Employee:*\n${data.employeeName}` },
+            { type: "mrkdwn", text: `*Email:*\n${data.employeeEmail}` },
+            { type: "mrkdwn", text: `*Department / Role:*\n${data.department || "—"}` },
+            { type: "mrkdwn", text: `*Leave Type:*\n${data.leaveType}` },
+            { type: "mrkdwn", text: `*Start Date:*\n${fmtDate(data.startDate)}` },
+            { type: "mrkdwn", text: `*End Date:*\n${fmtDate(data.endDate)}` },
+            { type: "mrkdwn", text: `*Total Days:*\n${totalDays} calendar (${workDays} work)` },
+            { type: "mrkdwn", text: `*Reachable:*\n${data.contactDuring}` }
+          ]
+        },
+        ...(data.reason ? [{
+          type: "section",
+          text: { type: "mrkdwn", text: `*Reason / Notes:*\n>${data.reason.replace(/\n/g, "\n>")}` }
+        }] : []),
+        ...(data.coverageBy ? [{
+          type: "section",
+          text: { type: "mrkdwn", text: `*Coverage By:* ${data.coverageBy}` }
+        }] : []),
+        {
+          type: "context",
+          elements: [
+            { type: "mrkdwn", text: `Submitted ${new Date().toLocaleString("en-US", { timeZone: "America/Phoenix" })} (Arizona time)` }
+          ]
+        },
+        { type: "divider" }
+      ]
+    };
+  }
+
+  /* ── Insert into Supabase ── */
+  async function insertRequest(data) {
+    const row = {
+      employee_name:  data.employeeName,
+      employee_email: data.employeeEmail,
+      department:     data.department || null,
+      leave_type:     data.leaveType,
+      start_date:     data.startDate,
+      end_date:       data.endDate,
+      reason:         data.reason || null,
+      coverage_by:    data.coverageBy || null,
+      contact_during: data.contactDuring || null,
+    };
+    const { error } = await withTimeout(
+      supabase.from("time_off_requests").insert(row),
+      REQUEST_TIMEOUT_MS
+    );
+    if (error) throw new Error(error.message || "Database error");
+  }
+
+  /* ── Notify Slack via our serverless proxy (CORS-safe). Silent on failure. ── */
+  async function pingSlackNewRequest(data) {
+    try {
+      // Workflow vars: fullname, reason, date_requested, start_date, end_date.
+      // `reason` carries the exact text the requester typed (may be empty).
+      const payload = {
+        fullname: data.employeeName,
+        reason: data.reason,
+        date_requested: new Date().toISOString().slice(0, 10),
+        start_date: data.startDate,
+        end_date: data.endDate,
+      };
+      await fetch("/api/slack-notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch (_) { /* swallow — the request is already in the DB */ }
+  }
+
+  /* ── Submit ── */
+  byId("timeOffForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    hideError();
+
+    const data = {
+      employeeName: byId("employeeName").value.trim(),
+      employeeEmail: byId("employeeEmail").value.trim(),
+      department: byId("department").value.trim(),
+      leaveType: byId("leaveType").value,
+      startDate: byId("startDate").value,
+      endDate: byId("endDate").value,
+      reason: byId("reason").value.trim(),
+      coverageBy: byId("coverageBy").value.trim(),
+      contactDuring: byId("contactDuring").value
+    };
+
+    if (!data.employeeName || !data.employeeEmail || !data.leaveType || !data.startDate || !data.endDate) {
+      showError("Please fill in all required fields."); return;
+    }
+    if (!isValidEmail(data.employeeEmail)) { showError("Please enter a valid work email."); byId("employeeEmail").focus(); return; }
+    const total = daysBetween(data.startDate, data.endDate);
+    if (total === null || total < 0) { showError("End date must be on or after start date."); return; }
+
+    try {
+      setBusy(true);
+      updateProgress(25);
+      await insertRequest(data);
+      updateProgress(70);
+      pingSlackNewRequest(data); // fire-and-forget
+      updateProgress(100);
+
+      document.querySelector(".form-body").classList.add("hidden");
+      byId("successState").style.display = "block";
+    } catch (err) {
+      console.error(err);
+      showError(err?.message || "Unable to submit your request. Please try again or contact HR directly.");
+    } finally {
+      setBusy(false);
+      setTimeout(() => updateProgress(0), 800);
+    }
+  });
+</script>
+</body>
+</html>

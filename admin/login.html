@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+  <title>Admin Login | Always Green Turf — Internal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --g1:#071a07; --g2:#0e300e; --g3:#165f16; --g4:#1e8a1e; --g5:#28b828; --g6:#52d652;
+      --text:#162016; --muted:#5a7a5a; --border:rgba(0,0,0,.08);
+      --danger:#b91c1c;
+    }
+    body {
+      font-family:'Poppins',sans-serif;
+      background:linear-gradient(135deg,#f6faf6 0%,#eaf5ea 100%);
+      color:var(--text);
+      min-height:100vh;
+      display:flex; flex-direction:column;
+    }
+    .top-bar {
+      background:linear-gradient(135deg,var(--g2),var(--g1));
+      padding:18px 28px;
+      display:flex; align-items:center; justify-content:space-between;
+      color:#fff;
+      box-shadow:0 4px 18px rgba(6,15,6,.18);
+    }
+    .top-bar .brand { display:flex; align-items:center; gap:12px; color:#fff; text-decoration:none; }
+    .top-bar .brand img { height:36px; width:auto; display:block; }
+    .top-bar .brand-text { font-size:.78rem; font-weight:700; letter-spacing:.04em; }
+    .top-bar .badge {
+      display:inline-block;
+      font-size:.62rem; font-weight:800; letter-spacing:.14em;
+      text-transform:uppercase;
+      background:rgba(82,214,82,.18);
+      color:var(--g6);
+      padding:5px 12px; border-radius:50px;
+      border:1px solid rgba(82,214,82,.3);
+    }
+
+    .wrap { flex:1; display:grid; place-items:center; padding:40px 20px; }
+    .card {
+      width:100%; max-width:420px;
+      background:#fff;
+      border-radius:18px;
+      padding:40px 36px;
+      box-shadow:0 18px 50px rgba(14,30,14,.10);
+    }
+    .header { text-align:center; margin-bottom:26px; }
+    .header h1 { font-size:1.5rem; font-weight:900; color:#0e1e0e; letter-spacing:-.02em; }
+    .header p { margin-top:8px; color:var(--muted); font-size:.86rem; }
+
+    label { display:block; font-weight:700; margin:14px 0 6px; font-size:.84rem; color:#1f2937; }
+    input {
+      width:100%; padding:12px 14px;
+      border:1.5px solid #d1d5db; border-radius:12px;
+      background:#fff; font:inherit; font-size:.92rem; color:var(--text);
+      transition:box-shadow .2s,border-color .2s;
+    }
+    input:focus { outline:none; border-color:var(--g5); box-shadow:0 0 0 4px rgba(82,214,82,.18); }
+
+    #loginBtn {
+      width:100%;
+      margin-top:22px;
+      padding:14px 16px;
+      border:0; border-radius:50px;
+      background:linear-gradient(135deg,var(--g4),var(--g5));
+      color:#fff; font-weight:800; font-size:.95rem; letter-spacing:.02em;
+      cursor:pointer;
+      box-shadow:0 8px 28px rgba(30,138,30,.38);
+      transition:transform .25s,box-shadow .25s;
+    }
+    #loginBtn:hover { transform:translateY(-2px); box-shadow:0 14px 38px rgba(30,138,30,.52); }
+    #loginBtn[disabled] { opacity:.6; cursor:not-allowed; transform:none; }
+
+    .error {
+      display:none; margin-top:14px;
+      color:var(--danger); background:#fee2e2; border:1px solid #fecaca;
+      padding:10px 12px; border-radius:10px; font-size:.86rem;
+    }
+    .footnote { text-align:center; margin-top:20px; color:#9ca3af; font-size:.78rem; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="/" class="brand">
+      <img src="../logo.webp" alt="Always Green Turf" />
+      <span class="brand-text">Always Green Turf</span>
+    </a>
+    <span class="badge">Admin</span>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <h1>Manager Login</h1>
+        <p>Sign in to review time-off requests.</p>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <label for="email">Work Email</label>
+        <input id="email" type="email" autocomplete="username" required />
+
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required />
+
+        <button id="loginBtn" type="submit">Sign In</button>
+        <div class="error" id="errorBox"></div>
+      </form>
+
+      <p class="footnote">Trouble signing in? Contact your administrator.</p>
+    </div>
+  </div>
+
+<script type="module">
+  import { supabase } from "../js/supabase-client.js";
+
+  const byId = id => document.getElementById(id);
+  const errBox = byId("errorBox");
+  const showError = (m) => { errBox.textContent = m; errBox.style.display = "block"; };
+  const hideError = () => { errBox.textContent = ""; errBox.style.display = "none"; };
+
+  // If already signed in, skip the form.
+  (async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data?.session) window.location.replace("./dashboard.html");
+  })();
+
+  byId("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideError();
+    const email = byId("email").value.trim();
+    const password = byId("password").value;
+    if (!email || !password) { showError("Email and password are required."); return; }
+
+    const btn = byId("loginBtn");
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = "Signing in…";
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      window.location.replace("./dashboard.html");
+    } catch (err) {
+      console.error(err);
+      showError(err?.message || "Sign-in failed. Check your credentials and try again.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+</script>
+</body>
+</html>

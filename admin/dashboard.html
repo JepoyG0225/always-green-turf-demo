@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+  <title>Time-Off Dashboard | Always Green Turf — Internal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --g1:#071a07; --g2:#0e300e; --g3:#165f16; --g4:#1e8a1e; --g5:#28b828; --g6:#52d652;
+      --text:#162016; --muted:#5a7a5a; --border:rgba(0,0,0,.08);
+      --danger:#b91c1c; --warn:#b45309; --ok:#15803d;
+    }
+    body {
+      font-family:'Poppins',sans-serif;
+      background:linear-gradient(135deg,#f6faf6 0%,#eaf5ea 100%);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    /* Top bar */
+    .top-bar {
+      background:linear-gradient(135deg,var(--g2),var(--g1));
+      padding:16px 28px;
+      display:flex; align-items:center; justify-content:space-between;
+      color:#fff;
+      box-shadow:0 4px 18px rgba(6,15,6,.18);
+    }
+    .top-bar .brand { display:flex; align-items:center; gap:12px; color:#fff; text-decoration:none; }
+    .top-bar .brand img { height:34px; width:auto; display:block; }
+    .top-bar .brand-text { font-size:.78rem; font-weight:700; letter-spacing:.04em; }
+    .top-bar .right { display:flex; align-items:center; gap:14px; font-size:.78rem; color:rgba(255,255,255,.85); }
+    .top-bar .badge {
+      display:inline-block;
+      font-size:.62rem; font-weight:800; letter-spacing:.14em;
+      text-transform:uppercase;
+      background:rgba(82,214,82,.18);
+      color:var(--g6);
+      padding:5px 12px; border-radius:50px;
+      border:1px solid rgba(82,214,82,.3);
+    }
+    #signOutBtn {
+      background:transparent; color:#fff; border:1px solid rgba(255,255,255,.3);
+      padding:7px 14px; border-radius:50px;
+      font:inherit; font-size:.74rem; font-weight:700; letter-spacing:.04em;
+      cursor:pointer; transition:background .2s;
+    }
+    #signOutBtn:hover { background:rgba(255,255,255,.12); }
+
+    /* Layout */
+    .wrap { max-width:1080px; margin:32px auto 80px; padding:0 20px; }
+    .page-title { font-size:1.6rem; font-weight:900; color:#0e1e0e; letter-spacing:-.02em; }
+    .page-sub { color:var(--muted); font-size:.92rem; margin-top:6px; }
+
+    /* Filter tabs */
+    .tabs {
+      display:flex; flex-wrap:wrap; gap:8px;
+      margin:24px 0 18px;
+    }
+    .tab {
+      background:#fff; border:1.5px solid var(--border); border-radius:50px;
+      padding:8px 18px; font:inherit; font-size:.82rem; font-weight:700;
+      color:var(--text); cursor:pointer; transition:all .2s;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .tab:hover { border-color:rgba(82,214,82,.5); }
+    .tab.active { background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; border-color:transparent; box-shadow:0 6px 18px rgba(30,138,30,.32); }
+    .tab .count {
+      background:rgba(0,0,0,.08); color:inherit;
+      font-size:.7rem; font-weight:800;
+      padding:2px 8px; border-radius:50px;
+      min-width:22px; text-align:center;
+    }
+    .tab.active .count { background:rgba(255,255,255,.25); }
+
+    /* Refresh button */
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+    #refreshBtn {
+      background:#fff; border:1.5px solid var(--border); border-radius:50px;
+      padding:8px 16px; font:inherit; font-size:.78rem; font-weight:700;
+      color:var(--text); cursor:pointer; transition:all .2s;
+      display:inline-flex; align-items:center; gap:6px;
+    }
+    #refreshBtn:hover { border-color:rgba(82,214,82,.5); }
+    #refreshBtn[disabled] { opacity:.5; cursor:not-allowed; }
+
+    /* Request card */
+    .card {
+      background:#fff;
+      border-radius:16px;
+      padding:22px 24px;
+      box-shadow:0 10px 30px rgba(14,30,14,.06);
+      margin-bottom:14px;
+      border:1px solid var(--border);
+    }
+    .card-head {
+      display:flex; justify-content:space-between; align-items:flex-start;
+      gap:14px; flex-wrap:wrap;
+    }
+    .name { font-size:1.05rem; font-weight:800; color:#0e1e0e; }
+    .email { color:var(--muted); font-size:.84rem; }
+    .meta-row { display:flex; flex-wrap:wrap; gap:14px 22px; margin-top:14px; font-size:.84rem; }
+    .meta { display:flex; flex-direction:column; gap:2px; }
+    .meta-label { font-size:.66rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+    .meta-value { font-weight:600; color:var(--text); }
+
+    .status-badge {
+      display:inline-block;
+      font-size:.66rem; font-weight:800; letter-spacing:.08em;
+      text-transform:uppercase;
+      padding:5px 12px; border-radius:50px;
+    }
+    .status-pending  { background:rgba(180,83,9,.12); color:var(--warn); border:1px solid rgba(180,83,9,.25); }
+    .status-approved { background:rgba(21,128,61,.12); color:var(--ok); border:1px solid rgba(21,128,61,.25); }
+    .status-rejected { background:rgba(185,28,28,.12); color:var(--danger); border:1px solid rgba(185,28,28,.25); }
+
+    .extras {
+      margin-top:14px; padding-top:14px;
+      border-top:1px dashed var(--border);
+      font-size:.86rem; color:#374151; line-height:1.6;
+    }
+    .extras .ex-label { font-weight:700; color:#0e1e0e; }
+
+    .review-info {
+      margin-top:14px; padding:12px 14px;
+      background:#f6faf6; border:1px solid rgba(82,214,82,.18);
+      border-radius:10px;
+      font-size:.84rem;
+    }
+    .review-info.rejected { background:#fef2f2; border-color:rgba(185,28,28,.18); }
+    .review-info .rl { font-weight:700; color:#0e1e0e; }
+
+    /* Action area for pending */
+    .actions {
+      margin-top:16px; padding-top:14px;
+      border-top:1px dashed var(--border);
+    }
+    .actions textarea {
+      width:100%; min-height:60px; resize:vertical;
+      padding:10px 12px;
+      border:1.5px solid #d1d5db; border-radius:10px;
+      font:inherit; font-size:.86rem; color:var(--text);
+      background:#fff;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .actions textarea:focus { outline:none; border-color:var(--g5); box-shadow:0 0 0 4px rgba(82,214,82,.18); }
+    .action-row { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+    .btn {
+      border:0; border-radius:50px;
+      padding:10px 20px;
+      font:inherit; font-size:.84rem; font-weight:700;
+      cursor:pointer; transition:transform .2s, box-shadow .2s, opacity .2s;
+      display:inline-flex; align-items:center; gap:6px;
+    }
+    .btn-approve { background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; box-shadow:0 6px 18px rgba(30,138,30,.32); }
+    .btn-approve:hover { transform:translateY(-1px); box-shadow:0 10px 24px rgba(30,138,30,.45); }
+    .btn-reject { background:#fff; color:var(--danger); border:1.5px solid rgba(185,28,28,.4); }
+    .btn-reject:hover { background:#fef2f2; }
+    .btn[disabled] { opacity:.5; cursor:not-allowed; transform:none; }
+
+    .btn-delete {
+      background:transparent; color:var(--muted); border:0;
+      padding:6px 10px; border-radius:6px;
+      font:inherit; font-size:.74rem; font-weight:700;
+      letter-spacing:.06em; text-transform:uppercase;
+      cursor:pointer; transition:background .2s, color .2s;
+    }
+    .btn-delete:hover { background:#fef2f2; color:var(--danger); }
+
+    /* Loading / empty / error */
+    .state {
+      text-align:center;
+      padding:40px 20px;
+      color:var(--muted);
+      font-size:.92rem;
+    }
+    .state-error { color:var(--danger); background:#fef2f2; border:1px solid #fecaca; border-radius:12px; }
+
+    .config-warn {
+      margin:16px 0;
+      padding:14px 16px;
+      background:#fef3c7; border:1px solid #fde68a; border-radius:12px;
+      color:#78350f; font-size:.86rem; line-height:1.6;
+    }
+    .config-warn code { background:rgba(120,53,15,.08); padding:1px 6px; border-radius:4px; font-size:.85em; }
+
+    @media (max-width:560px) {
+      .wrap { padding:0 14px; }
+      .card { padding:18px 18px; }
+      .meta-row { gap:12px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="/" class="brand">
+      <img src="../logo.webp" alt="Always Green Turf" />
+    </a>
+    <div class="right">
+      <span class="badge">Admin</span>
+      <span id="userEmail"></span>
+      <button id="signOutBtn" type="button">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <h1 class="page-title">Time-Off Requests</h1>
+    <p class="page-sub">Review submissions from your team. Approve or reject with an optional note.</p>
+
+    <div id="configWarn" class="config-warn" style="display:none;"></div>
+
+    <div class="toolbar">
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-status="pending">Pending <span class="count" id="cnt-pending">0</span></button>
+        <button class="tab" data-status="approved">Approved <span class="count" id="cnt-approved">0</span></button>
+        <button class="tab" data-status="rejected">Rejected <span class="count" id="cnt-rejected">0</span></button>
+        <button class="tab" data-status="all">All <span class="count" id="cnt-all">0</span></button>
+      </div>
+      <button id="refreshBtn" type="button">↻ Refresh</button>
+    </div>
+
+    <div id="list"></div>
+  </div>
+
+<script type="module">
+  import { supabase } from "../js/supabase-client.js";
+  import { SUPABASE_ANON_KEY } from "../js/site-config.js";
+
+  const byId = (id) => document.getElementById(id);
+  const listEl = byId("list");
+  const cntPending  = byId("cnt-pending");
+  const cntApproved = byId("cnt-approved");
+  const cntRejected = byId("cnt-rejected");
+  const cntAll      = byId("cnt-all");
+
+  let currentStatus = "pending";
+  let cachedRows = [];
+  let currentUser = null;
+
+  /* ── Auth gate ─────────────────────────────────────────────────────────── */
+  async function requireSession() {
+    if (SUPABASE_ANON_KEY.startsWith("PASTE_")) {
+      showConfigWarning(
+        "Supabase isn't configured yet. Open <code>js/site-config.js</code> and paste your anon key from the Supabase dashboard."
+      );
+      throw new Error("supabase-not-configured");
+    }
+    const { data } = await supabase.auth.getSession();
+    if (!data?.session) {
+      window.location.replace("./login.html");
+      throw new Error("not-authenticated");
+    }
+    currentUser = data.session.user;
+    byId("userEmail").textContent = currentUser.email || "";
+  }
+
+  function showConfigWarning(html) {
+    const el = byId("configWarn");
+    el.innerHTML = html;
+    el.style.display = "block";
+  }
+
+  /* ── Sign out ──────────────────────────────────────────────────────────── */
+  byId("signOutBtn").addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    window.location.replace("./login.html");
+  });
+
+  /* ── Helpers ───────────────────────────────────────────────────────────── */
+  const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+
+  const fmtDate = (s) => {
+    if (!s) return "—";
+    const d = new Date(s + "T00:00:00");
+    return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+  };
+  const fmtDateTime = (s) => {
+    if (!s) return "—";
+    return new Date(s).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+  };
+  const daysBetween = (start, end) => {
+    const s = new Date(start + "T00:00:00");
+    const e = new Date(end + "T00:00:00");
+    return Math.round((e - s) / (1000*60*60*24)) + 1;
+  };
+  const workdaysBetween = (start, end) => {
+    const s = new Date(start + "T00:00:00");
+    const e = new Date(end + "T00:00:00");
+    if (e < s) return 0;
+    let count = 0;
+    const d = new Date(s);
+    while (d <= e) {
+      const day = d.getDay();
+      if (day !== 0 && day !== 6) count++;
+      d.setDate(d.getDate() + 1);
+    }
+    return count;
+  };
+
+  /* ── Fetch ─────────────────────────────────────────────────────────────── */
+  async function fetchRequests() {
+    const { data, error } = await supabase
+      .from("time_off_requests")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  function updateCounts(rows) {
+    const counts = { pending:0, approved:0, rejected:0, all: rows.length };
+    rows.forEach(r => { counts[r.status] = (counts[r.status] || 0) + 1; });
+    cntPending.textContent  = counts.pending;
+    cntApproved.textContent = counts.approved;
+    cntRejected.textContent = counts.rejected;
+    cntAll.textContent      = counts.all;
+  }
+
+  /* ── Render ────────────────────────────────────────────────────────────── */
+  function render() {
+    const rows = currentStatus === "all"
+      ? cachedRows
+      : cachedRows.filter(r => r.status === currentStatus);
+
+    if (rows.length === 0) {
+      listEl.innerHTML = `<div class="state">No ${currentStatus === "all" ? "" : currentStatus + " "}requests.</div>`;
+      return;
+    }
+
+    listEl.innerHTML = rows.map(renderCard).join("");
+    wireCardActions();
+  }
+
+  function renderCard(r) {
+    const total = daysBetween(r.start_date, r.end_date);
+    const work  = workdaysBetween(r.start_date, r.end_date);
+    const statusCls = "status-" + r.status;
+
+    const extras = (r.reason || r.coverage_by || r.contact_during) ? `
+      <div class="extras">
+        ${r.reason       ? `<div><span class="ex-label">Reason:</span> ${escapeHtml(r.reason)}</div>`             : ""}
+        ${r.coverage_by  ? `<div><span class="ex-label">Coverage by:</span> ${escapeHtml(r.coverage_by)}</div>`   : ""}
+        ${r.contact_during ? `<div><span class="ex-label">Reachable during leave:</span> ${escapeHtml(r.contact_during)}</div>` : ""}
+      </div>` : "";
+
+    const reviewBlock = r.status !== "pending" ? `
+      <div class="review-info ${r.status === "rejected" ? "rejected" : ""}">
+        <div><span class="rl">${r.status === "approved" ? "Approved" : "Rejected"}</span> by ${escapeHtml(r.reviewer_email || "—")} · ${fmtDateTime(r.reviewed_at)}</div>
+        ${r.review_note ? `<div style="margin-top:6px"><span class="rl">Note:</span> ${escapeHtml(r.review_note)}</div>` : ""}
+      </div>` : "";
+
+    const actions = r.status === "pending" ? `
+      <div class="actions">
+        <label for="note-${r.id}" style="display:block; font-size:.74rem; font-weight:700; color:#0e1e0e; text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px;">Optional note to employee</label>
+        <textarea id="note-${r.id}" placeholder="Leave blank to use the standard message…"></textarea>
+        <div class="action-row">
+          <button class="btn btn-approve" data-action="approved" data-id="${r.id}">✓ Approve</button>
+          <button class="btn btn-reject"  data-action="rejected" data-id="${r.id}">✕ Reject</button>
+        </div>
+      </div>` : "";
+
+    return `
+      <div class="card" data-id="${r.id}">
+        <div class="card-head">
+          <div>
+            <div class="name">${escapeHtml(r.employee_name)}</div>
+            <div class="email">${escapeHtml(r.employee_email)}${r.department ? " · " + escapeHtml(r.department) : ""}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="status-badge ${statusCls}">${r.status}</span>
+            <button class="btn-delete" data-action="delete" data-id="${r.id}" title="Delete this request">Delete</button>
+          </div>
+        </div>
+
+        <div class="meta-row">
+          <div class="meta">
+            <span class="meta-label">Leave Type</span>
+            <span class="meta-value">${escapeHtml(r.leave_type)}</span>
+          </div>
+          <div class="meta">
+            <span class="meta-label">Start</span>
+            <span class="meta-value">${fmtDate(r.start_date)}</span>
+          </div>
+          <div class="meta">
+            <span class="meta-label">End</span>
+            <span class="meta-value">${fmtDate(r.end_date)}</span>
+          </div>
+          <div class="meta">
+            <span class="meta-label">Days</span>
+            <span class="meta-value">${total} cal · ${work} work</span>
+          </div>
+          <div class="meta">
+            <span class="meta-label">Submitted</span>
+            <span class="meta-value">${fmtDateTime(r.created_at)}</span>
+          </div>
+        </div>
+
+        ${extras}
+        ${reviewBlock}
+        ${actions}
+      </div>
+    `;
+  }
+
+  function wireCardActions() {
+    document.querySelectorAll(".btn[data-action]").forEach(btn => {
+      btn.addEventListener("click", () => handleDecision(btn));
+    });
+    document.querySelectorAll(".btn-delete[data-action='delete']").forEach(btn => {
+      btn.addEventListener("click", () => handleDelete(btn));
+    });
+  }
+
+  /* ── Delete ────────────────────────────────────────────────────────────── */
+  async function handleDelete(btn) {
+    const id = btn.dataset.id;
+    const row = cachedRows.find(r => r.id === id);
+    if (!row) return;
+    const label = `${row.employee_name} · ${row.leave_type} · ${row.start_date}`;
+    if (!confirm(`Delete this time-off request?\n\n${label}\n\nThis cannot be undone.`)) return;
+
+    btn.disabled = true;
+    try {
+      const { error } = await supabase
+        .from("time_off_requests")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+      await reload();
+    } catch (err) {
+      console.error(err);
+      alert("Could not delete request: " + (err?.message || err));
+      btn.disabled = false;
+    }
+  }
+
+  /* ── Approve / Reject ──────────────────────────────────────────────────── */
+  async function handleDecision(btn) {
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    const card = btn.closest(".card");
+    const note = (card.querySelector("textarea")?.value || "").trim();
+    const row = cachedRows.find(r => r.id === id);
+    if (!row) return;
+
+    // Disable both buttons on this card
+    card.querySelectorAll(".btn").forEach(b => b.disabled = true);
+
+    try {
+      const { error } = await supabase
+        .from("time_off_requests")
+        .update({
+          status: action,
+          reviewer_email: currentUser?.email || null,
+          review_note: note || null,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      // Email the requester — fire-and-forget (errors surface as toast).
+      // Slack notifications intentionally NOT sent on decision; only on
+      // the initial form submit.
+      pingDecisionEmail(row, action, note, currentUser?.email);
+
+      // Reload from server so we see the canonical state
+      await reload();
+    } catch (err) {
+      console.error(err);
+      alert("Could not update request: " + (err?.message || err));
+      card.querySelectorAll(".btn").forEach(b => b.disabled = false);
+    }
+  }
+
+  async function pingDecisionEmail(row, action, note, reviewerEmail) {
+    try {
+      const res = await fetch("/api/send-decision-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: row.employee_email,
+          employee_name: row.employee_name,
+          action,
+          leave_type: row.leave_type,
+          start_date: row.start_date,
+          end_date: row.end_date,
+          review_note: note || null,
+          reviewer_email: reviewerEmail || null,
+          original_reason: row.reason || null,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        const msg = body?.details?.message || body?.message || body?.error || `HTTP ${res.status}`;
+        console.warn("[email] send failed:", msg, body);
+        showEmailWarning(row.employee_email, msg);
+        return;
+      }
+      console.log("[email] sent to", row.employee_email);
+    } catch (err) {
+      console.warn("[email] network error:", err);
+      showEmailWarning(row.employee_email, err?.message || String(err));
+    }
+  }
+
+  function showEmailWarning(to, msg) {
+    const warn = document.createElement("div");
+    warn.style.cssText = "position:fixed;bottom:20px;right:20px;max-width:380px;padding:14px 16px;background:#fef3c7;border:1px solid #fde68a;border-radius:12px;color:#78350f;font-size:13px;line-height:1.5;box-shadow:0 10px 28px rgba(0,0,0,.12);z-index:9999;";
+    warn.innerHTML = `<div style="font-weight:700;margin-bottom:4px">Email not delivered to ${escapeHtml(to)}</div><div style="opacity:.85">${escapeHtml(msg)}</div><div style="margin-top:6px;font-size:11px;opacity:.7">Row was still updated. Common cause: Resend domain not verified — only the account-owner email can receive in testing mode.</div>`;
+    document.body.appendChild(warn);
+    setTimeout(() => warn.remove(), 12000);
+  }
+
+  /* ── Tabs ──────────────────────────────────────────────────────────────── */
+  document.querySelectorAll("#tabs .tab").forEach(t => {
+    t.addEventListener("click", () => {
+      document.querySelectorAll("#tabs .tab").forEach(x => x.classList.remove("active"));
+      t.classList.add("active");
+      currentStatus = t.dataset.status;
+      render();
+    });
+  });
+
+  /* ── Reload ────────────────────────────────────────────────────────────── */
+  async function reload() {
+    listEl.innerHTML = `<div class="state">Loading…</div>`;
+    try {
+      cachedRows = await fetchRequests();
+      updateCounts(cachedRows);
+      render();
+    } catch (err) {
+      console.error(err);
+      listEl.innerHTML = `<div class="state state-error">Could not load requests: ${escapeHtml(err.message || String(err))}</div>`;
+    }
+  }
+
+  byId("refreshBtn").addEventListener("click", async () => {
+    const btn = byId("refreshBtn");
+    btn.disabled = true;
+    await reload();
+    btn.disabled = false;
+  });
+
+  /* ── Boot ──────────────────────────────────────────────────────────────── */
+  (async () => {
+    try {
+      await requireSession();
+      await reload();
+    } catch (_) { /* handled by requireSession */ }
+  })();
+
+  // Optional realtime: refresh when anything changes.
+  // Requires "Realtime" enabled for public.time_off_requests in Supabase dashboard.
+  try {
+    supabase.channel("time_off_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "time_off_requests" }, () => {
+        reload();
+      })
+      .subscribe();
+  } catch (_) { /* realtime is optional */ }
+</script>
+</body>
+</html>
