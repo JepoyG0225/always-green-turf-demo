@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Refer a Friend, Earn $500 | Always Green Turf Referral Program</title>
+  <meta name="description" content="Earn a $500 Amazon Gift Card for every friend, family member, or neighbor you refer to Always Green Turf who signs up for a turf, paver, or putting green installation." />
+  <link rel="icon" type="image/png" href="https://alwaysgreenturfaz.com/assets/agt-favicon.png" />
+  <script>document.documentElement.classList.add('js');</script>
+
+  <meta property="og:title" content="Refer a Friend, Earn $500 — Always Green Turf" />
+  <meta property="og:description" content="Get a $500 Amazon Gift Card for every referral who completes an installation with us." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --g1:#16331a; --g2:#1d3f22; --g3:#347a32; --g4:#479743;
+      --g5:#7fc241; --g6:#a3dd76; --g-pale:#eef7e3;
+      --gold:#7fc241; --gold-l:#a3dd76;   /* gold removed — mapped to brand green */
+      --char:#444343;
+      --white:#fff; --off:#f7faf4;
+      --dark:#2b2b2a; --text:#444343; --muted:#6f6f6e;
+      --border:rgba(0,0,0,.08);
+      --ease:cubic-bezier(.22,1,.36,1);
+      --t:.45s var(--ease);
+      --radius:22px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { margin:0 !important; padding:0 !important; width:100%; max-width:100%; }
+    html { scroll-behavior:smooth; overflow-x:hidden; }
+    body {
+      font-family:'Poppins',sans-serif; color:var(--text);
+      background:var(--off); line-height:1.6; -webkit-font-smoothing:antialiased;
+    }
+    img { max-width:100%; display:block; }
+    a { color:inherit; }
+    .wrap { width:100%; max-width:1140px; margin:0 auto; padding:0 24px; }
+
+    /* minimal scrollbar */
+    * { scrollbar-width:thin; scrollbar-color:rgba(71,151,67,.45) transparent; }
+    ::-webkit-scrollbar { width:7px; height:7px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:rgba(71,151,67,.35); border-radius:10px; }
+    ::-webkit-scrollbar-thumb:hover { background:rgba(71,151,67,.6); }
+
+    /* gradient-text helper */
+    .grad-text {
+      background:linear-gradient(120deg,var(--gold) 0%,var(--gold-l) 50%,#fff 100%);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+    }
+
+    /* scroll reveal — hidden state only applies once JS adds .js to <html>,
+       so if scripts are blocked (or fail) all content stays fully visible. */
+    .reveal { transition:opacity .7s var(--ease), transform .7s var(--ease); }
+    .js .reveal { opacity:0; transform:translateY(28px); }
+    .js .reveal.in { opacity:1; transform:none; }
+    .reveal.d1 { transition-delay:.08s; } .reveal.d2 { transition-delay:.16s; } .reveal.d3 { transition-delay:.24s; }
+    @media (prefers-reduced-motion:reduce){ .js .reveal{opacity:1;transform:none;transition:none;} }
+
+    /* ── Top bar (glass) ── */
+    .topbar {
+      position:sticky; top:0; z-index:60;
+      background:linear-gradient(135deg, var(--g1), var(--g2));
+      border-bottom:1px solid rgba(255,255,255,.08);
+      box-shadow:0 4px 20px rgba(0,0,0,.18);
+    }
+    .topbar .wrap { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:13px 24px; }
+    .topbar img { height:38px; width:auto; }
+    .top-call {
+      display:inline-flex; align-items:center; gap:8px;
+      color:#fff; text-decoration:none; font-weight:600; font-size:.86rem;
+      padding:9px 20px; border-radius:50px;
+      background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.05));
+      border:1px solid rgba(255,255,255,.18); transition:transform var(--t), background var(--t);
+    }
+    .top-call:hover { transform:translateY(-1px); background:rgba(255,255,255,.16); }
+
+    /* ── Hero ── */
+    .hero {
+      position:relative; overflow:hidden; color:#fff;
+      background:
+        linear-gradient(100deg, rgba(40,44,38,.92) 0%, rgba(43,55,40,.80) 42%, rgba(45,70,42,.55) 72%, rgba(50,80,45,.42) 100%),
+        url('https://assets.cdn.filesafe.space/dpp7zOnwhkHGWhn5lGRd/media/6a20002bb75a113972d13ec2.png') center 30%/cover no-repeat;
+      padding:74px 0 96px;
+    }
+    /* animated floating blobs (hidden — photo hero) */
+    .blob { display:none; }
+    @keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,30px)} }
+    @keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-36px,-28px)} }
+    /* subtle dot grid */
+    .hero::before {
+      content:''; position:absolute; inset:0; z-index:0; opacity:.18;
+      background-image:radial-gradient(rgba(255,255,255,.10) 1px, transparent 1px);
+      background-size:26px 26px; mask-image:linear-gradient(180deg,#000,transparent 80%);
+      -webkit-mask-image:linear-gradient(180deg,#000,transparent 80%);
+    }
+    .hero .wrap { position:relative; z-index:2; }
+    .hero-copy { max-width:640px; }
+    .eyebrow {
+      display:inline-flex; align-items:center; gap:9px;
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
+      padding:8px 16px; border-radius:50px; font-size:.72rem; font-weight:600;
+      letter-spacing:.1em; text-transform:uppercase; margin-bottom:22px;
+      backdrop-filter:blur(6px);
+    }
+    .eyebrow .dot { width:7px; height:7px; border-radius:50%; background:var(--g6); box-shadow:0 0 12px var(--g6); animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+    .hero h1 {
+      font-size:clamp(2.5rem,5.6vw,4.4rem); font-weight:900; line-height:1.02;
+      letter-spacing:-.03em; margin-bottom:20px;
+    }
+    .hero p.sub {
+      font-size:clamp(1rem,2vw,1.2rem); color:rgba(255,255,255,.82);
+      max-width:520px; margin-bottom:34px;
+    }
+    .hero-cta-row { display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:16px 36px; border-radius:50px; border:none; cursor:pointer;
+      font-family:inherit; font-size:1rem; font-weight:700; letter-spacing:.01em;
+      text-decoration:none; transition:transform var(--t), box-shadow var(--t), filter var(--t);
+    }
+    .btn-gold { background:linear-gradient(135deg,var(--g5),var(--g4)); color:#fff; box-shadow:0 10px 30px rgba(71,151,67,.45); }
+    .btn-gold:hover { transform:translateY(-3px); box-shadow:0 16px 40px rgba(71,151,67,.6); filter:brightness(1.05); }
+    .btn-green { background:linear-gradient(135deg,var(--g5),var(--g6)); color:#fff; box-shadow:0 10px 30px rgba(40,184,40,.45); }
+    .btn-green:hover { transform:translateY(-3px); box-shadow:0 16px 40px rgba(40,184,40,.55); filter:brightness(1.03); }
+    .btn-ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.25); }
+    .btn-ghost:hover { background:rgba(255,255,255,.1); transform:translateY(-2px); }
+    .hero .trust { margin-top:28px; font-size:.84rem; color:rgba(255,255,255,.72); display:flex; flex-wrap:wrap; gap:10px 22px; }
+    .hero .trust span { display:inline-flex; align-items:center; gap:7px; }
+    .check { color:var(--g6); font-weight:800; }
+
+    /* ── Gift card image (shown in the reward panel) ── */
+    @keyframes cardfloat { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-12px) rotate(-1.5deg)} }
+    .bento-card-img {
+      flex:0 0 auto; width:50%; max-width:400px; height:auto;
+      filter:drop-shadow(0 18px 40px rgba(0,0,0,.45));
+      animation:cardfloat 6s ease-in-out infinite;
+    }
+
+    /* ── Section base ── */
+    section.block { padding:84px 0; position:relative; }
+    .sec-head { text-align:center; max-width:660px; margin:0 auto 54px; }
+    .sec-head .kicker { color:var(--g4); font-weight:700; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; margin-bottom:12px; }
+    .sec-head h2 { font-size:clamp(1.8rem,4vw,2.7rem); font-weight:800; letter-spacing:-.02em; color:var(--g2); line-height:1.1; }
+    .sec-head p { color:var(--muted); margin-top:14px; font-size:1.05rem; }
+
+    /* ── How it works (glass cards + connector) ── */
+    .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; position:relative; }
+    .steps::before {
+      content:''; position:absolute; top:60px; left:16%; right:16%; height:2px; z-index:0;
+      background:linear-gradient(90deg,var(--g5),var(--gold) 50%,var(--g5));
+      opacity:.35;
+    }
+    .step {
+      position:relative; z-index:1; text-align:center;
+      background:rgba(255,255,255,.7); backdrop-filter:blur(8px);
+      border:1px solid rgba(255,255,255,.9); border-radius:var(--radius);
+      padding:36px 26px; box-shadow:0 18px 44px rgba(10,40,10,.08);
+      transition:transform var(--t), box-shadow var(--t);
+    }
+    .step:hover { transform:translateY(-6px); box-shadow:0 26px 56px rgba(10,40,10,.14); }
+    .step .num {
+      width:60px; height:60px; margin:0 auto 18px; border-radius:18px;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:800; font-size:1.4rem; color:#fff;
+      background:linear-gradient(135deg,var(--g4),var(--g5));
+      box-shadow:0 12px 26px rgba(40,184,40,.35); transform:rotate(-6deg);
+    }
+    .step h3 { font-size:1.2rem; font-weight:700; color:var(--g2); margin-bottom:8px; }
+    .step p { color:var(--muted); font-size:.95rem; }
+
+    /* ── Reward bento ── */
+    .bento { display:block; }
+    .bento-main {
+      position:relative; overflow:hidden; border-radius:28px; color:#fff;
+      background:
+        radial-gradient(500px 300px at 100% 0%, rgba(127,194,65,.35), transparent 60%),
+        linear-gradient(135deg,var(--g2),var(--g4));
+      padding:44px 44px; display:flex; flex-direction:column; gap:28px;
+    }
+    .bento-row { display:flex; align-items:center; gap:30px; }
+    .bento-main .bento-copy { flex:1 1 auto; min-width:0; }
+    .bento-main .big { font-size:clamp(3rem,8vw,5rem); font-weight:900; letter-spacing:-.03em; line-height:1; }
+    .bento-main .big .grad-text { background:linear-gradient(120deg,var(--gold-l),#fff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .bento-main .lbl { font-size:1.1rem; font-weight:600; margin-top:8px; }
+    .bento-main p { color:rgba(255,255,255,.82); max-width:440px; margin-top:14px; }
+    .bento-foot { text-align:center; padding-top:26px; border-top:1px solid rgba(255,255,255,.16); }
+    .bento-foot-title { font-size:clamp(1.4rem,4vw,2rem); font-weight:900; color:var(--g6); letter-spacing:-.01em; }
+    .bento-foot-sub { color:rgba(255,255,255,.78); margin-top:4px; font-size:.98rem; }
+    .bento-side { display:grid; grid-template-rows:1fr 1fr; gap:24px; }
+    .bento-cell {
+      border-radius:24px; padding:28px; background:#fff; border:1px solid var(--border);
+      box-shadow:0 14px 36px rgba(10,40,10,.06);
+      display:flex; flex-direction:column; justify-content:center;
+    }
+    .bento-cell .stat { font-size:2rem; font-weight:900; color:var(--g4); letter-spacing:-.02em; }
+    .bento-cell .stat-l { color:var(--muted); font-size:.95rem; margin-top:2px; }
+
+    /* ── Form ── */
+    .form-section { position:relative; }
+    .form-section::before {
+      content:''; position:absolute; inset:0; z-index:0;
+      background:radial-gradient(700px 400px at 50% 0%, rgba(40,184,40,.07), transparent 70%);
+    }
+    .form-section .wrap { position:relative; z-index:1; }
+    .form-card {
+      max-width:760px; margin:0 auto; background:rgba(255,255,255,.85);
+      backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.9); border-radius:28px;
+      padding:46px 42px; box-shadow:0 30px 70px rgba(10,40,10,.10);
+    }
+    .form-card .grp-title {
+      font-size:.76rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+      color:var(--g4); margin:6px 0 18px; display:flex; align-items:center; gap:12px;
+    }
+    .form-card .grp-title .badge-num {
+      width:24px; height:24px; border-radius:8px; background:linear-gradient(135deg,var(--g4),var(--g5));
+      color:#fff; display:flex; align-items:center; justify-content:center; font-size:.74rem;
+    }
+    .form-card .grp-title::after { content:''; flex:1; height:1px; background:var(--border); }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    .field { display:flex; flex-direction:column; gap:6px; }
+    .field.full { grid-column:1 / -1; }
+    .field label { font-size:.82rem; font-weight:600; color:var(--text); }
+    .field label .req { color:#c0392b; }
+    .field input, .field select, .field textarea {
+      font-family:inherit; font-size:.95rem; color:var(--text);
+      padding:14px 16px; border:1.5px solid #dde7dd; border-radius:13px; background:#fff;
+      transition:border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline:none; border-color:var(--g5); box-shadow:0 0 0 4px rgba(40,184,40,.14);
+    }
+    .field textarea { resize:vertical; min-height:84px; }
+    .consent { display:flex; gap:10px; align-items:flex-start; margin:8px 0 22px; font-size:.82rem; color:var(--muted); }
+    .consent input { margin-top:4px; accent-color:var(--g4); }
+
+    /* repeatable referral line items */
+    .referral-item {
+      position:relative; padding:18px 18px 2px; margin-bottom:14px;
+      border:1px solid #e1ebe1; border-radius:14px; background:rgba(247,250,244,.7);
+    }
+    .referral-item .ref-num {
+      font-size:.72rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+      color:var(--g4); margin-bottom:12px;
+    }
+    .ref-remove {
+      position:absolute; top:10px; right:10px; width:26px; height:26px; border-radius:50%;
+      border:none; background:#efe2e2; color:#b23b3b; font-size:1.05rem; line-height:1; cursor:pointer;
+      display:none; align-items:center; justify-content:center; transition:background .2s, transform .2s;
+    }
+    .ref-remove:hover { background:#e7caca; transform:rotate(90deg); }
+    .referral-item.removable .ref-remove { display:flex; }
+    .add-more-btn {
+      display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-family:inherit;
+      font-weight:700; font-size:.86rem; color:var(--g4); padding:11px 18px; border-radius:12px;
+      background:rgba(71,151,67,.07); border:1.5px dashed rgba(71,151,67,.5);
+      transition:background .2s, border-color .2s; margin:4px 0 24px;
+    }
+    .add-more-btn:hover { background:rgba(71,151,67,.14); border-color:var(--g4); }
+    .add-more-btn .amb-plus { font-size:1.05rem; line-height:1; }
+
+    .submit-wrap { text-align:center; margin-top:22px; }
+    .submit-wrap .btn { min-width:240px; }
+    .form-card .btn { width:100%; }
+    .form-note { text-align:center; margin-top:16px; font-size:.84rem; color:var(--muted); }
+
+    .form-success { display:none; text-align:center; padding:36px 10px; }
+    .form-success.show { display:block; animation:fadeup .5s var(--ease); }
+    @keyframes fadeup { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+    .form-success .tick {
+      width:78px; height:78px; margin:0 auto 18px; border-radius:50%;
+      background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff;
+      display:flex; align-items:center; justify-content:center; font-size:2.2rem; font-weight:800;
+      box-shadow:0 14px 32px rgba(40,184,40,.4);
+    }
+    .form-success h3 { font-size:1.6rem; color:var(--g2); margin-bottom:8px; }
+    .form-success p { color:var(--muted); max-width:440px; margin:0 auto; }
+
+    /* ── Referral CTA band ── */
+    .cta-band { text-align:center; }
+    .cta-band .cta-inner {
+      max-width:720px; margin:0 auto;
+      background:radial-gradient(560px 320px at 50% 0%, rgba(40,184,40,.10), transparent 70%), #fff;
+      border:1px solid var(--border); border-radius:28px; padding:58px 40px;
+      box-shadow:0 26px 60px rgba(10,40,10,.08);
+    }
+    .cta-band .kicker { color:var(--g4); font-weight:700; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; margin-bottom:12px; }
+    .cta-band h2 { font-size:clamp(1.7rem,4vw,2.5rem); font-weight:800; color:var(--g2); letter-spacing:-.02em; line-height:1.1; }
+    .cta-band p { color:var(--muted); margin:14px auto 26px; max-width:480px; }
+    .cta-band .cta-sub { font-size:.82rem; color:var(--muted); margin-top:16px; }
+
+    /* ── Modal ── */
+    body.modal-open { overflow:hidden; }
+    .modal-overlay {
+      position:fixed; inset:0; z-index:120; display:flex; align-items:center; justify-content:center;
+      padding:20px; background:rgba(6,15,6,.62); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+      opacity:0; pointer-events:none; transition:opacity .3s var(--ease);
+    }
+    .modal-overlay.open { opacity:1; pointer-events:auto; }
+    .modal-card {
+      position:relative; width:100%; max-width:680px; max-height:92vh; overflow-y:auto;
+      background:#fff; border-radius:26px; padding:42px 40px;
+      box-shadow:0 40px 110px rgba(0,0,0,.5);
+      transform:translateY(22px) scale(.96); transition:transform .35s var(--ease);
+    }
+    .modal-overlay.open .modal-card { transform:none; }
+    .modal-close {
+      position:absolute; top:14px; right:16px; width:40px; height:40px; border-radius:50%;
+      border:none; background:var(--g-pale); color:var(--g2); font-size:1.5rem; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; line-height:1;
+      transition:background var(--t), transform var(--t); z-index:2;
+    }
+    .modal-close:hover { background:#dbe9db; transform:rotate(90deg); }
+    .modal-card #referralForm { margin-top:10px; }
+
+    /* ── Phone CTA ── */
+    .phone-cta { text-align:center; padding:70px 0; position:relative; overflow:hidden;
+      background:linear-gradient(135deg,var(--g-pale),#e3f3e3); }
+    .phone-cta h2 { font-size:clamp(1.6rem,4vw,2.2rem); font-weight:800; color:var(--g2); margin-bottom:10px; }
+    .phone-cta p { color:var(--muted); margin-bottom:26px; }
+    .phone-num {
+      display:inline-flex; align-items:center; gap:12px; font-size:1.6rem; font-weight:800;
+      color:#fff; text-decoration:none; padding:16px 34px; border-radius:50px;
+      background:linear-gradient(135deg,var(--g4),var(--g5)); box-shadow:0 14px 34px rgba(40,184,40,.4);
+      transition:transform var(--t), box-shadow var(--t);
+    }
+    .phone-num:hover { transform:translateY(-3px); box-shadow:0 20px 44px rgba(40,184,40,.5); }
+
+    /* ── Terms ── */
+    .terms { padding:56px 0; background:var(--g1); color:rgba(255,255,255,.62); }
+    .terms h4 { color:#fff; font-size:.92rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; margin-bottom:16px; }
+    .terms ul { list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:10px 30px; max-width:900px; }
+    .terms li { font-size:.85rem; padding-left:24px; position:relative; line-height:1.5; }
+    .terms li::before { content:'✓'; position:absolute; left:0; color:var(--g6); font-weight:800; }
+
+    /* ── Footer ── */
+    footer { background:var(--dark); color:rgba(255,255,255,.55); text-align:center; padding:34px 0; font-size:.82rem; }
+    footer img { height:34px; width:auto; margin:0 auto 14px; opacity:.92; }
+    footer a { color:rgba(255,255,255,.8); text-decoration:none; }
+
+    /* ── Floating mobile CTA ── */
+    .float-cta {
+      position:fixed; left:16px; right:16px; bottom:16px; z-index:80; display:none;
+      box-shadow:0 14px 40px rgba(40,184,40,.5);
+    }
+    .float-cta .btn { width:100%; padding:15px; }
+
+    /* ── Responsive ── */
+    @media (max-width:900px) {
+      .hero .wrap { text-align:center; }
+      .hero-copy { max-width:640px; margin:0 auto; }
+      .hero p.sub { margin-left:auto; margin-right:auto; }
+      .hero-cta-row, .hero .trust { justify-content:center; }
+      .bento { grid-template-columns:1fr; }
+      .terms ul { grid-template-columns:1fr; }
+    }
+    @media (max-width:820px) { .steps { grid-template-columns:1fr; } .steps::before { display:none; } }
+    @media (max-width:560px) {
+      .topbar .top-call span.txt { display:none; }
+      .row { grid-template-columns:1fr; }
+      .form-card { padding:32px 22px; }
+      .bento-main { padding:40px 28px; }
+      .bento-row { flex-direction:column; text-align:center; }
+      .bento-card-img { width:86%; max-width:340px; }
+      section.block { padding:60px 0; }
+      .float-cta { display:block; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ TOP BAR ══ -->
+  <header class="topbar">
+    <div class="wrap">
+      <a href="https://alwaysgreenturfaz.com/" aria-label="Always Green Turf">
+        <img src="https://alwaysgreenturfaz.com/logo.webp" alt="Always Green Turf" />
+      </a>
+      <a class="top-call" href="tel:14805719553">
+        <svg class="call-ico" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <span class="txt">(480) 571-9553</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ══ HERO ══ -->
+  <section class="hero">
+    <span class="blob a"></span><span class="blob b"></span>
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="eyebrow reveal in"><span class="dot"></span> Always Green Turf Referral Program</span>
+        <h1 class="reveal in d1">Refer a Friend.<br>Earn <span class="grad-text">$500</span>.</h1>
+        <p class="sub reveal in d2">
+          Thank you for being a valued customer! For every friend, family member, or neighbor
+          you refer who completes an installation with us, you’ll receive a
+          <strong>$500 Amazon Gift Card</strong> as our way of saying thanks.
+        </p>
+        <div class="hero-cta-row reveal in d3">
+          <a href="#refer" class="btn btn-gold" data-open-modal>Refer Someone Now →</a>
+          <a href="#how" class="btn btn-ghost">How it works</a>
+        </div>
+        <div class="trust reveal in d3">
+          <span><span class="check">✓</span> No limit on referrals</span>
+          <span><span class="check">✓</span> Paid after they sign</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ HOW IT WORKS ══ -->
+  <section class="block" id="how">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="kicker">Simple &amp; Rewarding</div>
+        <h2>How It Works</h2>
+        <p>Three easy steps between you and your $500 Amazon Gift Card.</p>
+      </div>
+      <div class="steps">
+        <div class="step reveal d1">
+          <div class="num">1</div>
+          <h3>Refer Someone</h3>
+          <p>Fill out the form below with your details and your referral’s contact info. It takes less than a minute.</p>
+        </div>
+        <div class="step reveal d2">
+          <div class="num">2</div>
+          <h3>They Get Installed</h3>
+          <p>We reach out, design their dream yard, and your referral signs their contract and completes their installation.</p>
+        </div>
+        <div class="step reveal d3">
+          <div class="num">3</div>
+          <h3>You Get $500</h3>
+          <p>Once the contract is signed and the job is sold, we send your <strong>$500 Amazon Gift Card</strong> straight to you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ REWARD BENTO ══ -->
+  <section class="block" style="padding-top:0;">
+    <div class="wrap">
+      <div class="bento">
+        <div class="bento-main reveal">
+          <div class="bento-row">
+            <div class="bento-copy">
+              <div class="big"><span class="grad-text">$500</span></div>
+              <div class="lbl">Amazon Gift Card — per successful referral</div>
+              <p>There’s no cap. Refer your neighbor, your sister, and your coworker — every one that signs a contract earns you another $500.</p>
+            </div>
+            <img class="bento-card-img" src="https://assets.cdn.filesafe.space/dpp7zOnwhkHGWhn5lGRd/media/6a20002b5cd41fa7c69b0fcd.png" alt="$500 Amazon Gift Card from Always Green Turf" />
+          </div>
+          <div class="bento-foot">
+            <div class="bento-foot-title">Turf · Pavers · Greens</div>
+            <div class="bento-foot-sub">Any installation project qualifies</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ REFERRAL FORM ══ -->
+  <section class="block cta-band" id="refer">
+    <div class="wrap reveal">
+      <div class="cta-inner">
+        <div class="kicker">Send Us Your Referral</div>
+        <h2>Ready to earn your $500?</h2>
+        <p>Know someone who’d love to upgrade their yard? Submit their info in under a minute — we’ll take it from there.</p>
+        <button type="button" class="btn btn-gold" data-open-modal>Submit a Referral →</button>
+        <p class="cta-sub">Takes ~60 seconds · No limit on referrals</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ REFERRAL MODAL ══ -->
+  <div class="modal-overlay" id="referModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Submit a referral">
+      <button type="button" class="modal-close" id="modalClose" aria-label="Close form">&times;</button>
+        <!--
+          ┌─────────────────────────────────────────────────────────────┐
+          │  GHL INTEGRATION                                             │
+          │  On submit, the script at the bottom POSTs this form as      │
+          │  JSON to the GoHighLevel inbound webhook, then shows the     │
+          │  thank-you state. Fields are sent by their name="" keys:     │
+          │  referrer_name, referrer_phone, referrer_email,             │
+          │  referral_name, referral_phone, referral_email,            │
+          │  project_interest, notes (+ consent, source, page_url).     │
+          │  Map these to your workflow's custom fields in GHL.         │
+          └─────────────────────────────────────────────────────────────┘
+        -->
+        <form id="referralForm" novalidate>
+          <div class="grp-title"><span class="badge-num">1</span> Your Information</div>
+          <div class="row">
+            <div class="field">
+              <label for="yourName">Full Name <span class="req">*</span></label>
+              <input type="text" id="yourName" name="referrer_name" placeholder="Jane Smith" required />
+            </div>
+            <div class="field">
+              <label for="yourPhone">Phone <span class="req">*</span></label>
+              <input type="tel" id="yourPhone" name="referrer_phone" placeholder="(480) 555-0123" required />
+            </div>
+          </div>
+          <div class="row">
+            <div class="field full">
+              <label for="yourEmail">Email <span class="req">*</span></label>
+              <input type="email" id="yourEmail" name="referrer_email" placeholder="jane@email.com" required />
+            </div>
+          </div>
+
+          <div class="grp-title" style="margin-top:20px;"><span class="badge-num">2</span> Who You’re Referring</div>
+          <div id="referralList">
+            <div class="referral-item">
+              <button type="button" class="ref-remove" aria-label="Remove this referral" title="Remove">&times;</button>
+              <div class="ref-num">Friend #1</div>
+              <div class="row">
+                <div class="field">
+                  <label>Name <span class="req">*</span></label>
+                  <input type="text" name="referral_name" placeholder="John Doe" aria-label="Referral name" required />
+                </div>
+                <div class="field">
+                  <label>Phone <span class="req">*</span></label>
+                  <input type="tel" name="referral_phone" placeholder="(480) 555-0456" aria-label="Referral phone" required />
+                </div>
+              </div>
+              <div class="row">
+                <div class="field">
+                  <label>Email</label>
+                  <input type="email" name="referral_email" placeholder="Optional" aria-label="Referral email" />
+                </div>
+                <div class="field">
+                  <label>Project They’re Interested In</label>
+                  <select name="project_interest" aria-label="Project interest">
+                    <option value="">Select one (optional)</option>
+                    <option>Artificial Turf / Lawn</option>
+                    <option>Pavers</option>
+                    <option>Putting Green</option>
+                    <option>Whole Yard Renovation</option>
+                    <option>Not sure yet</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="button" id="addReferral" class="add-more-btn">
+            <span class="amb-plus">＋</span> Refer another friend
+          </button>
+          <div class="row">
+            <div class="field full">
+              <label for="notes">Anything we should know?</label>
+              <textarea id="notes" name="notes" placeholder="e.g. Best time to reach them, what they’re looking for…"></textarea>
+            </div>
+          </div>
+
+          <label class="consent">
+            <input type="checkbox" id="consent" required />
+            <span>I confirm I have permission to share this person’s contact info, and I agree to be contacted about my referral reward.</span>
+          </label>
+
+          <div class="submit-wrap">
+            <button type="submit" class="btn btn-green">Submit Referral →</button>
+          </div>
+          <p class="form-note">🔒 Your information is kept private and only used to process your referral reward.</p>
+        </form>
+
+        <div class="form-success" id="formSuccess">
+          <div class="tick">✓</div>
+          <h3>Referral received — thank you!</h3>
+          <p>We’ll reach out to your referral shortly. Once they sign their contract, your <strong>$500 Amazon Gift Card</strong> is on the way to you.</p>
+        </div>
+    </div>
+  </div>
+
+  <!-- ══ PHONE CTA ══ -->
+  <section class="phone-cta">
+    <div class="wrap reveal">
+      <h2>Prefer to refer over the phone?</h2>
+      <p>No problem — call or text us anytime and we’ll handle the rest.</p>
+      <a class="phone-num" href="tel:14805719553">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        (480) 571-9553
+      </a>
+    </div>
+  </section>
+
+  <!-- ══ TERMS ══ -->
+  <section class="terms">
+    <div class="wrap">
+      <h4>Program Details</h4>
+      <ul>
+        <li>You’ll receive a <strong>$500 Amazon Gift Card</strong> for each person you refer who signs an installation contract with Always Green Turf.</li>
+        <li>The reward is issued once the referred lead is sold and the contract is signed.</li>
+        <li>There is no limit — refer as many people as you like and earn $500 for each completed referral.</li>
+        <li>Your referral must be a new customer who has not already requested a quote from us.</li>
+        <li>Gift card delivered via email or text after the contract is signed. Please allow a few business days for processing.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ══ -->
+  <footer>
+    <div class="wrap">
+      <img src="https://alwaysgreenturfaz.com/logo.webp" alt="Always Green Turf" />
+      <div>© Always Green Turf · Licensed &amp; insured in Arizona · <a href="https://alwaysgreenturfaz.com/">alwaysgreenturfaz.com</a></div>
+    </div>
+  </footer>
+
+  <!-- floating mobile CTA -->
+  <div class="float-cta"><a href="#refer" class="btn btn-gold" data-open-modal>Refer &amp; Earn $500 →</a></div>
+
+  <script>
+    /* Scroll reveal — IntersectionObserver with a getBoundingClientRect
+       fallback so it also works inside embedded/iframe scroll containers
+       (e.g. GoHighLevel), where IO's viewport root can behave differently. */
+    (function () {
+      var els = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+      function show(e) { e.classList.add('in'); }
+      function revealInView() {
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        els = els.filter(function (e) {
+          var r = e.getBoundingClientRect();
+          if (r.top < vh * 0.9 && r.bottom > 0) { show(e); return false; }
+          return true;
+        });
+      }
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) { if (en.isIntersecting) { show(en.target); io.unobserve(en.target); } });
+        }, { threshold:.12, rootMargin:'0px 0px -8% 0px' });
+        els.forEach(function (e) { io.observe(e); });
+      }
+      // Fallbacks: reveal whatever is already in view, and keep checking on
+      // scroll/resize/load — capture:true also catches scroll on ancestor containers.
+      revealInView();
+      ['scroll', 'resize', 'load'].forEach(function (ev) {
+        window.addEventListener(ev, revealInView, { passive:true });
+      });
+      document.addEventListener('scroll', revealInView, { passive:true, capture:true });
+    })();
+
+    /* Referral modal — open/close */
+    (function () {
+      var modal = document.getElementById('referModal');
+      if (!modal) return;
+      var closeBtn = document.getElementById('modalClose');
+      var lastFocused = null;
+      function open(e) {
+        if (e) e.preventDefault();
+        lastFocused = document.activeElement;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+        var first = modal.querySelector('input, select, textarea, button');
+        if (first) setTimeout(function () { first.focus(); }, 60);
+      }
+      function close() {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+        if (lastFocused) lastFocused.focus();
+      }
+      document.querySelectorAll('[data-open-modal]').forEach(function (b) {
+        b.addEventListener('click', open);
+      });
+      closeBtn.addEventListener('click', close);
+      modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('open')) close();
+      });
+    })();
+
+    /* Repeatable referrals — add / remove friend line items */
+    (function () {
+      var list = document.getElementById('referralList');
+      var addBtn = document.getElementById('addReferral');
+      if (!list || !addBtn) return;
+      var MAX = 10;
+      function items() { return Array.prototype.slice.call(list.querySelectorAll('.referral-item')); }
+      function refresh() {
+        var its = items();
+        its.forEach(function (it, i) {
+          var num = it.querySelector('.ref-num');
+          if (num) num.textContent = 'Friend #' + (i + 1);
+          it.classList.toggle('removable', its.length > 1);
+        });
+        addBtn.style.display = its.length >= MAX ? 'none' : '';
+      }
+      addBtn.addEventListener('click', function () {
+        var its = items();
+        if (its.length >= MAX) return;
+        var clone = its[its.length - 1].cloneNode(true);
+        clone.querySelectorAll('input').forEach(function (inp) { inp.value = ''; });
+        clone.querySelectorAll('select').forEach(function (s) { s.selectedIndex = 0; });
+        list.appendChild(clone);
+        refresh();
+        var firstInput = clone.querySelector('input');
+        if (firstInput) firstInput.focus();
+      });
+      list.addEventListener('click', function (e) {
+        var btn = e.target.closest('.ref-remove');
+        if (!btn) return;
+        if (items().length <= 1) return;
+        btn.closest('.referral-item').remove();
+        refresh();
+      });
+      refresh();
+    })();
+
+    /* Submit handler — POSTs the referral to the GoHighLevel inbound webhook,
+       then shows the thank-you state. The thank-you shows regardless of the
+       network result so the visitor always gets confirmation; errors are logged. */
+    (function () {
+      var WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/dpp7zOnwhkHGWhn5lGRd/webhook-trigger/9674b8cc-68e8-4ee1-9dc3-f1f9661cd20c';
+      var form = document.getElementById('referralForm');
+      var success = document.getElementById('formSuccess');
+      if (!form) return;
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+
+        // Build payload: referrer (single) + referrals (one or many line items)
+        var val = function (id) { var el = document.getElementById(id); return el ? (el.value || '').trim() : ''; };
+        var referrals = [];
+        form.querySelectorAll('.referral-item').forEach(function (item) {
+          var g = function (n) { var el = item.querySelector('[name="' + n + '"]'); return el ? (el.value || '').trim() : ''; };
+          referrals.push({
+            name: g('referral_name'),
+            phone: g('referral_phone'),
+            email: g('referral_email'),
+            project_interest: g('project_interest')
+          });
+        });
+        var payload = {
+          referrer_name: val('yourName'),
+          referrer_phone: val('yourPhone'),
+          referrer_email: val('yourEmail'),
+          referral_count: referrals.length,
+          referrals: referrals,
+          referrals_json: JSON.stringify(referrals),
+          referrals_text: referrals.map(function (r, i) {
+            return (i + 1) + '. ' + r.name + ' — ' + r.phone +
+                   (r.email ? ' — ' + r.email : '') +
+                   (r.project_interest ? ' — ' + r.project_interest : '');
+          }).join('\n'),
+          notes: val('notes'),
+          consent: !!(document.getElementById('consent') && document.getElementById('consent').checked),
+          source: 'Referral Landing Page',
+          page_url: window.location.href
+        };
+
+        var btn = form.querySelector('button[type="submit"]');
+        if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+
+        function showThankYou() {
+          form.style.display = 'none';
+          success.classList.add('show');
+          success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .catch(function (err) { console.error('Referral webhook error:', err); })
+          .then(showThankYou);
+      });
+    })();
+  </script>
+</body>
+</html>

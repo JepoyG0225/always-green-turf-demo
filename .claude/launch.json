@@ -8,6 +8,12 @@
       "port": 5500
     },
     {
+      "name": "Worktree Static Site (Python)",
+      "runtimeExecutable": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+      "runtimeArgs": ["-m", "http.server", "5501", "--directory", "C:\\Users\\Admin\\Desktop\\always-green-turf-demo\\.claude\\worktrees\\flamboyant-hermann-2622a6"],
+      "port": 5501
+    },
+    {
       "name": "Static Site (npx serve)",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["serve", "."],
