@@ -210,6 +210,9 @@
     .cat-badge.playground{ background:rgba(220,130,50,.22); color:#f0a860; border:1px solid rgba(220,130,50,.3); }
     .cat-badge.lawn-care { background:rgba(60,130,210,.22); color:#82b8f0; border:1px solid rgba(60,130,210,.3); }
     .cat-badge.inspiration{ background:rgba(210,80,130,.22); color:#f0a0c0; border:1px solid rgba(210,80,130,.3); }
+    .cat-badge.water-conservation{ background:rgba(40,160,220,.22); color:#60c0f0; border:1px solid rgba(40,160,220,.3); }
+    .cat-badge.local-news{ background:rgba(220,60,60,.22); color:#f08080; border:1px solid rgba(220,60,60,.3); }
+    .cat-badge.cost-savings{ background:rgba(40,184,40,.22); color:var(--g6); border:1px solid rgba(40,184,40,.3); }
     .featured-inner h2 {
       font-size:clamp(1.5rem,3vw,2.4rem);
       font-weight:900;
@@ -712,12 +715,81 @@ head.appendChild(script);
     <button class="filter-pill" data-filter="playground">Playground</button>
     <button class="filter-pill" data-filter="lawn-care">Lawn Care</button>
     <button class="filter-pill" data-filter="inspiration">Inspiration</button>
+    <button class="filter-pill" data-filter="water-conservation">Water Conservation</button>
+    <button class="filter-pill" data-filter="local-news">Local News</button>
+    <button class="filter-pill" data-filter="cost-savings">Cost Savings</button>
   </div>
 </div>
 
 <!-- ══ ARTICLE GRID ════════════════════════════════════════════════ -->
 <section class="article-grid-section">
   <div class="article-grid" id="articleGrid">
+
+    <!-- Card: AZ Water Rates 2026 -->
+    <article class="article-card" data-category="water-conservation">
+      <div class="article-card-img">
+        <img src="assets/artificial lawns/artificial-00005.jpg" alt="Arizona water rates increasing 2026" loading="lazy">
+      </div>
+      <div class="article-card-body">
+        <span class="cat-badge water-conservation">Water Conservation</span>
+        <h3>Arizona Water Rates Are Surging in 2026 — Here's What Homeowners Need to Know</h3>
+        <p class="article-card-excerpt">Cities across Arizona are implementing substantial water rate increases in 2026. Gilbert approved a 25% hike, Chandler added 15%, and more cities are following. Learn how artificial turf can help offset rising costs.</p>
+        <div class="article-card-footer">
+          <div class="card-meta">
+            <div class="card-avatar">AG</div>
+            <div>
+              <div class="card-meta-name">Always Green Team</div>
+              <div class="card-meta-text">June 10, 2026 &middot; 8 min</div>
+            </div>
+          </div>
+          <a href="blog-article.html?article=arizona-water-rates-2026" class="card-read-more">Read More &rarr;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card: Turf Water Savings -->
+    <article class="article-card" data-category="cost-savings">
+      <div class="article-card-img">
+        <img src="assets/artificial lawns/artificial-00004.jpg" alt="Artificial turf water savings Arizona" loading="lazy">
+      </div>
+      <div class="article-card-body">
+        <span class="cat-badge cost-savings">Cost Savings</span>
+        <h3>How Artificial Turf Saves Arizona Homeowners Thousands on Water Bills</h3>
+        <p class="article-card-excerpt">With water rates climbing 15–25% across Phoenix, Gilbert, Chandler, and Scottsdale, homeowners are looking for smart ways to cut costs. Discover how switching to artificial turf can save $1,200+ annually on water alone.</p>
+        <div class="article-card-footer">
+          <div class="card-meta">
+            <div class="card-avatar">AG</div>
+            <div>
+              <div class="card-meta-name">Always Green Team</div>
+              <div class="card-meta-text">June 8, 2026 &middot; 7 min</div>
+            </div>
+          </div>
+          <a href="blog-article.html?article=artificial-turf-water-savings" class="card-read-more">Read More &rarr;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card: City-by-City Water Rate Guide -->
+    <article class="article-card" data-category="local-news">
+      <div class="article-card-img">
+        <img src="assets/artificial lawns/artificial-00001.jpg" alt="Arizona city water rate guide 2026" loading="lazy">
+      </div>
+      <div class="article-card-body">
+        <span class="cat-badge local-news">Local News</span>
+        <h3>City-by-City Guide: 2026 Water Rate Increases Across Arizona</h3>
+        <p class="article-card-excerpt">From Gilbert's 25% increase to Chandler's 15% hike and Goodyear's four-year plan — a detailed breakdown of how water rates are changing in every major Arizona city and what it means for your household budget.</p>
+        <div class="article-card-footer">
+          <div class="card-meta">
+            <div class="card-avatar">AG</div>
+            <div>
+              <div class="card-meta-name">Always Green Team</div>
+              <div class="card-meta-text">June 6, 2026 &middot; 10 min</div>
+            </div>
+          </div>
+          <a href="blog-article.html?article=arizona-city-water-rate-guide-2026" class="card-read-more">Read More &rarr;</a>
+        </div>
+      </div>
+    </article>
 
     <!-- Card 1 -->
     <article class="article-card" data-category="lawn-care">
