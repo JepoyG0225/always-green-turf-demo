@@ -33,7 +33,9 @@
     .opt .ico { flex:none; width:52px; height:52px; border-radius:14px; display:grid; place-items:center; font-size:1.5rem; background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; }
     .opt .txt h3 { font-size:1.08rem; font-weight:800; color:#0e1e0e; }
     .opt .txt p { font-size:.86rem; color:var(--muted); margin-top:3px; }
-    .opt .arrow { margin-left:auto; color:var(--g5); font-size:1.3rem; font-weight:800; }
+    .opt .arrow { margin-left:auto; color:#9fb8a5; display:flex; align-items:center; transition:color .2s, transform .2s; }
+    .opt:hover .arrow { color:var(--g5); transform:translateX(3px); }
+    .opt .ico svg { display:block; }
 
     /* Call-me form */
     .callback { display:none; margin-top:6px; }
@@ -71,14 +73,22 @@
 
         <div class="options">
           <a class="opt" id="onlineBtn" href="#">
-            <span class="ico">🗓️</span>
+            <span class="ico">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18"/><path d="M8 2.5v4M16 2.5v4"/><rect x="7" y="13" width="3.2" height="3.2" rx=".6" fill="currentColor" stroke="none"/>
+              </svg>
+            </span>
             <span class="txt"><h3>Schedule Online</h3><p>Pick a day and time that works for you.</p></span>
-            <span class="arrow">→</span>
+            <span class="arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
           </a>
           <button class="opt" id="callBtn" type="button">
-            <span class="ico">📞</span>
+            <span class="ico">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </span>
             <span class="txt"><h3>Call Me to Schedule</h3><p>Leave your details and we'll call you to set it up.</p></span>
-            <span class="arrow">→</span>
+            <span class="arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
           </button>
         </div>
 
@@ -97,7 +107,9 @@
       </div>
 
       <div class="success" id="success">
-        <div class="check">✓</div>
+        <div class="check">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+        </div>
         <h2>You're all set!</h2>
         <p>Thanks — one of our design consultants will call you shortly to schedule your free consultation.</p>
       </div>
