@@ -368,8 +368,35 @@ async function runDispatch(payload) {
     return result;
   } finally {
     log.status = result.status; log.remarks = result.remarks; log.steps = steps; log.duration_ms = Date.now() - startedAt;
-    if (CFG.supabaseUrl && CFG.supabaseServiceKey) await sbInsert("dispatch_logs", log).catch((e) => console.error("log write failed", e));
-    console.log(`[dispatch] ${result.status}: ${result.remarks}`);
+
+    // (1) Persistent DB audit — dispatch_logs (works once the table exists; the
+    //     Supabase key can insert). Non-fatal.
+    let dbLogged = false;
+    if (CFG.supabaseUrl && CFG.supabaseServiceKey) {
+      dbLogged = await sbInsert("dispatch_logs", log).then(() => true)
+        .catch((e) => { console.error("[dispatch] db-log failed:", String(e.message || e)); return false; });
+    }
+
+    // (2) Always emit a structured audit line to the function logs, so every
+    //     dispatch is auditable even if the DB write isn't available.
+    console.log("[dispatch-audit] " + JSON.stringify({
+      ts: new Date().toISOString(),
+      status: log.status,
+      lead_name: log.lead_name,
+      lead_address: log.lead_address,
+      contact_id: log.contact_id,
+      chosen_rep_name: log.chosen_rep_name,
+      chosen_rep_id: log.chosen_rep_id,
+      ghl_assigned_id: log.ghl_assigned_id,
+      drive_minutes: log.drive_minutes,
+      appointment_id: log.appointment_id,
+      appointment_start: log.appointment_start,
+      remarks: log.remarks,
+      error: log.error || null,
+      duration_ms: log.duration_ms,
+      steps: steps.map((s) => s.step + (s.ok ? "" : ":ERR")),
+      db_logged: dbLogged,
+    }));
   }
 }
 

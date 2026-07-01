@@ -42,18 +42,17 @@ create table if not exists dispatch_logs (
 );
 create index if not exists dispatch_logs_created_at_idx on dispatch_logs (created_at desc);
 
--- ── Row Level Security ──────────────────────────────────────────────
--- The /dispatch admin pages read these tables from the browser with the anon
--- key + a signed-in session (same model as the time-off app). Allow any
--- authenticated user to read/write. The serverless /api/dispatch function uses
--- the service-role key and bypasses RLS.
-alter table dispatch_logs    enable row level security;
-alter table sales_rep_data   enable row level security;
-alter table dispatch_memory  enable row level security;
+-- ── Row Level Security (dispatch_logs only) ─────────────────────────
+-- dispatch_logs holds lead PII (name, email, address, raw payload), so we do
+-- NOT allow the public anon key to read it. The engine writes with the anon
+-- key (INSERT), and the /dispatch admin reads it only when signed in
+-- (authenticated SELECT). We intentionally do NOT touch RLS on
+-- sales_rep_data / dispatch_memory here — changing it would break the anon
+-- reads/writes those tables already rely on.
+alter table dispatch_logs enable row level security;
 
-drop policy if exists auth_all on dispatch_logs;
-create policy auth_all on dispatch_logs   for all to authenticated using (true) with check (true);
-drop policy if exists auth_all on sales_rep_data;
-create policy auth_all on sales_rep_data  for all to authenticated using (true) with check (true);
-drop policy if exists auth_all on dispatch_memory;
-create policy auth_all on dispatch_memory for all to authenticated using (true) with check (true);
+drop policy if exists log_insert on dispatch_logs;
+create policy log_insert on dispatch_logs for insert to anon, authenticated with check (true);
+
+drop policy if exists log_read on dispatch_logs;
+create policy log_read on dispatch_logs for select to authenticated using (true);

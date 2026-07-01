@@ -40,5 +40,6 @@ module.exports = async function handler(req, res) {
   const data = await slack.json();
   if (!data.ok) { res.status(502).json({ error: `Slack error: ${data.error}` }); return; }
 
+  console.log("[callback-audit] " + JSON.stringify({ ts: new Date().toISOString(), full_name: fullName, phone }));
   res.status(200).json({ ok: true });
 };
