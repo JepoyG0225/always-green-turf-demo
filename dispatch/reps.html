@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+  <title>Sales Reps | Always Green Turf — Internal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./dispatch.css" />
+</head>
+<body>
+  <div class="top-bar">
+    <a href="/" class="brand"><img src="../logo.webp" alt="Always Green Turf" /></a>
+    <div class="nav">
+      <a href="./index.html">Dispatch Logs</a>
+      <a href="./reps.html" class="active">Sales Reps</a>
+    </div>
+    <div class="right">
+      <span class="badge">⚡ DispatchAI</span>
+      <span id="userEmail"></span>
+      <button id="signOutBtn" class="link-btn" type="button">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <h1 class="page-title">Sales Reps</h1>
+    <p class="page-sub"><span class="mono">assigned_id</span> is the GHL user id used for booking; <span class="mono">address</span> is the rep's home base for drive-time scoring. Editing an address clears the cached geocode.</p>
+    <div id="configWarn" class="config-warn" style="display:none;"></div>
+
+    <div class="card">
+      <h2>Add a rep</h2>
+      <form id="addForm" class="rep-grid">
+        <div><label>Name</label><input name="name" required /></div>
+        <div><label>assigned_id (GHL user id)</label><input name="assigned_id" class="mono" required /></div>
+        <div class="wide"><label>Home address</label><input name="address" required /></div>
+        <div><label>calendar_id (optional)</label><input name="calendar_id" class="mono" /></div>
+        <div class="checkbox" style="align-self:center;margin-top:20px;"><input type="checkbox" name="active" checked /><label style="margin:0;">Active</label></div>
+        <div class="row"><button type="submit">Add rep</button></div>
+      </form>
+      <div class="error" id="addErr"></div>
+    </div>
+
+    <div id="list"></div>
+  </div>
+
+  <script type="module">
+    import { supabase, requireSession, signOut, SUPABASE_URL } from "./config.js";
+
+    const list = document.getElementById("list");
+    document.getElementById("signOutBtn").addEventListener("click", signOut);
+    const esc = (s) => String(s ?? "").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+
+    if (SUPABASE_URL.includes("YOUR-PROJECT")) {
+      const w = document.getElementById("configWarn");
+      w.style.display = "block";
+      w.textContent = "⚠ Supabase isn't configured yet — set SUPABASE_URL and SUPABASE_ANON_KEY in dispatch/config.js.";
+    }
+
+    const session = await requireSession();
+    if (!session) throw new Error("no session");
+    document.getElementById("userEmail").textContent = session.user.email;
+
+    async function load() {
+      const { data, error } = await supabase.from("sales_rep_data")
+        .select("assigned_id, name, address, calendar_id, active, lat, lng").order("name");
+      if (error) { list.innerHTML = `<div class="empty">Could not load reps: ${error.message}</div>`; return; }
+      if (!data.length) { list.innerHTML = `<div class="empty">No reps yet — add one above.</div>`; return; }
+      list.innerHTML = data.map((r) => `
+        <div class="card">
+          <form class="rep-grid" data-id="${esc(r.assigned_id)}">
+            <div><label>Name</label><input name="name" value="${esc(r.name)}" required /></div>
+            <div><label>assigned_id</label><input value="${esc(r.assigned_id)}" class="mono" disabled /></div>
+            <div class="wide"><label>Home address</label><input name="address" value="${esc(r.address)}" required /></div>
+            <div><label>calendar_id</label><input name="calendar_id" value="${esc(r.calendar_id)}" class="mono" /></div>
+            <div class="checkbox" style="align-self:center;margin-top:20px;"><input type="checkbox" name="active" ${r.active !== false ? "checked" : ""} /><label style="margin:0;">Active</label></div>
+            <div class="row">
+              <span class="muted mono" style="font-size:.72rem;">${r.lat != null && r.lng != null ? "geocode cached" : "geocode on next run"}</span>
+              <button type="submit">Save</button>
+              <button type="button" class="danger" data-del="${esc(r.assigned_id)}">Delete</button>
+            </div>
+          </form>
+        </div>`).join("");
+    }
+
+    list.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = e.target, id = f.dataset.id;
+      const patch = {
+        name: f.name.value.trim(), address: f.address.value.trim(),
+        calendar_id: f.calendar_id.value.trim() || null, active: f.active.checked,
+        lat: null, lng: null,
+      };
+      const { error } = await supabase.from("sales_rep_data").update(patch).eq("assigned_id", id);
+      if (error) alert("Save failed: " + error.message); else load();
+    });
+
+    list.addEventListener("click", async (e) => {
+      const id = e.target.dataset?.del;
+      if (!id) return;
+      if (!confirm("Delete this rep?")) return;
+      const { error } = await supabase.from("sales_rep_data").delete().eq("assigned_id", id);
+      if (error) alert("Delete failed: " + error.message); else load();
+    });
+
+    document.getElementById("addForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = e.target, err = document.getElementById("addErr");
+      err.style.display = "none";
+      const row = {
+        name: f.name.value.trim(), assigned_id: f.assigned_id.value.trim(),
+        address: f.address.value.trim(), calendar_id: f.calendar_id.value.trim() || null,
+        active: f.active.checked,
+      };
+      if (!row.name || !row.assigned_id || !row.address) { err.textContent = "Name, assigned_id and address are required."; err.style.display = "block"; return; }
+      const { error } = await supabase.from("sales_rep_data").upsert(row, { onConflict: "assigned_id" });
+      if (error) { err.textContent = "Add failed: " + error.message; err.style.display = "block"; return; }
+      f.reset(); f.active.checked = true; load();
+    });
+
+    load();
+  </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+  <title>Dispatch Logs | Always Green Turf — Internal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./dispatch.css" />
+</head>
+<body>
+  <div class="top-bar">
+    <a href="/" class="brand"><img src="../logo.webp" alt="Always Green Turf" /></a>
+    <div class="nav">
+      <a href="./index.html" class="active">Dispatch Logs</a>
+      <a href="./reps.html">Sales Reps</a>
+    </div>
+    <div class="right">
+      <span class="badge">⚡ DispatchAI</span>
+      <span id="userEmail"></span>
+      <button id="signOutBtn" class="link-btn" type="button">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <h1 class="page-title">Dispatch Logs</h1>
+    <p class="page-sub">Every lead the CRM sent to <span class="mono">/api/dispatch</span> and its outcome — newest first.</p>
+    <div id="configWarn" class="config-warn" style="display:none;"></div>
+    <div id="content"></div>
+  </div>
+
+  <script type="module">
+    import { supabase, requireSession, signOut, fmtPhx, SUPABASE_URL } from "./config.js";
+
+    const content = document.getElementById("content");
+    document.getElementById("signOutBtn").addEventListener("click", signOut);
+
+    if (SUPABASE_URL.includes("YOUR-PROJECT")) {
+      document.getElementById("configWarn").style.display = "block";
+      document.getElementById("configWarn").textContent = "⚠ Supabase isn't configured yet — set SUPABASE_URL and SUPABASE_ANON_KEY in dispatch/config.js.";
+    }
+
+    const session = await requireSession();
+    if (session) {
+      document.getElementById("userEmail").textContent = session.user.email;
+      const { data, error } = await supabase
+        .from("dispatch_logs")
+        .select("id, created_at, status, lead_name, lead_address, chosen_rep_name, drive_minutes, appointment_start, ghl_assigned_id, chosen_rep_id, remarks, memory_hit")
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (error) {
+        content.innerHTML = `<div class="empty">Could not load logs: ${error.message}</div>`;
+      } else if (!data.length) {
+        content.innerHTML = `<div class="empty">No dispatches yet. Point your GHL webhook at <span class="mono">/api/dispatch</span> to see runs here.</div>`;
+      } else {
+        const rows = data.map((r) => {
+          const mismatch = r.chosen_rep_id && r.ghl_assigned_id && r.chosen_rep_id !== r.ghl_assigned_id;
+          return `<tr>
+            <td class="mono muted">${fmtPhx(r.created_at)}</td>
+            <td>${r.lead_name || "—"}${r.memory_hit ? ' <span class="muted">· repeat</span>' : ""}
+                <div class="muted mono" style="font-size:.72rem;">${r.lead_address || ""}</div></td>
+            <td><span class="pill ${r.status}">${r.status}</span></td>
+            <td>${r.chosen_rep_name || "—"}${mismatch ? ' <span class="pill error" title="GHL reassigned">⚠ override</span>' : ""}</td>
+            <td>${r.drive_minutes != null ? r.drive_minutes + "m" : "—"}</td>
+            <td class="mono muted">${fmtPhx(r.appointment_start)}</td>
+          </tr>`;
+        }).join("");
+        content.innerHTML = `<table><thead><tr>
+          <th>When</th><th>Lead</th><th>Status</th><th>Rep</th><th>Drive</th><th>Appointment</th>
+        </tr></thead><tbody>${rows}</tbody></table>`;
+      }
+    }
+  </script>
+</body>
+</html>

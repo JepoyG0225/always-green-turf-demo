@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+  <title>DispatchAI Login | Always Green Turf — Internal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./dispatch.css" />
+  <style>
+    body { display:flex; flex-direction:column; }
+    .wrap-login { flex:1; display:grid; place-items:center; padding:40px 20px; }
+    .login-card { width:100%; max-width:420px; background:#fff; border-radius:18px; padding:40px 36px; box-shadow:0 18px 50px rgba(14,30,14,.10); }
+    .login-card h1 { font-size:1.5rem; font-weight:900; color:#0e1e0e; text-align:center; }
+    .login-card p.sub { text-align:center; color:var(--muted); font-size:.86rem; margin-top:8px; }
+    .login-card label { margin-top:14px; }
+    #loginBtn { width:100%; margin-top:22px; padding:14px; }
+    .footnote { text-align:center; margin-top:20px; color:#9ca3af; font-size:.78rem; }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <a href="/" class="brand"><img src="../logo.webp" alt="Always Green Turf" /></a>
+    <span class="badge">⚡ DispatchAI</span>
+  </div>
+
+  <div class="wrap-login">
+    <div class="login-card">
+      <h1>DispatchAI</h1>
+      <p class="sub">Sign in to manage dispatch &amp; sales reps.</p>
+      <form id="loginForm" novalidate>
+        <label for="email">Work Email</label>
+        <input id="email" type="email" autocomplete="username" required />
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required />
+        <button id="loginBtn" type="submit">Sign In</button>
+        <div class="error" id="errorBox"></div>
+      </form>
+      <p class="footnote">Trouble signing in? Contact your administrator.</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase } from "./config.js";
+    const byId = (id) => document.getElementById(id);
+    const errBox = byId("errorBox");
+    const showError = (m) => { errBox.textContent = m; errBox.style.display = "block"; };
+
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session) window.location.replace("./index.html");
+    })();
+
+    byId("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errBox.style.display = "none";
+      const email = byId("email").value.trim(), password = byId("password").value;
+      if (!email || !password) { showError("Email and password are required."); return; }
+      const btn = byId("loginBtn"); btn.disabled = true; const t = btn.textContent; btn.textContent = "Signing in…";
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        window.location.replace("./index.html");
+      } catch (err) {
+        showError(err?.message || "Sign-in failed. Check your credentials.");
+      } finally { btn.disabled = false; btn.textContent = t; }
+    });
+  </script>
+</body>
+</html>
