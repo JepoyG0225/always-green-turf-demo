@@ -170,10 +170,10 @@
         </div>
         <div class="sm:col-span-2">
           <label class="block text-sm font-medium text-gray-800">Available time</label>
-          <div id="slotWindows" class="mt-2 grid grid-cols-3 gap-1.5 sm:gap-2">
-            <p class="col-span-3 text-sm text-gray-400 py-1">Pick a date to see available times.</p>
+          <div id="slotWindows" class="mt-2">
+            <p class="text-sm text-gray-400 py-1">Pick a date to see available times.</p>
           </div>
-          <input type="hidden" id="selectedWindow" name="selected_window">
+          <input type="hidden" id="selectedSlot" name="selected_slot">
         </div>
         <div class="sm:col-span-2">
           <label class="block text-sm font-medium text-gray-800">How big of an area?</label>
@@ -304,33 +304,27 @@
 
   // ---------- Date picker + live GHL availability ----------
   (function(){
-    var dateInput = byId('apptDate'), wrap = byId('slotWindows'), hidden = byId('selectedWindow');
+    var dateInput = byId('apptDate'), wrap = byId('slotWindows'), hidden = byId('selectedSlot');
     if (!dateInput) return;
     var phx = new Date(Date.now() - 7*3600*1000);              // shift to Phoenix wall-clock
     var ymd = function(d){ return d.toISOString().slice(0,10); };
     dateInput.min = ymd(phx);
     dateInput.max = ymd(new Date(phx.getTime() + 30*86400*1000));
 
-    function msg(t){ wrap.innerHTML = '<p class="col-span-3 text-sm text-gray-400 py-1">'+t+'</p>'; }
-    function render(windows){
+    function msg(t){ wrap.innerHTML = '<p class="text-sm text-gray-400 py-1">'+t+'</p>'; }
+    function render(slots){
       hidden.value = '';
-      wrap.innerHTML = windows.map(function(w){
-        if (w.available){
-          return '<button type="button" class="slot rounded-xl border border-gray-200 px-2 py-2.5 text-center transition hover:bg-[#eaf4d0]/60" data-value="'+w.value+'">'
-            + '<span class="block text-sm font-semibold text-gray-800">'+w.label+'</span><span class="block text-[11px] text-gray-500">'+w.sub+'</span></button>';
-        }
-        return '<div class="rounded-xl border border-gray-100 bg-gray-50 px-2 py-2.5 text-center cursor-not-allowed">'
-          + '<span class="block text-sm font-semibold text-gray-400 line-through">'+w.label+'</span><span class="block text-[11px] text-red-400">Booked</span></div>';
-      }).join('');
+      if (!slots.length){ msg('No openings that day — please try another date.'); return; }
+      wrap.innerHTML = '<div class="max-h-52 overflow-y-auto grid grid-cols-3 sm:grid-cols-4 gap-1.5 pr-1">' + slots.map(function(s){
+        return '<button type="button" class="slot rounded-lg border border-gray-200 py-2 text-xs font-semibold text-gray-800 transition hover:bg-[#eaf4d0]/60" data-value="'+s.value+'">'+s.label+'</button>';
+      }).join('') + '</div>';
       wrap.querySelectorAll('.slot').forEach(function(b){
         b.addEventListener('click', function(){
-          wrap.querySelectorAll('.slot').forEach(function(x){ x.style.borderColor=''; x.style.background=''; x.style.boxShadow=''; });
-          b.style.borderColor='#8cbf3f'; b.style.background='#eaf4d0'; b.style.boxShadow='0 0 0 3px rgba(140,191,63,.25)';
+          wrap.querySelectorAll('.slot').forEach(function(x){ x.style.borderColor=''; x.style.background=''; x.style.color=''; x.style.boxShadow=''; });
+          b.style.borderColor='#8cbf3f'; b.style.background='#eaf4d0'; b.style.color='#2d743a'; b.style.boxShadow='0 0 0 3px rgba(140,191,63,.25)';
           hidden.value = b.dataset.value;
         });
       });
-      if (!windows.some(function(w){ return w.available; }))
-        wrap.insertAdjacentHTML('beforeend', '<p class="col-span-3 text-xs text-amber-600 mt-1">No openings that day — please try another date.</p>');
     }
     dateInput.addEventListener('change', async function(){
       var d = dateInput.value; hidden.value = '';
@@ -339,8 +333,8 @@
       try {
         var res = await fetch('/api/slots?date=' + encodeURIComponent(d));
         var data = await res.json();
-        if (!res.ok || !data.windows) throw new Error(data.error || 'error');
-        render(data.windows);
+        if (!res.ok || !data.slots) throw new Error(data.error || 'error');
+        render(data.slots);
       } catch (e){ msg('Could not load availability — please try another date or call us.'); }
     });
   })();
@@ -355,17 +349,19 @@
       if (!isValidArizonaPhone(phone.value.trim())){ phone.dataset.invalid='true'; phone.focus(); setStatus('We only serve within Arizona.', false); return; }
       var fd = new FormData(form); var addressFull = (fd.get('address')||'').toString().trim();
       if (!placeData.street && addressFull) tryParseManualAddress(addressFull);
-      var apptDate = (byId('apptDate').value||'').trim(), selectedWindow = (byId('selectedWindow').value||'').trim(), area = (fd.get('area_size')||'').toString();
+      var apptDate = (byId('apptDate').value||'').trim(), selectedSlot = (byId('selectedSlot').value||'').trim(), area = (fd.get('area_size')||'').toString();
       if (!apptDate){ setStatus('Please pick a date.', false); return; }
-      if (!selectedWindow){ setStatus('Please choose an available time.', false); return; }
+      if (!selectedSlot){ setStatus('Please choose an available time.', false); return; }
       if (!area){ setStatus('Please choose the area size.', false); return; }
       var weekday = new Date(apptDate + 'T12:00:00-07:00').toLocaleDateString('en-US', { weekday:'long', timeZone:'America/Phoenix' });
+      var slotHour = parseInt(selectedSlot.slice(11,13),10);
+      var win = slotHour < 12 ? '9:00am-12:00pm' : (slotHour < 15 ? '12:00pm-3:00pm' : '3:00pm-6:00pm');
       var payload = {
         first_name:(fd.get('first_name')||'').toString().trim(), last_name:(fd.get('last_name')||'').toString().trim(),
         email:(fd.get('email')||'').toString().trim(), phone_formatted:(fd.get('phone')||'').toString().trim(),
         phone_raw:((fd.get('phone')||'').toString().replace(/\D/g,'')),
         address_full:addressFull, address_street:placeData.street||'', address_city:placeData.city||'', address_state:placeData.state||'', address_zip:placeData.zip||'',
-        available_days:[weekday], best_time_windows:[selectedWindow], preferred_date:apptDate, area_size:area, "project sqft":area,
+        available_days:[weekday], best_time_windows:[win], preferred_date:apptDate, selected_slot:selectedSlot, area_size:area, "project sqft":area,
         source:'Free Design Appointment Form', submitted_at:new Date().toISOString()
       };
       var original = btn.innerHTML; btn.disabled = true; btn.textContent = 'Sending…';
