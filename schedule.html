@@ -4,158 +4,236 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Book Your Free Consultation | Always Green Turf AZ</title>
-  <meta name="description" content="Schedule your free artificial turf design consultation with Always Green Turf AZ — book online or request a call back." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <meta name="description" content="Book your free artificial turf design consultation with Always Green Turf AZ — schedule online or request a call back." />
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { pop: ['Poppins','ui-sans-serif','system-ui'] },
+          colors: { leaf:'#8cbf3f', moss:'#2d743a', mint:'#eaf4d0', stem:'#bdd431', turf:'#222629' },
+          boxShadow: { soft:'0 10px 30px rgba(0,0,0,.08)', glow:'0 0 40px rgba(140,191,63,.22)' }
+        }
+      }
+    }
+  </script>
+
   <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    :root {
-      --g1:#071a07; --g2:#0e300e; --g3:#165f16; --g4:#1e8a1e; --g5:#28b828; --g6:#52d652;
-      --text:#162016; --muted:#5a7a5a; --border:rgba(0,0,0,.08); --gold:#c9a24a; --danger:#b91c1c;
+    * { scroll-behavior: smooth; }
+    .gradient-text {
+      background: linear-gradient(135deg, #8cbf3f, #2d743a);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
     }
-    body { font-family:'Poppins',sans-serif; background:linear-gradient(135deg,#f6faf6 0%,#eaf5ea 100%); color:var(--text); min-height:100vh; display:flex; flex-direction:column; }
-    .top-bar { background:linear-gradient(135deg,var(--g2),var(--g1)); padding:16px 28px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 18px rgba(6,15,6,.18); }
-    .top-bar img { height:38px; width:auto; display:block; }
-    .wrap { flex:1; display:grid; place-items:center; padding:44px 20px; }
-    .card { width:100%; max-width:560px; background:#fff; border-radius:20px; padding:44px 40px; box-shadow:0 18px 50px rgba(14,30,14,.10); }
-    .head { text-align:center; margin-bottom:30px; }
-    .head .eyebrow { font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--g4); font-weight:800; }
-    .head h1 { font-size:1.72rem; font-weight:900; color:#0e1e0e; letter-spacing:-.02em; margin-top:10px; line-height:1.2; }
-    .head p { color:var(--muted); font-size:.96rem; margin-top:12px; line-height:1.6; }
-
-    .options { display:grid; gap:16px; }
-    .opt {
-      display:flex; align-items:center; gap:18px; width:100%; text-align:left;
-      background:#fff; border:2px solid #e3efe3; border-radius:16px; padding:22px 24px;
-      cursor:pointer; font:inherit; color:var(--text); transition:border-color .2s, transform .2s, box-shadow .2s;
+    .hero-bg { background-color: #222629; }
+    .hero-photo {
+      position: relative;
+      background-image: url('https://assets.cdn.filesafe.space/dpp7zOnwhkHGWhn5lGRd/media/69d342fa3d829c73b260ae4b.jpg');
+      background-size: cover; background-position: center 40%; background-repeat: no-repeat;
     }
-    .opt:hover { border-color:var(--g5); transform:translateY(-2px); box-shadow:0 12px 30px rgba(30,138,30,.16); }
-    .opt .ico { flex:none; width:52px; height:52px; border-radius:14px; display:grid; place-items:center; font-size:1.5rem; background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; }
-    .opt .txt h3 { font-size:1.08rem; font-weight:800; color:#0e1e0e; }
-    .opt .txt p { font-size:.86rem; color:var(--muted); margin-top:3px; }
-    .opt .arrow { margin-left:auto; color:#9fb8a5; display:flex; align-items:center; transition:color .2s, transform .2s; }
-    .opt:hover .arrow { color:var(--g5); transform:translateX(3px); }
-    .opt .ico svg { display:block; }
-
-    /* Call-me form */
-    .callback { display:none; margin-top:6px; }
-    .callback.show { display:block; animation:fade .25s ease; }
-    @keyframes fade { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
-    .callback label { display:block; font-weight:700; font-size:.8rem; color:#1f2937; margin:14px 0 6px; }
-    .callback input { width:100%; padding:13px 15px; border:1.5px solid #d1d5db; border-radius:12px; font:inherit; font-size:.95rem; color:var(--text); }
-    .callback input:focus { outline:none; border-color:var(--g5); box-shadow:0 0 0 4px rgba(82,214,82,.16); }
+    .hero-photo::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(160deg, rgba(34,38,41,.82) 0%, rgba(34,38,41,.68) 40%, rgba(45,116,58,.55) 100%);
+    }
+    .hero-photo > * { position: relative; }
+    .badge-pulse { animation: pulse-badge 2.5s ease-in-out infinite; }
+    @keyframes pulse-badge {
+      0%,100% { box-shadow: 0 0 0 0 rgba(140,191,63,.40); }
+      50%     { box-shadow: 0 0 0 10px rgba(140,191,63,0); }
+    }
+    .opt-card { transition: transform .25s ease, box-shadow .25s ease, border-color .2s ease; }
+    .opt-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,.10); border-color:#8cbf3f; }
+    .opt-card:hover .opt-arrow { transform: translateX(4px); }
+    .opt-arrow { transition: transform .2s ease; }
+    .callback { display:none; }
+    .callback.show { display:block; animation: fade .25s ease; }
+    @keyframes fade { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform:none; } }
     .hp { position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
-    .submit { width:100%; margin-top:20px; padding:15px; border:0; border-radius:50px; background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 8px 28px rgba(30,138,30,.36); }
-    .submit[disabled] { opacity:.6; cursor:not-allowed; }
-    .back { display:inline-block; margin-top:16px; background:none; border:0; color:var(--muted); font:inherit; font-size:.84rem; cursor:pointer; }
-    .back:hover { color:var(--g4); }
-    .msg { margin-top:16px; padding:12px 14px; border-radius:12px; font-size:.9rem; display:none; }
-    .msg.err { display:block; background:#fee2e2; border:1px solid #fecaca; color:var(--danger); }
-    .msg.ok { display:block; background:#dcfce7; border:1px solid #bbf7d0; color:#15803d; }
-    .success { display:none; text-align:center; padding:20px 0; }
-    .success.show { display:block; }
-    .success .check { width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; display:grid; place-items:center; font-size:2rem; margin:0 auto 16px; }
-    .success h2 { font-size:1.3rem; font-weight:900; color:#0e1e0e; }
-    .success p { color:var(--muted); margin-top:8px; }
+    @media (max-width: 640px) {
+      .hero-photo h1 { font-size: 1.875rem; line-height: 1.15; }
+      .trust-badges { gap: 0.5rem 0.75rem; }
+      .trust-badges > div { font-size: 0.7rem; gap: 0.25rem; }
+      .trust-badges svg { width: 0.85rem; height: 0.85rem; }
+    }
   </style>
 </head>
-<body>
-  <div class="top-bar"><img src="logo.webp" alt="Always Green Turf AZ" /></div>
 
-  <div class="wrap">
-    <div class="card">
-      <div id="chooser">
-        <div class="head">
-          <div class="eyebrow">Free Design Consultation</div>
-          <h1>How would you like to book?</h1>
-          <p>Get a free, no-obligation quote for your artificial turf project. Pick whichever is easiest for you.</p>
-        </div>
+<body class="font-pop bg-gray-50 text-gray-900 antialiased">
 
-        <div class="options">
-          <a class="opt" id="onlineBtn" href="#">
-            <span class="ico">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18"/><path d="M8 2.5v4M16 2.5v4"/><rect x="7" y="13" width="3.2" height="3.2" rx=".6" fill="currentColor" stroke="none"/>
-              </svg>
-            </span>
-            <span class="txt"><h3>Schedule Online</h3><p>Pick a day and time that works for you.</p></span>
-            <span class="arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
-          </a>
-          <button class="opt" id="callBtn" type="button">
-            <span class="ico">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-            </span>
-            <span class="txt"><h3>Call Me to Schedule</h3><p>Leave your details and we'll call you to set it up.</p></span>
-            <span class="arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
-          </button>
-        </div>
+<!-- HERO -->
+<section class="hero-photo pb-10 pt-3 sm:pt-5 px-6">
+  <div class="mx-auto max-w-4xl text-center">
+    <img src="https://assets.cdn.filesafe.space/dpp7zOnwhkHGWhn5lGRd/media/69d3430da7dcb4cff0cfb379.png"
+         alt="Always Green Turf AZ" class="mx-auto h-14 sm:h-20 w-auto object-contain mb-5 sm:mb-6 drop-shadow-lg">
 
-        <div class="callback" id="callback">
-          <form id="callForm" novalidate>
-            <label for="full_name">Full Name</label>
-            <input id="full_name" name="full_name" type="text" autocomplete="name" required />
-            <label for="phone">Phone Number</label>
-            <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required />
-            <input class="hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
-            <button class="submit" id="submitBtn" type="submit">Request My Call Back</button>
-            <div class="msg" id="msg"></div>
-            <button class="back" id="backBtn" type="button">← Back to options</button>
+    <span class="inline-flex items-center gap-2 bg-white/10 backdrop-blur text-white text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-full mb-6 ring-1 ring-white/25">
+      <svg class="w-4 h-4" style="color:#bdd431;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+      Serving Homeowners Across Arizona
+    </span>
+
+    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight drop-shadow-lg">
+      <span style="color:#bdd431;">1,500+ Arizona Yards</span><br>Transformed With Premium Turf
+    </h1>
+
+    <p class="mt-5 text-white text-lg sm:text-2xl md:text-3xl font-extrabold leading-tight drop-shadow-lg">
+      Book A Free In-Home Design Consultation
+    </p>
+    <p class="mt-2 text-white/80 text-sm sm:text-base drop-shadow">No pressure · No obligation</p>
+
+    <p class="mt-4 text-base sm:text-lg font-bold drop-shadow"
+       style="background:linear-gradient(135deg,#bdd431,#8cbf3f,#2d743a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;">
+      $0 Down · 12 Months No Interest Financing
+    </p>
+
+    <div class="trust-badges mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:gap-x-7">
+      <div class="flex items-center gap-2 text-white/85 text-sm font-medium"><svg class="w-5 h-5" style="color:#bdd431;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>No Water Bills</div>
+      <div class="flex items-center gap-2 text-white/85 text-sm font-medium"><svg class="w-5 h-5" style="color:#bdd431;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Lasts 15–30 Years</div>
+      <div class="flex items-center gap-2 text-white/85 text-sm font-medium"><svg class="w-5 h-5" style="color:#bdd431;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Pet &amp; Kid Safe</div>
+      <div class="flex items-center gap-2 text-white/85 text-sm font-medium"><svg class="w-5 h-5" style="color:#bdd431;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Licensed &amp; Insured</div>
+    </div>
+  </div>
+</section>
+
+<!-- CHOOSER -->
+<section class="py-10 sm:py-16 px-4 sm:px-6 bg-gray-50">
+  <div class="mx-auto w-full max-w-2xl">
+
+    <div id="chooser">
+      <div class="text-center">
+        <span class="inline-block text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4" style="background:#eaf4d0;color:#2d743a;">Free Design Consultation</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">How would you like to book?</h2>
+        <p class="mt-2 text-gray-500 text-sm sm:text-base">Pick whichever is easiest — either way it's free and takes under a minute.</p>
+      </div>
+
+      <div class="mt-8 grid grid-cols-1 gap-4">
+        <!-- Schedule Online -->
+        <a id="onlineBtn" href="#" class="opt-card group flex items-center gap-5 bg-white rounded-2xl p-6 sm:p-7 shadow-soft ring-1 ring-black/5 border-2 border-transparent">
+          <span class="flex-none w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow" style="background:linear-gradient(135deg,#8cbf3f,#2d743a);">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </span>
+          <span class="flex-1 text-left">
+            <span class="block font-bold text-gray-900 text-lg">Schedule Online</span>
+            <span class="block text-sm text-gray-500 mt-0.5">Pick a day and time that works for you.</span>
+          </span>
+          <svg class="opt-arrow w-6 h-6 text-leaf" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
+        </a>
+
+        <!-- Call Me -->
+        <button id="callBtn" type="button" class="opt-card group flex items-center gap-5 bg-white rounded-2xl p-6 sm:p-7 shadow-soft ring-1 ring-black/5 border-2 border-transparent w-full text-left">
+          <span class="flex-none w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow" style="background:linear-gradient(135deg,#8cbf3f,#2d743a);">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+          </span>
+          <span class="flex-1">
+            <span class="block font-bold text-gray-900 text-lg">Call Me to Schedule</span>
+            <span class="block text-sm text-gray-500 mt-0.5">Leave your details and we'll call you to set it up.</span>
+          </span>
+          <svg class="opt-arrow w-6 h-6 text-leaf" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
+        </button>
+      </div>
+
+      <!-- Call-me form -->
+      <div class="callback mt-4" id="callback">
+        <div class="rounded-2xl bg-white p-5 sm:p-7 shadow-soft ring-1 ring-black/5">
+          <h3 class="font-bold text-gray-900 text-lg">We'll call you back</h3>
+          <p class="text-sm text-gray-500 mt-1">Enter your name and phone number and a design consultant will reach out shortly.</p>
+          <form id="callForm" class="mt-5 grid grid-cols-1 gap-4" novalidate>
+            <div>
+              <label class="block text-sm font-medium text-gray-800">Full Name</label>
+              <input id="full_name" name="full_name" type="text" autocomplete="name" required placeholder="Jane Doe"
+                class="mt-2 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm sm:text-base text-gray-900 placeholder-gray-400 outline-none transition"
+                onfocus="this.style.borderColor='#8cbf3f';this.style.boxShadow='0 0 0 4px #eaf4d0';"
+                onblur="this.style.borderColor='';this.style.boxShadow='';">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-800">Phone Number</label>
+              <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="(555) 123-4567"
+                class="mt-2 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm sm:text-base text-gray-900 placeholder-gray-400 outline-none transition"
+                onfocus="this.style.borderColor='#8cbf3f';this.style.boxShadow='0 0 0 4px #eaf4d0';"
+                onblur="this.style.borderColor='';this.style.boxShadow='';">
+            </div>
+            <input class="hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <button id="submitBtn" type="submit"
+              class="w-full rounded-xl px-6 py-3.5 font-semibold text-white transition hover:brightness-105 focus:outline-none focus:ring-4"
+              style="background:linear-gradient(135deg,#8cbf3f,#bdd431,#2d743a);box-shadow:0 12px 24px rgba(140,191,63,.30);--tw-ring-color:#eaf4d0;">
+              Request My Call Back
+            </button>
+            <div id="msg" class="hidden rounded-xl px-4 py-3 text-sm"></div>
+            <button id="backBtn" type="button" class="text-sm text-gray-500 hover:text-moss">← Back to options</button>
           </form>
         </div>
       </div>
-
-      <div class="success" id="success">
-        <div class="check">
-          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-        </div>
-        <h2>You're all set!</h2>
-        <p>Thanks — one of our design consultants will call you shortly to schedule your free consultation.</p>
-      </div>
     </div>
+
+    <!-- Success -->
+    <div id="success" class="hidden text-center rounded-2xl bg-white p-8 sm:p-10 shadow-soft ring-1 ring-black/5">
+      <div class="mx-auto w-16 h-16 rounded-full flex items-center justify-center text-white shadow-glow" style="background:linear-gradient(135deg,#8cbf3f,#2d743a);">
+        <svg class="w-9 h-9" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h2 class="mt-5 text-2xl font-bold text-gray-900">You're all set!</h2>
+      <p class="mt-2 text-gray-500">Thanks — one of our design consultants will call you shortly to schedule your free consultation.</p>
+    </div>
+
   </div>
+</section>
 
-  <script>
-    // Where "Schedule Online" sends people (the current booking flow).
-    // ⬇️ Update if your online booking lives somewhere else.
-    var ONLINE_BOOKING_URL = "/direct-booking";
-    document.getElementById("onlineBtn").href = ONLINE_BOOKING_URL;
+<!-- FOOTER -->
+<footer class="hero-bg py-10 px-6 text-center">
+  <img src="https://assets.cdn.filesafe.space/dpp7zOnwhkHGWhn5lGRd/media/69d3430da7dcb4cff0cfb379.png" alt="Always Green Turf AZ" class="mx-auto h-16 w-auto object-contain opacity-90 mb-4">
+  <p class="text-white/50 text-xs max-w-md mx-auto">Serving the Greater Phoenix Metro Area · All Rights Reserved</p>
+  <p class="mt-3 text-white/30 text-xs">By submitting this form you agree to be contacted by our team regarding your consultation request.</p>
+</footer>
 
-    var byId = function (id) { return document.getElementById(id); };
-    byId("callBtn").addEventListener("click", function () {
-      byId("callback").classList.add("show");
-      byId("callback").scrollIntoView({ behavior: "smooth", block: "nearest" });
-      byId("full_name").focus();
-    });
-    byId("backBtn").addEventListener("click", function () {
-      byId("callback").classList.remove("show");
-      byId("msg").className = "msg";
-    });
+<script>
+  // Where "Schedule Online" sends people (the current booking flow).
+  // ⬇️ Update if your online booking lives at a different URL.
+  var ONLINE_BOOKING_URL = "/direct-booking";
+  var byId = function (id) { return document.getElementById(id); };
+  byId("onlineBtn").href = ONLINE_BOOKING_URL;
 
-    byId("callForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      var msg = byId("msg"); msg.className = "msg";
-      var full_name = byId("full_name").value.trim();
-      var phone = byId("phone").value.trim();
-      var company = byId("callForm").company.value;
-      if (!full_name || !phone) { msg.className = "msg err"; msg.textContent = "Please enter your name and phone number."; return; }
+  byId("callBtn").addEventListener("click", function () {
+    byId("callback").classList.add("show");
+    byId("callback").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    byId("full_name").focus();
+  });
+  byId("backBtn").addEventListener("click", function () {
+    byId("callback").classList.remove("show");
+    byId("msg").className = "hidden";
+  });
 
-      var btn = byId("submitBtn"); btn.disabled = true; var t = btn.textContent; btn.textContent = "Sending…";
-      try {
-        var res = await fetch("/api/request-call", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ full_name: full_name, phone: phone, company: company }),
-        });
-        var data = await res.json().catch(function () { return {}; });
-        if (!res.ok) throw new Error(data.error || "Something went wrong. Please try again or call us directly.");
-        byId("chooser").style.display = "none";
-        byId("success").classList.add("show");
-      } catch (err) {
-        msg.className = "msg err"; msg.textContent = err.message;
-        btn.disabled = false; btn.textContent = t;
-      }
-    });
-  </script>
+  function showMsg(text, ok) {
+    var m = byId("msg");
+    m.textContent = text;
+    m.className = "rounded-xl px-4 py-3 text-sm";
+    m.style.background = ok ? "#f0fdf4" : "#fef2f2";
+    m.style.color = ok ? "#166534" : "#991b1b";
+    m.style.boxShadow = ok ? "inset 0 0 0 1px #bbf7d0" : "inset 0 0 0 1px #fecaca";
+  }
+
+  byId("callForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var full_name = byId("full_name").value.trim();
+    var phone = byId("phone").value.trim();
+    var company = byId("callForm").company.value;
+    if (!full_name || !phone) { showMsg("Please enter your name and phone number.", false); return; }
+
+    var btn = byId("submitBtn"); btn.disabled = true; var t = btn.textContent; btn.textContent = "Sending…";
+    try {
+      var res = await fetch("/api/request-call", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ full_name: full_name, phone: phone, company: company })
+      });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok) throw new Error(data.error || "Something went wrong. Please try again or call us directly.");
+      byId("chooser").classList.add("hidden");
+      byId("success").classList.remove("hidden");
+      byId("success").scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (err) {
+      showMsg(err.message, false);
+      btn.disabled = false; btn.textContent = t;
+    }
+  });
+</script>
+
 </body>
 </html>
