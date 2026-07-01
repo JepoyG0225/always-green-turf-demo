@@ -163,24 +163,17 @@
           <input type="hidden" id="addrStreet"><input type="hidden" id="addrCity"><input type="hidden" id="addrState"><input type="hidden" id="addrZip">
         </div>
         <div class="sm:col-span-2">
-          <label class="block text-sm font-medium text-gray-800">Which days work best?</label>
-          <div class="mt-2 grid grid-cols-4 gap-1.5 sm:gap-2">
-            <label class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 px-2 py-2 cursor-pointer hover:bg-[#eaf4d0]/50"><input type="checkbox" name="avail_days" value="Monday" class="h-4 w-4"><span class="text-xs text-gray-800">Mon</span></label>
-            <label class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 px-2 py-2 cursor-pointer hover:bg-[#eaf4d0]/50"><input type="checkbox" name="avail_days" value="Tuesday" class="h-4 w-4"><span class="text-xs text-gray-800">Tue</span></label>
-            <label class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 px-2 py-2 cursor-pointer hover:bg-[#eaf4d0]/50"><input type="checkbox" name="avail_days" value="Wednesday" class="h-4 w-4"><span class="text-xs text-gray-800">Wed</span></label>
-            <label class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 px-2 py-2 cursor-pointer hover:bg-[#eaf4d0]/50"><input type="checkbox" name="avail_days" value="Thursday" class="h-4 w-4"><span class="text-xs text-gray-800">Thu</span></label>
-            <label class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 px-2 py-2 cursor-pointer hover:bg-[#eaf4d0]/50"><input type="checkbox" name="avail_days" value="Friday" class="h-4 w-4"><span class="text-xs text-gray-800">Fri</span></label>
-            <label class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 px-2 py-2 cursor-pointer hover:bg-[#eaf4d0]/50"><input type="checkbox" name="avail_days" value="Saturday" class="h-4 w-4"><span class="text-xs text-gray-800">Sat</span></label>
-            <label class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 px-2 py-2 cursor-pointer hover:bg-[#eaf4d0]/50"><input type="checkbox" name="avail_days" value="Sunday" class="h-4 w-4"><span class="text-xs text-gray-800">Sun</span></label>
-          </div>
+          <label class="block text-sm font-medium text-gray-800">Preferred date</label>
+          <input id="apptDate" name="appt_date" type="date" required
+            class="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition"
+            onfocus="this.style.borderColor='#8cbf3f';this.style.boxShadow='0 0 0 4px #eaf4d0';" onblur="this.style.borderColor='';this.style.boxShadow='';">
         </div>
         <div class="sm:col-span-2">
-          <label class="block text-sm font-medium text-gray-800">Best time of day?</label>
-          <div class="mt-2 grid grid-cols-3 gap-1.5 sm:gap-2">
-            <label class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 px-2 py-2 cursor-pointer hover:bg-[#eaf4d0]/50"><input type="checkbox" name="time_windows" value="9:00am-12:00pm" class="h-4 w-4"><span class="text-xs text-gray-800">9–12</span></label>
-            <label class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 px-2 py-2 cursor-pointer hover:bg-[#eaf4d0]/50"><input type="checkbox" name="time_windows" value="12:00pm-3:00pm" class="h-4 w-4"><span class="text-xs text-gray-800">12–3</span></label>
-            <label class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 px-2 py-2 cursor-pointer hover:bg-[#eaf4d0]/50"><input type="checkbox" name="time_windows" value="3:00pm-6:00pm" class="h-4 w-4"><span class="text-xs text-gray-800">3–6</span></label>
+          <label class="block text-sm font-medium text-gray-800">Available time</label>
+          <div id="slotWindows" class="mt-2 grid grid-cols-3 gap-1.5 sm:gap-2">
+            <p class="col-span-3 text-sm text-gray-400 py-1">Pick a date to see available times.</p>
           </div>
+          <input type="hidden" id="selectedWindow" name="selected_window">
         </div>
         <div class="sm:col-span-2">
           <label class="block text-sm font-medium text-gray-800">How big of an area?</label>
@@ -309,6 +302,49 @@
   }
   window.__initPlaces = initAddressAutocomplete;
 
+  // ---------- Date picker + live GHL availability ----------
+  (function(){
+    var dateInput = byId('apptDate'), wrap = byId('slotWindows'), hidden = byId('selectedWindow');
+    if (!dateInput) return;
+    var phx = new Date(Date.now() - 7*3600*1000);              // shift to Phoenix wall-clock
+    var ymd = function(d){ return d.toISOString().slice(0,10); };
+    dateInput.min = ymd(phx);
+    dateInput.max = ymd(new Date(phx.getTime() + 30*86400*1000));
+
+    function msg(t){ wrap.innerHTML = '<p class="col-span-3 text-sm text-gray-400 py-1">'+t+'</p>'; }
+    function render(windows){
+      hidden.value = '';
+      wrap.innerHTML = windows.map(function(w){
+        if (w.available){
+          return '<button type="button" class="slot rounded-xl border border-gray-200 px-2 py-2.5 text-center transition hover:bg-[#eaf4d0]/60" data-value="'+w.value+'">'
+            + '<span class="block text-sm font-semibold text-gray-800">'+w.label+'</span><span class="block text-[11px] text-gray-500">'+w.sub+'</span></button>';
+        }
+        return '<div class="rounded-xl border border-gray-100 bg-gray-50 px-2 py-2.5 text-center cursor-not-allowed">'
+          + '<span class="block text-sm font-semibold text-gray-400 line-through">'+w.label+'</span><span class="block text-[11px] text-red-400">Booked</span></div>';
+      }).join('');
+      wrap.querySelectorAll('.slot').forEach(function(b){
+        b.addEventListener('click', function(){
+          wrap.querySelectorAll('.slot').forEach(function(x){ x.style.borderColor=''; x.style.background=''; x.style.boxShadow=''; });
+          b.style.borderColor='#8cbf3f'; b.style.background='#eaf4d0'; b.style.boxShadow='0 0 0 3px rgba(140,191,63,.25)';
+          hidden.value = b.dataset.value;
+        });
+      });
+      if (!windows.some(function(w){ return w.available; }))
+        wrap.insertAdjacentHTML('beforeend', '<p class="col-span-3 text-xs text-amber-600 mt-1">No openings that day — please try another date.</p>');
+    }
+    dateInput.addEventListener('change', async function(){
+      var d = dateInput.value; hidden.value = '';
+      if (!d){ msg('Pick a date to see available times.'); return; }
+      msg('Checking availability…');
+      try {
+        var res = await fetch('/api/slots?date=' + encodeURIComponent(d));
+        var data = await res.json();
+        if (!res.ok || !data.windows) throw new Error(data.error || 'error');
+        render(data.windows);
+      } catch (e){ msg('Could not load availability — please try another date or call us.'); }
+    });
+  })();
+
   (function(){
     var form = byId('apptForm'), btn = byId('submitBtn'), status = byId('formStatus'), phone = byId('phoneUS');
     var WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/dpp7zOnwhkHGWhn5lGRd/webhook-trigger/730329d9-f044-446f-9109-1ca35284f743";
@@ -319,16 +355,17 @@
       if (!isValidArizonaPhone(phone.value.trim())){ phone.dataset.invalid='true'; phone.focus(); setStatus('We only serve within Arizona.', false); return; }
       var fd = new FormData(form); var addressFull = (fd.get('address')||'').toString().trim();
       if (!placeData.street && addressFull) tryParseManualAddress(addressFull);
-      var days = fd.getAll('avail_days').map(String), times = fd.getAll('time_windows').map(String), area = (fd.get('area_size')||'').toString();
-      if (days.length===0){ setStatus('Please select at least one available day.', false); return; }
-      if (times.length===0){ setStatus('Please select at least one time window.', false); return; }
+      var apptDate = (byId('apptDate').value||'').trim(), selectedWindow = (byId('selectedWindow').value||'').trim(), area = (fd.get('area_size')||'').toString();
+      if (!apptDate){ setStatus('Please pick a date.', false); return; }
+      if (!selectedWindow){ setStatus('Please choose an available time.', false); return; }
       if (!area){ setStatus('Please choose the area size.', false); return; }
+      var weekday = new Date(apptDate + 'T12:00:00-07:00').toLocaleDateString('en-US', { weekday:'long', timeZone:'America/Phoenix' });
       var payload = {
         first_name:(fd.get('first_name')||'').toString().trim(), last_name:(fd.get('last_name')||'').toString().trim(),
         email:(fd.get('email')||'').toString().trim(), phone_formatted:(fd.get('phone')||'').toString().trim(),
         phone_raw:((fd.get('phone')||'').toString().replace(/\D/g,'')),
         address_full:addressFull, address_street:placeData.street||'', address_city:placeData.city||'', address_state:placeData.state||'', address_zip:placeData.zip||'',
-        available_days:days, best_time_windows:times, area_size:area, "project sqft":area,
+        available_days:[weekday], best_time_windows:[selectedWindow], preferred_date:apptDate, area_size:area, "project sqft":area,
         source:'Free Design Appointment Form', submitted_at:new Date().toISOString()
       };
       var original = btn.innerHTML; btn.disabled = true; btn.textContent = 'Sending…';
