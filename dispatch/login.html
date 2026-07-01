@@ -9,32 +9,40 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./dispatch.css" />
   <style>
-    body { display:flex; flex-direction:column; }
-    .wrap-login { flex:1; display:grid; place-items:center; padding:40px 20px; }
-    .login-card { width:100%; max-width:420px; background:#fff; border-radius:18px; padding:40px 36px; box-shadow:0 18px 50px rgba(14,30,14,.10); }
-    .login-card h1 { font-size:1.5rem; font-weight:900; color:#0e1e0e; text-align:center; }
-    .login-card p.sub { text-align:center; color:var(--muted); font-size:.86rem; margin-top:8px; }
-    .login-card label { margin-top:14px; }
-    #loginBtn { width:100%; margin-top:22px; padding:14px; }
-    .footnote { text-align:center; margin-top:20px; color:#9ca3af; font-size:.78rem; }
+    body { background:linear-gradient(135deg,#f6faf6 0%,#eaf5ea 60%,#f6faf6 100%); display:grid; place-items:center; padding:32px 20px; }
+    .login-wrap { width:100%; max-width:420px; }
+    .login-brand { text-align:center; margin-bottom:28px; }
+    .login-brand img { height:56px; width:auto; margin-bottom:14px; }
+    .login-brand .tag {
+      display:inline-block; font-size:.62rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase;
+      color:var(--moss); background:var(--mint); padding:5px 12px; border-radius:50px;
+    }
+    .login-card {
+      background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-xl);
+      padding:36px 32px; box-shadow:var(--shadow-lg);
+    }
+    .login-card h1 { font-size:1.4rem; font-weight:800; letter-spacing:-.01em; text-align:center; }
+    .login-card p.sub { text-align:center; color:var(--muted); font-size:.86rem; margin-top:6px; }
+    .login-card label { margin-top:16px; }
+    #loginBtn { width:100%; margin-top:22px; padding:13px; font-size:.9rem; justify-content:center; }
+    .footnote { text-align:center; margin-top:20px; color:var(--subtle); font-size:.75rem; }
   </style>
 </head>
 <body>
-  <div class="top-bar">
-    <a href="/" class="brand"><img src="../logo.webp" alt="Always Green Turf" /></a>
-    <span class="badge">⚡ DispatchAI</span>
-  </div>
-
-  <div class="wrap-login">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <img src="../logo.webp" alt="Always Green Turf AZ" />
+      <div class="tag">⚡ DispatchAI Admin</div>
+    </div>
     <div class="login-card">
-      <h1>DispatchAI</h1>
-      <p class="sub">Sign in to manage dispatch &amp; sales reps.</p>
+      <h1>Welcome back</h1>
+      <p class="sub">Sign in to manage dispatch and sales reps.</p>
       <form id="loginForm" novalidate>
-        <label for="email">Work Email</label>
-        <input id="email" type="email" autocomplete="username" required />
+        <label for="email">Work email</label>
+        <input id="email" type="email" autocomplete="username" required placeholder="you@alwaysgreenturfaz.com" />
         <label for="password">Password</label>
-        <input id="password" type="password" autocomplete="current-password" required />
-        <button id="loginBtn" type="submit">Sign In</button>
+        <input id="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
+        <button id="loginBtn" type="submit">Sign in</button>
         <div class="error" id="errorBox"></div>
       </form>
       <p class="footnote">Trouble signing in? Contact your administrator.</p>
@@ -45,7 +53,7 @@
     import { supabase } from "./config.js";
     const byId = (id) => document.getElementById(id);
     const errBox = byId("errorBox");
-    const showError = (m) => { errBox.textContent = m; errBox.style.display = "block"; };
+    const showError = (m) => { errBox.textContent = m; errBox.classList.add("show"); };
 
     (async () => {
       const { data } = await supabase.auth.getSession();
@@ -54,7 +62,7 @@
 
     byId("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      errBox.style.display = "none";
+      errBox.classList.remove("show");
       const email = byId("email").value.trim(), password = byId("password").value;
       if (!email || !password) { showError("Email and password are required."); return; }
       const btn = byId("loginBtn"); btn.disabled = true; const t = btn.textContent; btn.textContent = "Signing in…";
