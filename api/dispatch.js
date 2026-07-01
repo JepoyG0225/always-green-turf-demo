@@ -18,7 +18,7 @@ const CFG = {
   fromName: process.env.FROM_NAME || "Always Green Turf AZ",
   bccEmail: process.env.BCC_EMAIL || "",
   slackToken: process.env.SLACK_BOT_TOKEN || "",
-  slackChannel: process.env.SLACK_CHANNEL_ID || "",
+  slackChannel: process.env.SLACK_CHANNEL_ID || "C0BAZDCT5K4",
   anthropicKey: process.env.ANTHROPIC_API_KEY || "",
   anthropicModel: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
   webhookSecret: process.env.DISPATCH_WEBHOOK_SECRET || "",
