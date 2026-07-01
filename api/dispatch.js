@@ -342,8 +342,20 @@ async function runDispatch(payload) {
     const cands = candidates(new Date(), dows, tw);
     if (!cands.length) throw new Error("No future candidate dates");
     let chosen = null, chosenCand = cands[0];
+    const skipped = new Set(); // reps whose availability check errors — skip for remaining candidates too
     await step("find_availability", async () => {
-      for (const c of cands) for (const rep of qualified) if (await isRepFree(rep, c)) { chosen = rep; chosenCand = c; return; }
+      for (const c of cands) {
+        for (const rep of qualified) {
+          if (skipped.has(rep.assigned_id)) continue;
+          try {
+            if (await isRepFree(rep, c)) { chosen = rep; chosenCand = c; return; }
+          } catch (e) {
+            // One bad rep (e.g. deleted GHL user → 400) must not kill the whole dispatch.
+            skipped.add(rep.assigned_id);
+            console.warn(`[dispatch] availability skipped for ${rep.name} (${rep.assigned_id}): ${String(e.message || e)}`);
+          }
+        }
+      }
     });
     if (!chosen) { result = { status: "no_rep_availability", remarks: `No appointment booked. All nearby reps are fully booked on ${lead.preferredDays}.` }; return result; }
 
