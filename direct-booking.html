@@ -563,7 +563,7 @@
 
   (function(){
     var form = byId('apptForm'), btn = byId('submitBtn'), status = byId('formStatus'), phone = byId('phoneUS');
-    var WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/dpp7zOnwhkHGWhn5lGRd/webhook-trigger/730329d9-f044-446f-9109-1ca35284f743";
+    var WEBHOOK_URL = "/api/book";
     function setStatus(msg, ok){ status.textContent = msg; status.classList.remove('hidden'); status.style.background = ok?'#f0fdf4':'#fef2f2'; status.style.color = ok?'#166534':'#991b1b'; status.style.boxShadow = ok?'inset 0 0 0 1px #bbf7d0':'inset 0 0 0 1px #fecaca'; }
     function tryParseManualAddress(a){ var m = a.match(/^\s*(.+?)\s*,\s*([^,]+)\s*,\s*([A-Z]{2})\s+(\d{5})(?:-\d{4})?\s*$/i); if (m) placeData = { street:m[1], city:m[2], state:m[3].toUpperCase(), zip:m[4] }; }
     form.addEventListener('submit', async function(e){
