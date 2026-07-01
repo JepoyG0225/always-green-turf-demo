@@ -250,3 +250,42 @@ button.secondary:hover { background:var(--mint); color:var(--moss); border-color
 .flex { display:flex; align-items:center; gap:10px; }
 .grow { flex:1; }
 .divider { height:1px; background:var(--border-2); margin:16px 0; }
+
+/* ─── Modal ─── */
+.modal-overlay {
+  position:fixed; inset:0; z-index:100;
+  background:rgba(15,31,20,.55); backdrop-filter:blur(3px);
+  display:flex; align-items:flex-start; justify-content:center;
+  padding:32px 16px; overflow-y:auto;
+  animation:overlay-in .18s ease-out;
+}
+.modal-overlay.hidden { display:none; }
+@keyframes overlay-in { from { opacity:0; } to { opacity:1; } }
+.modal-card {
+  background:var(--panel); border-radius:var(--radius-xl);
+  width:100%; max-width:560px;
+  box-shadow:0 30px 80px rgba(15,31,20,.35);
+  position:relative; margin:auto;
+  animation:modal-in .22s cubic-bezier(.2,.9,.2,1);
+}
+@keyframes modal-in { from { opacity:0; transform:translateY(12px) scale(.98); } to { opacity:1; transform:none; } }
+.modal-head {
+  display:flex; align-items:center; gap:14px;
+  padding:22px 24px 6px;
+}
+.modal-icon {
+  width:42px; height:42px; border-radius:12px; flex:none;
+  background:linear-gradient(135deg,var(--leaf),var(--moss)); color:#fff;
+  display:grid; place-items:center;
+}
+.modal-body { padding:16px 24px 24px !important; }
+.modal-close {
+  position:absolute; top:14px; right:14px;
+  width:34px; height:34px; border-radius:50%;
+  background:var(--panel-2); border:1px solid var(--border);
+  color:var(--muted); cursor:pointer;
+  display:grid; place-items:center;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.modal-close:hover { background:var(--danger-bg); color:var(--danger); border-color:var(--danger-border); }
+body.modal-open { overflow:hidden; }

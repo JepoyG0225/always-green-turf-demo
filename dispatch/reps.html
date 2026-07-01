@@ -58,31 +58,17 @@
       <div class="page-head">
         <div>
           <h1>Sales Reps</h1>
-          <p><span class="mono">assigned_id</span> is the GHL user id used for booking; <span class="mono">address</span> is the rep's home base for drive-time scoring. Search GHL below to add a rep without copying IDs by hand.</p>
+          <p><span class="mono">assigned_id</span> is the GHL user id used for booking; <span class="mono">address</span> is the rep's home base for drive-time scoring. Add a new rep by searching GHL — no ID copying needed.</p>
+        </div>
+        <div class="head-actions">
+          <button class="btn" id="openAddBtn" type="button">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Add rep
+          </button>
         </div>
       </div>
 
       <div id="configWarn" class="config-warn" style="display:none;"></div>
-
-      <!-- Add rep card -->
-      <div class="card">
-        <h2 class="with-sub">Add a rep</h2>
-        <p class="sub">Type a name or email to search GHL — we'll auto-fill the user id.</p>
-        <form id="addForm" class="rep-grid">
-          <div class="wide ghl-wrap">
-            <label>Find sales rep in GHL</label>
-            <input id="ghlSearch" placeholder="Search GHL users…" autocomplete="off" />
-            <div id="ghlResults" class="ghl-results"></div>
-            <div id="ghlMsg" class="ghl-msg"></div>
-          </div>
-          <div><label>Name</label><input name="name" required /></div>
-          <div><label>assigned_id (GHL user id)</label><input name="assigned_id" class="mono" required /></div>
-          <div class="wide"><label>Home address</label><input name="address" required placeholder="123 Main St, Chandler, AZ 85224" /></div>
-          <div class="checkbox"><input type="checkbox" name="active" checked id="addActive" /><label for="addActive" style="margin:0;">Active</label></div>
-          <div class="row"><button type="submit">Add rep</button></div>
-        </form>
-        <div class="error" id="addErr"></div>
-      </div>
 
       <div class="page-head" style="margin-bottom:14px;">
         <div>
@@ -95,12 +81,65 @@
     </main>
   </div>
 
+  <!-- Add-rep modal -->
+  <div id="addModal" class="modal-overlay hidden" aria-modal="true" role="dialog">
+    <div class="modal-card">
+      <button class="modal-close" type="button" data-close aria-label="Close">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="modal-head">
+        <div class="modal-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M8 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+        </div>
+        <div>
+          <h2 style="font-size:1.15rem; font-weight:800; color:var(--text);">Add a rep</h2>
+          <p style="font-size:.82rem; color:var(--muted); margin-top:2px;">Search GHL — we'll auto-fill the user id.</p>
+        </div>
+      </div>
+      <form id="addForm" class="rep-grid modal-body">
+        <div class="wide ghl-wrap">
+          <label>Find sales rep in GHL</label>
+          <input id="ghlSearch" placeholder="Search GHL users by name or email…" autocomplete="off" />
+          <div id="ghlResults" class="ghl-results"></div>
+          <div id="ghlMsg" class="ghl-msg"></div>
+        </div>
+        <div><label>Name</label><input name="name" required /></div>
+        <div><label>assigned_id (GHL user id)</label><input name="assigned_id" class="mono" required /></div>
+        <div class="wide"><label>Home address</label><input name="address" required placeholder="123 Main St, Chandler, AZ 85224" /></div>
+        <div class="checkbox"><input type="checkbox" name="active" checked id="addActive" /><label for="addActive" style="margin:0;">Active</label></div>
+        <div class="row">
+          <button type="button" class="secondary" data-close>Cancel</button>
+          <button type="submit">Add rep</button>
+        </div>
+        <div class="wide"><div class="error" id="addErr"></div></div>
+      </form>
+    </div>
+  </div>
+
   <script type="module">
     import { supabase, requireSession, signOut, SUPABASE_URL } from "./config.js";
 
     const list = document.getElementById("list");
     const byId = (id) => document.getElementById(id);
     byId("signOutBtn").addEventListener("click", signOut);
+
+    // ── Modal open/close ──
+    const addModal = byId("addModal");
+    function openAddModal() {
+      addModal.classList.remove("hidden");
+      document.body.classList.add("modal-open");
+      setTimeout(() => ghlSearch.focus(), 60);
+    }
+    function closeAddModal() {
+      addModal.classList.add("hidden");
+      document.body.classList.remove("modal-open");
+      byId("addErr").classList.remove("show");
+    }
+    byId("openAddBtn").addEventListener("click", openAddModal);
+    addModal.addEventListener("click", (e) => {
+      if (e.target === addModal || e.target.closest("[data-close]")) closeAddModal();
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !addModal.classList.contains("hidden")) closeAddModal(); });
     const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
     if (SUPABASE_URL.includes("YOUR-PROJECT")) {
@@ -217,7 +256,7 @@
       if (!row.name || !row.assigned_id || !row.address) { err.textContent = "Name, assigned_id and address are required."; err.classList.add("show"); return; }
       const { error } = await supabase.from("sales_rep_data").upsert(row, { onConflict: "assigned_id" });
       if (error) { err.textContent = "Add failed: " + error.message; err.classList.add("show"); return; }
-      f.reset(); f.active.checked = true; ghlSearch.value = ""; ghlMsg.textContent = ""; load();
+      f.reset(); f.active.checked = true; ghlSearch.value = ""; ghlMsg.textContent = ""; closeAddModal(); load();
     });
 
     load();
