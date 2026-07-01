@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Your Free Consultation | Always Green Turf AZ</title>
+  <meta name="description" content="Schedule your free artificial turf design consultation with Always Green Turf AZ — book online or request a call back." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --g1:#071a07; --g2:#0e300e; --g3:#165f16; --g4:#1e8a1e; --g5:#28b828; --g6:#52d652;
+      --text:#162016; --muted:#5a7a5a; --border:rgba(0,0,0,.08); --gold:#c9a24a; --danger:#b91c1c;
+    }
+    body { font-family:'Poppins',sans-serif; background:linear-gradient(135deg,#f6faf6 0%,#eaf5ea 100%); color:var(--text); min-height:100vh; display:flex; flex-direction:column; }
+    .top-bar { background:linear-gradient(135deg,var(--g2),var(--g1)); padding:16px 28px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 18px rgba(6,15,6,.18); }
+    .top-bar img { height:38px; width:auto; display:block; }
+    .wrap { flex:1; display:grid; place-items:center; padding:44px 20px; }
+    .card { width:100%; max-width:560px; background:#fff; border-radius:20px; padding:44px 40px; box-shadow:0 18px 50px rgba(14,30,14,.10); }
+    .head { text-align:center; margin-bottom:30px; }
+    .head .eyebrow { font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--g4); font-weight:800; }
+    .head h1 { font-size:1.72rem; font-weight:900; color:#0e1e0e; letter-spacing:-.02em; margin-top:10px; line-height:1.2; }
+    .head p { color:var(--muted); font-size:.96rem; margin-top:12px; line-height:1.6; }
+
+    .options { display:grid; gap:16px; }
+    .opt {
+      display:flex; align-items:center; gap:18px; width:100%; text-align:left;
+      background:#fff; border:2px solid #e3efe3; border-radius:16px; padding:22px 24px;
+      cursor:pointer; font:inherit; color:var(--text); transition:border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .opt:hover { border-color:var(--g5); transform:translateY(-2px); box-shadow:0 12px 30px rgba(30,138,30,.16); }
+    .opt .ico { flex:none; width:52px; height:52px; border-radius:14px; display:grid; place-items:center; font-size:1.5rem; background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; }
+    .opt .txt h3 { font-size:1.08rem; font-weight:800; color:#0e1e0e; }
+    .opt .txt p { font-size:.86rem; color:var(--muted); margin-top:3px; }
+    .opt .arrow { margin-left:auto; color:var(--g5); font-size:1.3rem; font-weight:800; }
+
+    /* Call-me form */
+    .callback { display:none; margin-top:6px; }
+    .callback.show { display:block; animation:fade .25s ease; }
+    @keyframes fade { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+    .callback label { display:block; font-weight:700; font-size:.8rem; color:#1f2937; margin:14px 0 6px; }
+    .callback input { width:100%; padding:13px 15px; border:1.5px solid #d1d5db; border-radius:12px; font:inherit; font-size:.95rem; color:var(--text); }
+    .callback input:focus { outline:none; border-color:var(--g5); box-shadow:0 0 0 4px rgba(82,214,82,.16); }
+    .hp { position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+    .submit { width:100%; margin-top:20px; padding:15px; border:0; border-radius:50px; background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 8px 28px rgba(30,138,30,.36); }
+    .submit[disabled] { opacity:.6; cursor:not-allowed; }
+    .back { display:inline-block; margin-top:16px; background:none; border:0; color:var(--muted); font:inherit; font-size:.84rem; cursor:pointer; }
+    .back:hover { color:var(--g4); }
+    .msg { margin-top:16px; padding:12px 14px; border-radius:12px; font-size:.9rem; display:none; }
+    .msg.err { display:block; background:#fee2e2; border:1px solid #fecaca; color:var(--danger); }
+    .msg.ok { display:block; background:#dcfce7; border:1px solid #bbf7d0; color:#15803d; }
+    .success { display:none; text-align:center; padding:20px 0; }
+    .success.show { display:block; }
+    .success .check { width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; display:grid; place-items:center; font-size:2rem; margin:0 auto 16px; }
+    .success h2 { font-size:1.3rem; font-weight:900; color:#0e1e0e; }
+    .success p { color:var(--muted); margin-top:8px; }
+  </style>
+</head>
+<body>
+  <div class="top-bar"><img src="logo.webp" alt="Always Green Turf AZ" /></div>
+
+  <div class="wrap">
+    <div class="card">
+      <div id="chooser">
+        <div class="head">
+          <div class="eyebrow">Free Design Consultation</div>
+          <h1>How would you like to book?</h1>
+          <p>Get a free, no-obligation quote for your artificial turf project. Pick whichever is easiest for you.</p>
+        </div>
+
+        <div class="options">
+          <a class="opt" id="onlineBtn" href="#">
+            <span class="ico">🗓️</span>
+            <span class="txt"><h3>Schedule Online</h3><p>Pick a day and time that works for you.</p></span>
+            <span class="arrow">→</span>
+          </a>
+          <button class="opt" id="callBtn" type="button">
+            <span class="ico">📞</span>
+            <span class="txt"><h3>Call Me to Schedule</h3><p>Leave your details and we'll call you to set it up.</p></span>
+            <span class="arrow">→</span>
+          </button>
+        </div>
+
+        <div class="callback" id="callback">
+          <form id="callForm" novalidate>
+            <label for="full_name">Full Name</label>
+            <input id="full_name" name="full_name" type="text" autocomplete="name" required />
+            <label for="phone">Phone Number</label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required />
+            <input class="hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <button class="submit" id="submitBtn" type="submit">Request My Call Back</button>
+            <div class="msg" id="msg"></div>
+            <button class="back" id="backBtn" type="button">← Back to options</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="success" id="success">
+        <div class="check">✓</div>
+        <h2>You're all set!</h2>
+        <p>Thanks — one of our design consultants will call you shortly to schedule your free consultation.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Where "Schedule Online" sends people (the current booking flow).
+    // ⬇️ Update if your online booking lives somewhere else.
+    var ONLINE_BOOKING_URL = "/direct-booking";
+    document.getElementById("onlineBtn").href = ONLINE_BOOKING_URL;
+
+    var byId = function (id) { return document.getElementById(id); };
+    byId("callBtn").addEventListener("click", function () {
+      byId("callback").classList.add("show");
+      byId("callback").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      byId("full_name").focus();
+    });
+    byId("backBtn").addEventListener("click", function () {
+      byId("callback").classList.remove("show");
+      byId("msg").className = "msg";
+    });
+
+    byId("callForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var msg = byId("msg"); msg.className = "msg";
+      var full_name = byId("full_name").value.trim();
+      var phone = byId("phone").value.trim();
+      var company = byId("callForm").company.value;
+      if (!full_name || !phone) { msg.className = "msg err"; msg.textContent = "Please enter your name and phone number."; return; }
+
+      var btn = byId("submitBtn"); btn.disabled = true; var t = btn.textContent; btn.textContent = "Sending…";
+      try {
+        var res = await fetch("/api/request-call", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ full_name: full_name, phone: phone, company: company }),
+        });
+        var data = await res.json().catch(function () { return {}; });
+        if (!res.ok) throw new Error(data.error || "Something went wrong. Please try again or call us directly.");
+        byId("chooser").style.display = "none";
+        byId("success").classList.add("show");
+      } catch (err) {
+        msg.className = "msg err"; msg.textContent = err.message;
+        btn.disabled = false; btn.textContent = t;
+      }
+    });
+  </script>
+</body>
+</html>
