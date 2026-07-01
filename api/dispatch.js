@@ -240,10 +240,18 @@ function emailHtml(name, when) {
 }
 async function notifySlack(lead, rep, whenText) {
   if (!CFG.slackToken || !CFG.slackChannel) return;
+  const mapsLink = lead.address ? `<https://maps.google.com/?q=${encodeURIComponent(lead.address)}|${lead.address}>` : "—";
+  const text =
+    `🗓️ *New Appointment Booking*\n\n` +
+    `*Customer:* ${lead.first_name} ${lead.last_name}\n` +
+    (lead.phone ? `*Phone:* ${lead.phone}\n` : "") +
+    `*Address:* ${mapsLink}\n` +
+    `*When:* ${whenText} (America/Phoenix)\n` +
+    `*Sales Rep:* ${rep.name} (${rep.driveMinutes} min away)\n` +
+    `*Approx. Project Size:* ${lead.yardSize || "n/a"}`;
   await fetch("https://slack.com/api/chat.postMessage", {
     method: "POST", headers: { Authorization: `Bearer ${CFG.slackToken}`, "Content-Type": "application/json; charset=utf-8" },
-    body: JSON.stringify({ channel: CFG.slackChannel, text:
-      `New Appointment Booking\n\nCustomer: ${lead.first_name} ${lead.last_name}\nWhen: ${whenText} (America/Phoenix)\nSales Rep: ${rep.name}\nApprox. Project Size: ${lead.yardSize || "n/a"}` }),
+    body: JSON.stringify({ channel: CFG.slackChannel, text }),
   });
 }
 
