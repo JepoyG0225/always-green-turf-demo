@@ -1,5 +1,8 @@
 {
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/schedule", "destination": "/direct-booking", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/service/area/:slug", "destination": "/:slug" }
   ]

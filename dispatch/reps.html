@@ -8,6 +8,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./dispatch.css" />
+  <style>
+    .ghl-wrap { position: relative; }
+    .ghl-results { position:absolute; z-index:20; left:0; right:0; top:100%; background:#fff; border:1px solid var(--border); border-radius:10px; margin-top:4px; max-height:240px; overflow-y:auto; box-shadow:0 12px 34px rgba(14,30,14,.14); display:none; }
+    .ghl-results.show { display:block; }
+    .ghl-item { padding:9px 12px; cursor:pointer; font-size:.85rem; border-bottom:1px solid var(--border); }
+    .ghl-item:last-child { border-bottom:none; }
+    .ghl-item:hover { background:#f1f8f3; }
+    .ghl-item .eid { font-size:.7rem; color:var(--muted); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; margin-top:2px; }
+    .ghl-msg { font-size:.75rem; margin-top:5px; color:var(--muted); }
+    .ghl-msg.warn { color:var(--warn); }
+    .ghl-msg.ok { color:var(--ok); }
+  </style>
 </head>
 <body>
   <div class="top-bar">
@@ -25,15 +37,21 @@
 
   <div class="wrap">
     <h1 class="page-title">Sales Reps</h1>
-    <p class="page-sub"><span class="mono">assigned_id</span> is the GHL user id used for booking; <span class="mono">address</span> is the rep's home base for drive-time scoring. Editing an address clears the cached geocode.</p>
+    <p class="page-sub"><span class="mono">assigned_id</span> is the GHL user id used for booking; <span class="mono">address</span> is the rep's home base for drive-time scoring. Search GHL below to add a rep without copying IDs by hand.</p>
     <div id="configWarn" class="config-warn" style="display:none;"></div>
 
     <div class="card">
       <h2>Add a rep</h2>
       <form id="addForm" class="rep-grid">
+        <div class="wide ghl-wrap">
+          <label>Find sales rep in GHL</label>
+          <input id="ghlSearch" placeholder="Type a name or email to search GHL users…" autocomplete="off" />
+          <div id="ghlResults" class="ghl-results"></div>
+          <div id="ghlMsg" class="ghl-msg"></div>
+        </div>
         <div><label>Name</label><input name="name" required /></div>
         <div><label>assigned_id (GHL user id)</label><input name="assigned_id" class="mono" required /></div>
-        <div class="wide"><label>Home address</label><input name="address" required /></div>
+        <div class="wide"><label>Home address</label><input name="address" required placeholder="Rep's home base, e.g. 123 Main St, Chandler, AZ 85224" /></div>
         <div><label>calendar_id (optional)</label><input name="calendar_id" class="mono" /></div>
         <div class="checkbox" style="align-self:center;margin-top:20px;"><input type="checkbox" name="active" checked /><label style="margin:0;">Active</label></div>
         <div class="row"><button type="submit">Add rep</button></div>
@@ -48,19 +66,58 @@
     import { supabase, requireSession, signOut, SUPABASE_URL } from "./config.js";
 
     const list = document.getElementById("list");
-    document.getElementById("signOutBtn").addEventListener("click", signOut);
+    const byId = (id) => document.getElementById(id);
+    byId("signOutBtn").addEventListener("click", signOut);
     const esc = (s) => String(s ?? "").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
     if (SUPABASE_URL.includes("YOUR-PROJECT")) {
-      const w = document.getElementById("configWarn");
-      w.style.display = "block";
-      w.textContent = "⚠ Supabase isn't configured yet — set SUPABASE_URL and SUPABASE_ANON_KEY in dispatch/config.js.";
+      const w = byId("configWarn"); w.style.display = "block";
+      w.textContent = "⚠ Supabase isn't configured yet — set it in dispatch/config.js.";
     }
 
     const session = await requireSession();
     if (!session) throw new Error("no session");
-    document.getElementById("userEmail").textContent = session.user.email;
+    byId("userEmail").textContent = session.user.email;
 
+    // ── GHL user search ──────────────────────────────────────────────
+    const ghlSearch = byId("ghlSearch"), ghlResults = byId("ghlResults"), ghlMsg = byId("ghlMsg");
+    let ghlUsers = null, ghlLoading = false;
+    async function loadGhlUsers() {
+      if (ghlUsers || ghlLoading) return;
+      ghlLoading = true; ghlMsg.className = "ghl-msg"; ghlMsg.textContent = "Loading GHL users…";
+      try {
+        const res = await fetch("/api/ghl-users");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to load GHL users.");
+        ghlUsers = data.users || [];
+        ghlMsg.textContent = ghlUsers.length + " GHL users — start typing to filter.";
+      } catch (e) { ghlUsers = []; ghlMsg.className = "ghl-msg warn"; ghlMsg.textContent = "⚠ " + e.message; }
+      finally { ghlLoading = false; }
+    }
+    function renderGhl(q) {
+      if (!ghlUsers) return;
+      const term = q.trim().toLowerCase();
+      const matches = ghlUsers.filter((u) => !term || u.name.toLowerCase().includes(term) || (u.email || "").toLowerCase().includes(term)).slice(0, 40);
+      if (!matches.length) { ghlResults.classList.remove("show"); ghlResults.innerHTML = ""; return; }
+      ghlResults.innerHTML = matches.map((u) =>
+        `<div class="ghl-item" data-id="${esc(u.id)}" data-name="${esc(u.name)}">${esc(u.name)}${u.email ? " · " + esc(u.email) : ""}<div class="eid">${esc(u.id)}</div></div>`
+      ).join("");
+      ghlResults.classList.add("show");
+    }
+    ghlSearch.addEventListener("focus", async () => { await loadGhlUsers(); renderGhl(ghlSearch.value); });
+    ghlSearch.addEventListener("input", () => renderGhl(ghlSearch.value));
+    ghlResults.addEventListener("click", (e) => {
+      const item = e.target.closest(".ghl-item"); if (!item) return;
+      const f = byId("addForm");
+      f.name.value = item.dataset.name;
+      f.assigned_id.value = item.dataset.id;
+      ghlSearch.value = item.dataset.name;
+      ghlResults.classList.remove("show");
+      ghlMsg.className = "ghl-msg ok"; ghlMsg.textContent = "✓ " + item.dataset.name + " — user id copied to assigned_id.";
+    });
+    document.addEventListener("click", (e) => { if (!e.target.closest(".ghl-wrap")) ghlResults.classList.remove("show"); });
+
+    // ── Rep CRUD ─────────────────────────────────────────────────────
     async function load() {
       const { data, error } = await supabase.from("sales_rep_data")
         .select("assigned_id, name, address, calendar_id, active, lat, lng").order("name");
@@ -86,36 +143,26 @@
     list.addEventListener("submit", async (e) => {
       e.preventDefault();
       const f = e.target, id = f.dataset.id;
-      const patch = {
-        name: f.name.value.trim(), address: f.address.value.trim(),
-        calendar_id: f.calendar_id.value.trim() || null, active: f.active.checked,
-        lat: null, lng: null,
-      };
+      const patch = { name: f.name.value.trim(), address: f.address.value.trim(), calendar_id: f.calendar_id.value.trim() || null, active: f.active.checked, lat: null, lng: null };
       const { error } = await supabase.from("sales_rep_data").update(patch).eq("assigned_id", id);
       if (error) alert("Save failed: " + error.message); else load();
     });
 
     list.addEventListener("click", async (e) => {
-      const id = e.target.dataset?.del;
-      if (!id) return;
+      const id = e.target.dataset?.del; if (!id) return;
       if (!confirm("Delete this rep?")) return;
       const { error } = await supabase.from("sales_rep_data").delete().eq("assigned_id", id);
       if (error) alert("Delete failed: " + error.message); else load();
     });
 
-    document.getElementById("addForm").addEventListener("submit", async (e) => {
+    byId("addForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const f = e.target, err = document.getElementById("addErr");
-      err.style.display = "none";
-      const row = {
-        name: f.name.value.trim(), assigned_id: f.assigned_id.value.trim(),
-        address: f.address.value.trim(), calendar_id: f.calendar_id.value.trim() || null,
-        active: f.active.checked,
-      };
+      const f = e.target, err = byId("addErr"); err.style.display = "none";
+      const row = { name: f.name.value.trim(), assigned_id: f.assigned_id.value.trim(), address: f.address.value.trim(), calendar_id: f.calendar_id.value.trim() || null, active: f.active.checked };
       if (!row.name || !row.assigned_id || !row.address) { err.textContent = "Name, assigned_id and address are required."; err.style.display = "block"; return; }
       const { error } = await supabase.from("sales_rep_data").upsert(row, { onConflict: "assigned_id" });
       if (error) { err.textContent = "Add failed: " + error.message; err.style.display = "block"; return; }
-      f.reset(); f.active.checked = true; load();
+      f.reset(); f.active.checked = true; ghlSearch.value = ""; ghlMsg.textContent = ""; load();
     });
 
     load();
