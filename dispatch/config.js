@@ -9,13 +9,13 @@ import { supabase } from "../js/supabase-client.js";
 /** Redirect to login if there's no active session. Returns the session or null. */
 export async function requireSession() {
   const { data } = await supabase.auth.getSession();
-  if (!data?.session) { window.location.replace("./login.html"); return null; }
+  if (!data?.session) { window.location.replace("/dispatch/login"); return null; }
   return data.session;
 }
 
 export async function signOut() {
   await supabase.auth.signOut();
-  window.location.replace("./login.html");
+  window.location.replace("/dispatch/login");
 }
 
 export function fmtPhx(iso, opts) {
