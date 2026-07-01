@@ -6,8 +6,8 @@
 
 const CAL = process.env.GHL_CALENDAR_ID || "re4bFa1FkhiEVb4Autpz";
 const TOKEN = process.env.GHL_API_TOKEN || "";
-const OPEN_HOUR = 8;   // 8:00 AM
-const CLOSE_HOUR = 18; // 6:00 PM (last shown slot before this)
+const OPEN_HOUR = 9;   // 9:00 AM
+const CLOSE_HOUR = 17; // 5:00 PM (last shown slot before this)
 
 function label(iso) {
   const hh = parseInt(iso.slice(11, 13), 10);
