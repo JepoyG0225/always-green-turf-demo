@@ -163,6 +163,7 @@ td.mono, .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-s
 .pill.memory_locked { background:#fef7e0; color:var(--gold); }
 .pill.error, .pill.missing_address { background:var(--danger-bg); color:var(--danger); }
 .pill.warn { background:var(--warn-bg); color:var(--warn); }
+.pill.callback_request { background:var(--info-bg); color:var(--info); }
 
 /* ─── Forms / buttons ─── */
 label { display:block; font-weight:700; margin:0 0 6px; font-size:.75rem; color:var(--text-2); letter-spacing:.02em; }

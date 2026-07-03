@@ -55,6 +55,24 @@ module.exports = async function handler(req, res) {
   const data = await slack.json();
   if (!data.ok) { res.status(502).json({ error: `Slack error: ${data.error}` }); return; }
 
+  // Persist to dispatch_logs so callbacks show up in the /dispatch admin.
+  const SUPA = process.env.SUPABASE_URL || "https://otgpzpepmurbydcghygb.supabase.co";
+  const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  if (SKEY) {
+    await fetch(`${SUPA}/rest/v1/dispatch_logs`, {
+      method: "POST",
+      headers: { apikey: SKEY, Authorization: `Bearer ${SKEY}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({
+        status: "callback_request",
+        contact_id: contactId,
+        lead_name: fullName,
+        remarks: `Call-back requested — ${phone}. ${contactId ? `GHL contact ${isNewContact ? "created" : "updated"}.` : contactErr ? "GHL contact upsert failed." : ""}`.trim(),
+        error: contactErr,
+        raw_payload: { full_name: fullName, phone, source: "Call Me to Schedule" },
+      }),
+    }).catch((e) => console.error("[callback] log write failed:", String(e.message || e)));
+  }
+
   console.log("[callback-audit] " + JSON.stringify({ ts: new Date().toISOString(), full_name: fullName, phone, ghl_contact_id: contactId, ghl_contact_new: isNewContact, ghl_error: contactErr }));
   res.status(200).json({ ok: true, contact_id: contactId });
 };
