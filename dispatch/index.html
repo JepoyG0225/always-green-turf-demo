@@ -66,6 +66,10 @@
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v6h6M20 20v-6h-6M20 8a8 8 0 10-1.29 8.31L20 14"/></svg>
             Refresh
           </button>
+          <button class="btn danger" id="clearAllBtn" type="button">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.87 12.14A2 2 0 0116.14 21H7.86a2 2 0 01-1.99-1.86L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>
+            Clear all
+          </button>
         </div>
       </div>
 
@@ -82,6 +86,27 @@
     const content = document.getElementById("content");
     document.getElementById("signOutBtn").addEventListener("click", signOut);
     document.getElementById("refreshBtn").addEventListener("click", () => load());
+
+    async function deleteLogs(ids, all = false) {
+      const msg = all
+        ? "Delete ALL dispatch logs? This can't be undone."
+        : "Delete this log entry? This can't be undone.";
+      if (!confirm(msg)) return;
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if (!token) { alert("Session expired — please sign in again."); window.location.replace("/dispatch/login"); return; }
+      try {
+        const res = await fetch("/api/logs-delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify(all ? { all: true } : { ids }),
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(out.error || `HTTP ${res.status}`);
+        load();
+      } catch (e) { alert("Delete failed: " + e.message); }
+    }
+    document.getElementById("clearAllBtn").addEventListener("click", () => deleteLogs([], true));
 
     if (SUPABASE_URL.includes("YOUR-PROJECT")) {
       const w = document.getElementById("configWarn");
@@ -153,6 +178,12 @@
             </td>
             <td class="mono">${r.drive_minutes != null ? r.drive_minutes + "m" : "—"}</td>
             <td class="mono muted" style="white-space:nowrap;">${fmtPhx(r.appointment_start)}</td>
+            <td style="text-align:right;">
+              <button type="button" class="icon-btn row-del" data-del="${r.id}" title="Delete this log"
+                style="background:none;border:0;cursor:pointer;color:var(--subtle);padding:4px;border-radius:6px;">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.87 12.14A2 2 0 0116.14 21H7.86a2 2 0 01-1.99-1.86L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>
+              </button>
+            </td>
           </tr>`;
       }).join("");
 
@@ -160,11 +191,17 @@
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>When</th><th>Lead</th><th>Status</th><th>Rep</th><th>Drive</th><th>Appointment</th>
+              <th>When</th><th>Lead</th><th>Status</th><th>Rep</th><th>Drive</th><th>Appointment</th><th></th>
             </tr></thead>
             <tbody>${rows}</tbody>
           </table>
         </div>`;
+
+      content.querySelectorAll(".row-del").forEach((b) => {
+        b.addEventListener("mouseenter", () => { b.style.color = "var(--danger)"; b.style.background = "var(--danger-bg)"; });
+        b.addEventListener("mouseleave", () => { b.style.color = "var(--subtle)"; b.style.background = "none"; });
+        b.addEventListener("click", () => deleteLogs([b.dataset.del]));
+      });
     }
     load();
   </script>
