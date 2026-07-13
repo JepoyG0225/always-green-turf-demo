@@ -266,6 +266,7 @@ function normalize(payload) {
     addressKey: String(raw).toLowerCase().trim().replace(/,/g, "").replace(/\s+/g, " "),
     preferredDays: b.PreferredDays || b.preferredDays || "",
     timeWindow: b.timewindow || b.timeWindow || "",
+    selectedSlot: b.selected_slot || b.selectedSlot || "", // exact ISO slot from the booking form
     yardSize: b["What’s your approximate yard size?"] || b.yard_size || "",
   };
 }
@@ -334,20 +335,28 @@ async function runDispatch(payload) {
       return result;
     }
 
-    // schedule: deterministic, then Claude for messy input
-    let dows = parseDays(lead.preferredDays), tw = parseWindow(lead.timeWindow);
-    if ((!dows.length || !tw) && CFG.anthropicKey) {
-      const ai = await optional("ai_parse_schedule", () => parseScheduleAI(lead.body));
-      if (ai) {
-        if (!dows.length && ai.preferredDays) { lead.preferredDays = ai.preferredDays; dows = parseDays(ai.preferredDays); }
-        if (!tw && ai.timeWindow) { lead.timeWindow = ai.timeWindow; tw = parseWindow(ai.timeWindow); }
-        log.preferred_days = lead.preferredDays; log.time_window = lead.timeWindow;
-      }
+    // schedule: exact slot from the booking form takes priority; otherwise
+    // deterministic day/window parsing, then Claude for messy input
+    let cands = null;
+    const slotMs = lead.selectedSlot ? Date.parse(lead.selectedSlot) : NaN;
+    if (!isNaN(slotMs) && slotMs > Date.now()) {
+      cands = [{ startUtc: new Date(slotMs), endUtc: new Date(slotMs + CFG.duration * 60000) }];
+      log.time_window = lead.selectedSlot;
     }
-    if (!dows.length || !tw) throw new Error(`Could not resolve preferred day/time (days="${lead.preferredDays}" window="${lead.timeWindow}")`);
 
-    // availability
-    const cands = candidates(new Date(), dows, tw);
+    if (!cands) {
+      let dows = parseDays(lead.preferredDays), tw = parseWindow(lead.timeWindow);
+      if ((!dows.length || !tw) && CFG.anthropicKey) {
+        const ai = await optional("ai_parse_schedule", () => parseScheduleAI(lead.body));
+        if (ai) {
+          if (!dows.length && ai.preferredDays) { lead.preferredDays = ai.preferredDays; dows = parseDays(ai.preferredDays); }
+          if (!tw && ai.timeWindow) { lead.timeWindow = ai.timeWindow; tw = parseWindow(ai.timeWindow); }
+          log.preferred_days = lead.preferredDays; log.time_window = lead.timeWindow;
+        }
+      }
+      if (!dows.length || !tw) throw new Error(`Could not resolve preferred day/time (days="${lead.preferredDays}" window="${lead.timeWindow}")`);
+      cands = candidates(new Date(), dows, tw);
+    }
     if (!cands.length) throw new Error("No future candidate dates");
     let chosen = null, chosenCand = cands[0];
     const skipped = new Set(); // reps whose availability check errors — skip for remaining candidates too
@@ -429,7 +438,7 @@ async function readBody(req) {
   try { return JSON.parse(Buffer.concat(chunks).toString() || "{}"); } catch { return {}; }
 }
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   if (req.method === "GET") { res.status(200).json({ ok: true, service: "dispatchai", hint: "POST a lead payload here" }); return; }
   if (req.method !== "POST") { res.status(405).json({ error: "method not allowed" }); return; }
 
@@ -442,3 +451,6 @@ module.exports = async function handler(req, res) {
   const result = await runDispatch(payload);
   res.status(result.status === "error" ? 500 : 200).json({ remarks: result.remarks, status: result.status });
 }
+
+module.exports = handler;
+module.exports.runDispatch = runDispatch; // used by /api/book (Schedule Online)
