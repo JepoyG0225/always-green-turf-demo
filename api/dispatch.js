@@ -258,16 +258,20 @@ async function notifySlack(lead, rep, whenText) {
 // ─────────────────────────── normalize ───────────────────────────
 function normalize(payload) {
   const b = (payload && payload.body) || payload || {};
-  const raw = b.full_address || b.address || b.address1 || b.street_address || "";
+  const raw = b.full_address || b.address_full || b.address || b.address1 || b.street_address ||
+    [b.address_street, b.address_city, b.address_state, b.address_zip].filter(Boolean).join(", ") || "";
+  const days = b.PreferredDays || b.preferredDays || (Array.isArray(b.available_days) ? b.available_days.join(",") : b.available_days) || "";
+  const win = b.timewindow || b.timeWindow || (Array.isArray(b.best_time_windows) ? b.best_time_windows[0] : b.best_time_windows) || "";
   return {
     body: b,
     contact_id: b.contact_id || "", first_name: b.first_name || "", last_name: b.last_name || "",
-    email: b.email || "", phone: b.phone || "", address: raw,
+    email: b.email || "", phone: b.phone || b.phone_formatted || "", address: raw,
     addressKey: String(raw).toLowerCase().trim().replace(/,/g, "").replace(/\s+/g, " "),
-    preferredDays: b.PreferredDays || b.preferredDays || "",
-    timeWindow: b.timewindow || b.timeWindow || "",
-    selectedSlot: b.selected_slot || b.selectedSlot || "", // exact ISO slot from the booking form
-    yardSize: b["What’s your approximate yard size?"] || b.yard_size || "",
+    // Online booking picks an exact slot; when present we book that time directly (no day/window search).
+    selectedSlot: b.selected_slot || b.selectedSlot || "",
+    preferredDays: days,
+    timeWindow: win,
+    yardSize: b["What’s your approximate yard size?"] || b.yard_size || b.area_size || b["project sqft"] || "",
   };
 }
 
@@ -335,16 +339,15 @@ async function runDispatch(payload) {
       return result;
     }
 
-    // schedule: exact slot from the booking form takes priority; otherwise
-    // deterministic day/window parsing, then Claude for messy input
-    let cands = null;
-    const slotMs = lead.selectedSlot ? Date.parse(lead.selectedSlot) : NaN;
-    if (!isNaN(slotMs) && slotMs > Date.now()) {
-      cands = [{ startUtc: new Date(slotMs), endUtc: new Date(slotMs + CFG.duration * 60000) }];
-      log.time_window = lead.selectedSlot;
-    }
-
-    if (!cands) {
+    // schedule: exact slot (online booking) OR deterministic day/window (+ Claude for messy input)
+    let cands;
+    if (lead.selectedSlot) {
+      // Customer chose a specific open time on the site — book that exact slot with the nearest free rep.
+      const startUtc = new Date(lead.selectedSlot);
+      if (isNaN(startUtc.getTime())) throw new Error(`Invalid selected_slot: "${lead.selectedSlot}"`);
+      if (startUtc.getTime() <= Date.now()) throw new Error(`selected_slot is in the past: "${lead.selectedSlot}"`);
+      cands = [{ startUtc, endUtc: new Date(startUtc.getTime() + CFG.duration * 60000) }];
+    } else {
       let dows = parseDays(lead.preferredDays), tw = parseWindow(lead.timeWindow);
       if ((!dows.length || !tw) && CFG.anthropicKey) {
         const ai = await optional("ai_parse_schedule", () => parseScheduleAI(lead.body));
@@ -438,7 +441,7 @@ async function readBody(req) {
   try { return JSON.parse(Buffer.concat(chunks).toString() || "{}"); } catch { return {}; }
 }
 
-async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method === "GET") { res.status(200).json({ ok: true, service: "dispatchai", hint: "POST a lead payload here" }); return; }
   if (req.method !== "POST") { res.status(405).json({ error: "method not allowed" }); return; }
 
@@ -452,5 +455,5 @@ async function handler(req, res) {
   res.status(result.status === "error" ? 500 : 200).json({ remarks: result.remarks, status: result.status });
 }
 
-module.exports = handler;
-module.exports.runDispatch = runDispatch; // used by /api/book (Schedule Online)
+// Allow other serverless functions (e.g. /api/book) to run the dispatch logic in-process.
+module.exports.runDispatch = runDispatch;

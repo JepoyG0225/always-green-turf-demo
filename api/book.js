@@ -1,11 +1,9 @@
-// Schedule Online submission → GHL contact upsert + DispatchAI engine.
-// Runs the same logic as the old n8n workflow directly (nearest rep, book the
-// customer's exact slot, email, Slack, memory, logs) — no GHL webhook trigger.
-// Set GHL_BOOKING_WEBHOOK_URL to *also* forward to a GHL workflow (off by default).
+// Schedule Online submission → GHL contact upsert, then run the DispatchAI engine
+// in-process (same logic the n8n workflow used) instead of forwarding to the GHL
+// webhook. Dispatch assigns the nearest available rep and books the chosen slot.
 
 const upsertGhlContact = require("./_ghl-contact");
 const { runDispatch } = require("./dispatch");
-const FORWARD_WEBHOOK = process.env.GHL_BOOKING_WEBHOOK_URL || ""; // optional escape hatch
 
 async function readBody(req) {
   if (req.body && typeof req.body === "object") return req.body;
@@ -24,7 +22,7 @@ module.exports = async function handler(req, res) {
   const phone = String(b.phone_formatted || b.phone || "").trim();
   if (!firstName || !phone) { res.status(400).json({ error: "first name and phone are required" }); return; }
 
-  // 1) Upsert GHL contact (idempotent by email/phone) — dispatch books against it.
+  // 1) Upsert GHL contact (idempotent by email/phone).
   let contactId = null, isNewContact = null, contactErr = null;
   try {
     const c = await upsertGhlContact({
@@ -39,64 +37,37 @@ module.exports = async function handler(req, res) {
     contactId = c.id; isNewContact = c.new;
   } catch (e) { contactErr = String(e.message || e); console.error("[book] GHL upsert failed:", contactErr); }
 
-  // 2) Run the dispatch engine directly (same logic the n8n flow implemented):
-  //    memory → reps → geocode → distance → nearest free rep at the chosen slot
-  //    → book → confirmation email → memory save → Slack → dispatch_logs.
-  const days = Array.isArray(b.available_days) ? b.available_days.join(",") : String(b.available_days || "");
-  const windows = Array.isArray(b.best_time_windows) ? b.best_time_windows[0] : String(b.best_time_windows || "");
-  const dispatchPayload = {
-    body: {
-      contact_id: contactId || b.contact_id || "",
-      first_name: firstName,
-      last_name: lastName,
-      email,
-      phone,
-      full_address: String(b.address_full || "").trim(),
-      PreferredDays: days,
-      timewindow: windows,
-      preferred_date: b.preferred_date || "",
-      selected_slot: b.selected_slot || "",
-      yard_size: b.area_size || "",
-      source: "Website — Direct Booking Form",
-    },
-  };
-
+  // 2) Run the DispatchAI engine in-process (replaces the GHL workflow webhook):
+  //    geocode lead → nearest qualified rep who is free at the chosen slot →
+  //    book it in GHL → confirmation email / Slack / memory.
   let dispatch = null, dispatchErr = null;
   try {
-    dispatch = await runDispatch(dispatchPayload);
+    dispatch = await runDispatch({
+      ...b,
+      contact_id: contactId || b.contact_id || "",
+      phone,
+      full_address: b.address_full || b.full_address ||
+        [b.address_street, b.address_city, b.address_state, b.address_zip].filter(Boolean).join(", "),
+    });
   } catch (e) { dispatchErr = String(e.message || e); console.error("[book] dispatch failed:", dispatchErr); }
 
-  // 3) Optional forward to a GHL workflow (only if explicitly configured).
-  let webhookOk = null;
-  if (FORWARD_WEBHOOK) {
-    try {
-      const r = await fetch(FORWARD_WEBHOOK, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...b, contact_id: contactId || b.contact_id, dispatch_status: dispatch && dispatch.status }),
-      });
-      webhookOk = r.ok;
-    } catch (e) { webhookOk = false; console.error("[book] webhook forward failed:", String(e.message || e)); }
-  }
+  const booked = !!dispatch && dispatch.status === "booked";
 
   console.log("[book-audit] " + JSON.stringify({
     ts: new Date().toISOString(), lead: `${firstName} ${lastName}`.trim(), email, phone,
     ghl_contact_id: contactId, ghl_contact_new: isNewContact, ghl_error: contactErr,
-    dispatch_status: dispatch && dispatch.status, dispatch_remarks: dispatch && dispatch.remarks, dispatch_error: dispatchErr,
-    webhook_forwarded: webhookOk,
+    dispatch_status: dispatch ? dispatch.status : null, dispatch_remarks: dispatch ? dispatch.remarks : null, dispatch_error: dispatchErr,
     preferred_date: b.preferred_date || null, selected_slot: b.selected_slot || null,
   }));
 
-  // Succeed if we at least created the contact or completed a dispatch —
-  // the team can follow up on anything the engine couldn't book.
-  const dispatchOk = dispatch && dispatch.status && dispatch.status !== "error";
-  if (!contactId && !dispatchOk) {
-    res.status(502).json({ error: "Booking could not be sent. Please try again or call us." });
+  if (!booked) {
+    // Contact is captured in GHL, but no appointment was booked (no nearby/available rep, bad address, etc.).
+    res.status(502).json({
+      ok: false, contact_id: contactId,
+      status: dispatch ? dispatch.status : "error",
+      error: (dispatch && dispatch.remarks) || dispatchErr || "Booking could not be completed. Please try again or call us.",
+    });
     return;
   }
-  res.status(200).json({
-    ok: true,
-    contact_id: contactId,
-    dispatch_status: dispatch ? dispatch.status : "error",
-    remarks: dispatch ? dispatch.remarks : dispatchErr,
-  });
+  res.status(200).json({ ok: true, contact_id: contactId, status: dispatch.status, remarks: dispatch.remarks });
 };
