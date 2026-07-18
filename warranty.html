@@ -815,14 +815,13 @@
   })();
 
   /* ────────────────────────────────────────────────────────────
-     Warranty Claim form — adapted from standalone version.
-     Same webhooks, same ImgBB upload, same UX.
+     Warranty Claim form — submits to the AI-triage endpoint:
+     photo analysis → auto-response email → team review.
      ──────────────────────────────────────────────────────────── */
   const IMGBB_KEY = "563a2e5e8dbe2eceaa0b817f7ef442a3";
-  const PRIMARY_WEBHOOK   = "https://marketingagtz.app.n8n.cloud/webhook/c6f96ce2-75c4-4504-9dcf-b100984791be";
-  const SECONDARY_WEBHOOK = "https://services.leadconnectorhq.com/hooks/dpp7zOnwhkHGWhn5lGRd/webhook-trigger/baa363f5-96db-4ffb-9052-ea7c38b4bf02";
+  const CLAIM_API = "/api/warranty-claim";
   const UPLOAD_TIMEOUT_MS = 120000;
-  const GENERIC_TIMEOUT_MS = 15000;
+  const GENERIC_TIMEOUT_MS = 60000; // claim analysis can take a little longer
 
   const byId = id => document.getElementById(id);
   function showError(msg){ const el = byId("errorBox"); el.textContent = msg || "Something went wrong. Please try again."; el.style.display = "block"; el.scrollIntoView({behavior:"smooth", block:"center"}); }
@@ -935,60 +934,25 @@
     return { url: data.data.url || data.data.display_url || "", delete_url: data.data.delete_url || "", size: file.size, name: file.name, mime: file.type };
   }
 
-  /* Primary webhook (multipart) */
-  async function postPrimaryFormData(url, flat, uploads){
-    const fd = new FormData();
-    fd.append("source", "warranty-claim-form");
-    fd.append("submittedAt", new Date().toISOString());
-    fd.append("fullName", flat.fullName);
-    fd.append("email", flat.email);
-    fd.append("phone", flat.phoneDigits);
-    fd.append("installationDate", flat.installationDate);
-    fd.append("message", flat.message);
-    fd.append("photo_count", String(uploads.length));
-    fd.append("photos", uploads.map(p => p.url).join(", "));
-    uploads.forEach((p,i) => {
-      const n = i+1;
-      fd.append(`photo_${n}_url`, p.url);
-      fd.append(`photo_${n}_name`, p.name);
-      fd.append(`photo_${n}_size`, String(p.size));
-      fd.append(`photo_${n}_mime`, p.mime);
-    });
-    await fetch(url, { method:"POST", mode:"no-cors", keepalive:true, body:fd });
-    return { ok:true, opaque:true };
-  }
-
-  /* Secondary webhook (LeadConnector) */
-  function fireSecondaryAlways(url, flat, uploads){
-    const photosCsv = (uploads && uploads.length) ? uploads.map(p => p.url).join(", ") : "";
-    const payload = {
-      source: "warranty-claim-form",
-      submittedAt: new Date().toISOString(),
-      fullName: flat.fullName,
-      email: flat.email,
-      phone: flat.phoneDigits,
-      installationDate: flat.installationDate,
-      message: flat.message,
-      Photos: photosCsv
-    };
-    try{
-      if(navigator.sendBeacon){
-        const blob = new Blob([JSON.stringify(payload)], { type:"text/plain;charset=UTF-8" });
-        navigator.sendBeacon(url, blob);
-      }
-    }catch(_){}
-    try{
-      fetch(url, {
-        method:"POST", mode:"cors", referrerPolicy:"no-referrer", keepalive:true,
-        headers:{ "Content-Type":"text/plain;charset=UTF-8" },
-        body: JSON.stringify(payload)
-      }).catch(()=>{});
-    }catch(_){}
-  }
-
-  async function postBothSeparated(flat, uploads){
-    fireSecondaryAlways(SECONDARY_WEBHOOK, flat, uploads);
-    return await postPrimaryFormData(PRIMARY_WEBHOOK, flat, uploads);
+  /* Claim API — AI triage (photo analysis) + auto-response email + team review */
+  async function postClaim(flat, uploads){
+    const res = await withTimeout(fetch(CLAIM_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source: "warranty-claim-form",
+        submittedAt: new Date().toISOString(),
+        fullName: flat.fullName,
+        email: flat.email,
+        phone: flat.phoneDigits,
+        installationDate: flat.installationDate,
+        message: flat.message,
+        photos: uploads.map(p => ({ url: p.url, name: p.name, size: p.size, mime: p.mime })),
+      }),
+    }), GENERIC_TIMEOUT_MS);
+    const out = await res.json().catch(() => ({}));
+    if(!res.ok) throw new Error(out.error || `Submission failed (HTTP ${res.status}). Please try again.`);
+    return out;
   }
 
   /* Submit */
@@ -1026,7 +990,7 @@
       }
       updateProgress(85);
       const flat = { fullName, email, phoneDigits, installationDate, message };
-      await postBothSeparated(flat, uploads);
+      await postClaim(flat, uploads);
       updateProgress(100);
       document.querySelector(".form-body").classList.add("hidden");
       byId("successState").style.display = "block";
