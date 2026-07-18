@@ -207,18 +207,25 @@ async function parseScheduleAI(body) {
 }
 
 // ─────────────────────────── other integrations ───────────────────────────
+// Confirmation email via Resend (RESEND_API_KEY + RESEND_FROM are set on the
+// project; the domain is verified on that account). Throws on failure so the
+// step is recorded as an error in the audit log rather than silently passing.
 async function sendEmail(lead, whenText) {
-  if (!CFG.sendgridKey) return;
-  const p = { to: [{ email: lead.email }] };
-  if (CFG.bccEmail) p.bcc = [{ email: CFG.bccEmail }];
-  await fetch("https://api.sendgrid.com/v3/mail/send", {
-    method: "POST", headers: { Authorization: `Bearer ${CFG.sendgridKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      personalizations: [p], from: { email: CFG.fromEmail, name: CFG.fromName },
-      subject: `Your Appointment is Confirmed - ${lead.first_name} ${lead.last_name}`,
-      content: [{ type: "text/html", value: emailHtml(lead.first_name, whenText) }],
-    }),
+  const key = process.env.RESEND_API_KEY || "";
+  const from = process.env.RESEND_FROM || "Always Green Turf <admin@alwaysgreenturfaz.com>";
+  if (!key) throw new Error("RESEND_API_KEY not set");
+  if (!lead.email) throw new Error("lead has no email");
+  const body = {
+    from, to: [lead.email],
+    subject: `Your Appointment is Confirmed - ${lead.first_name} ${lead.last_name}`,
+    html: emailHtml(lead.first_name, whenText),
+  };
+  if (CFG.bccEmail) body.bcc = [CFG.bccEmail];
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
   });
+  if (!res.ok) throw new Error(`resend ${res.status}: ${(await res.text()).slice(0, 200)}`);
 }
 function emailHtml(name, when) {
   return `<!DOCTYPE html><html><body style="margin:0;background:#eef2ee;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
