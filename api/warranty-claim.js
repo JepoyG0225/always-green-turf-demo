@@ -60,6 +60,7 @@ async function analyzeClaim(claim) {
     type: "text",
     text:
       `Warranty claim for an artificial turf installation in Arizona.\n\n` +
+      `Customer first name: ${claim.firstName || "there"}\n` +
       `Customer description: "${claim.message}"\n` +
       `Installation date: ${claim.installationDate || "unknown"}\n\n` +
       `Classify this claim per the schema. Rules:\n` +
@@ -201,7 +202,7 @@ module.exports = async function handler(req, res) {
 
   // 2) Claude analysis (photos + description)
   let verdict = null;
-  if (OPENAI_KEY) verdict = await step("ai_analysis", () => analyzeClaim({ message, installationDate: b.installationDate, photos }));
+  if (OPENAI_KEY) verdict = await step("ai_analysis", () => analyzeClaim({ message, firstName: first, installationDate: b.installationDate, photos }));
 
   // 3) Pick response: auto-decline only on high-confidence exclusions.
   //    weed/reflection use the approved templates verbatim; other clearly
