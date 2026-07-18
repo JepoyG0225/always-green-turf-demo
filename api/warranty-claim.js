@@ -37,13 +37,17 @@ const SCHEMA = {
   properties: {
     classification: {
       type: "string",
-      enum: ["reflection_damage", "weed_growth", "needs_review"],
-      description: "reflection_damage: the customer describes melted, burned, singed, or shriveled turf, or damage near windows consistent with sun reflection. weed_growth: the customer describes weeds or unwanted plants growing through, around, or at the edges of the turf. needs_review: the description doesn't clearly match either category — seams, wrinkles, drainage, infill loss, fading, workmanship, product defects, vague descriptions, or multiple mixed issues.",
+      enum: ["reflection_damage", "weed_growth", "not_covered_other", "needs_review"],
+      description: "reflection_damage: the customer describes melted, burned, singed, or shriveled turf, or damage near windows consistent with sun reflection. weed_growth: the customer describes weeds or unwanted plants growing through, around, or at the edges of the turf. not_covered_other: the described cause is clearly external to the turf product and installation — e.g. pet digging or chewing, physical damage (cuts, tears, dropped objects), burns from fire pits/BBQ embers/cigarettes/fireworks, chemical spills or broadcast herbicide damage, furniture or equipment marks, vandalism, or storm/flood debris. needs_review: anything potentially covered or unclear — seams, wrinkles, drainage, infill loss, fading, workmanship, product defects, vague descriptions, or multiple mixed issues.",
     },
     confidence: { type: "string", enum: ["high", "medium", "low"] },
     reasoning: { type: "string", description: "2-4 sentences: why this classification, based primarily on the customer's description (photos as supporting context)." },
+    decline_email_html: {
+      type: "string",
+      description: "ONLY when classification is not_covered_other with high confidence: the body HTML of a decline email in Always Green Turf's approved voice, mirroring their template structure exactly: (1) 'Hi {first name},' greeting; (2) thank-you + genuine empathy for the frustration; (3) an honest, plain-spoken explanation of what caused the issue; (4) why that cause falls outside the Limited Warranty (it comes from outside the turf product and installation), phrased with regret ('we sincerely wish we could cover every situation'); (5) a section headed 'THE GOOD NEWS: …' with 2-3 practical, actionable tips as bolded lead-ins; (6) closing thanks 'for being part of the Always Green Turf family.' Use only <p>, <strong>, <em>, <br> tags. No subject line, no signature (added automatically). Empty string for every other classification.",
+    },
   },
-  required: ["classification", "confidence", "reasoning"],
+  required: ["classification", "confidence", "reasoning", "decline_email_html"],
   additionalProperties: false,
 };
 
@@ -60,8 +64,9 @@ async function analyzeClaim(claim) {
       `Installation date: ${claim.installationDate || "unknown"}\n\n` +
       `Classify this claim per the schema. Rules:\n` +
       `- The customer's DESCRIPTION is the primary signal. If it clearly describes weeds/unwanted plants → weed_growth. If it clearly describes melted, burned, singed, or shriveled turf (or damage near windows from sun reflection) → reflection_damage.\n` +
+      `- If it clearly describes another cause EXTERNAL to the turf product and installation (pet digging/chewing, cuts or physical damage, fire-pit/BBQ/cigarette burns, chemical spills, furniture marks, vandalism, storm debris) → not_covered_other, and draft decline_email_html per the schema, mirroring the company's approved template voice and structure.\n` +
       `- Photos are supporting context only — they are NOT required to confirm the description. Do not route to review just because the photos don't show the issue.\n` +
-      `- Use needs_review only when the description doesn't clearly match either category: seams, wrinkles, drainage, infill loss, fading, workmanship, product defects, vague wording, or several mixed issues.\n` +
+      `- Use needs_review only when the description is vague, mixed, or describes anything potentially covered: seams, wrinkles, drainage, infill loss, fading, workmanship, product defects.\n` +
       `- If the description clearly matches a category, use confidence "high".`,
   });
 
@@ -76,8 +81,14 @@ async function analyzeClaim(claim) {
           role: "system",
           content:
             "You are the warranty triage analyst for Always Green Turf AZ, an artificial turf installer. " +
-            "You examine claim photos and descriptions and classify claims strictly per the provided rules. " +
-            "Auto-classifiable categories require clear visual evidence; otherwise route to human review.",
+            "You classify claims strictly per the provided rules, and for clearly not-covered causes you draft the decline email. " +
+            "Here is an APPROVED template as your voice/structure reference (the weed-growth decline):\n\n" +
+            "Hi {first}, / Thank you for submitting your warranty claim — we appreciate you letting us know what's going on with your lawn, and we're sorry for the frustration unwanted growth can cause. / " +
+            "Here's the honest truth about weeds: they're remarkably persistent. They can sprout anywhere — even through cracks in asphalt and concrete... / " +
+            "Because weed growth comes from nature rather than the turf product or our installation, ongoing weed maintenance falls outside our Limited Warranty... We sincerely wish we could control this one for you... / " +
+            "THE GOOD NEWS: IT'S EASY TO MANAGE / [2-3 practical tips with bolded lead-ins] / " +
+            "Thank you for your understanding, and for being part of the Always Green Turf family.\n\n" +
+            "Drafted declines must mirror this exact structure, warmth, and honesty — empathetic, plain-spoken, never blaming the customer, always ending with practical help.",
         },
         { role: "user", content },
       ],
@@ -192,11 +203,23 @@ module.exports = async function handler(req, res) {
   let verdict = null;
   if (OPENAI_KEY) verdict = await step("ai_analysis", () => analyzeClaim({ message, installationDate: b.installationDate, photos }));
 
-  // 3) Pick response: auto-decline only on high-confidence known exclusions
+  // 3) Pick response: auto-decline only on high-confidence exclusions.
+  //    weed/reflection use the approved templates verbatim; other clearly
+  //    not-covered causes use an AI-drafted decline in the same voice.
   let template = "acknowledgment", tpl = acknowledgmentEmail(first);
   if (verdict && verdict.confidence === "high") {
     if (verdict.classification === "reflection_damage") { template = "reflection_damage"; tpl = reflectionEmail(first); }
     else if (verdict.classification === "weed_growth") { template = "weed_growth"; tpl = weedEmail(first); }
+    else if (verdict.classification === "not_covered_other" && verdict.decline_email_html) {
+      // Allow only the tags the drafting instructions permit.
+      const body = String(verdict.decline_email_html)
+        .replace(/<(?!\/?(p|strong|em|br)\b)[^>]*>/gi, "")
+        .trim();
+      if (body.length > 200) {
+        template = "ai_drafted_not_covered";
+        tpl = { subject: "About your warranty claim", html: wrap({ title: "About your warranty claim", body }) };
+      }
+    }
   }
 
   // 4) Email the customer
