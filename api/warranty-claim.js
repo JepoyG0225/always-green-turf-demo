@@ -38,10 +38,10 @@ const SCHEMA = {
     classification: {
       type: "string",
       enum: ["reflection_damage", "weed_growth", "needs_review"],
-      description: "reflection_damage: melted/singed turf fibers in localized streaks or patches consistent with concentrated sunlight reflecting off a window/glass/metal surface. weed_growth: weeds/plants sprouting through the turf or along its edges. needs_review: ANYTHING else — seams lifting, drainage, infill, discoloration without melt patterns, product defects, unclear photos, or mixed/multiple issues.",
+      description: "reflection_damage: the customer describes melted, burned, singed, or shriveled turf, or damage near windows consistent with sun reflection. weed_growth: the customer describes weeds or unwanted plants growing through, around, or at the edges of the turf. needs_review: the description doesn't clearly match either category — seams, wrinkles, drainage, infill loss, fading, workmanship, product defects, vague descriptions, or multiple mixed issues.",
     },
     confidence: { type: "string", enum: ["high", "medium", "low"] },
-    reasoning: { type: "string", description: "2-4 sentences: what the photos show and why this classification." },
+    reasoning: { type: "string", description: "2-4 sentences: why this classification, based primarily on the customer's description (photos as supporting context)." },
   },
   required: ["classification", "confidence", "reasoning"],
   additionalProperties: false,
@@ -59,11 +59,10 @@ async function analyzeClaim(claim) {
       `Customer description: "${claim.message}"\n` +
       `Installation date: ${claim.installationDate || "unknown"}\n\n` +
       `Classify this claim per the schema. Rules:\n` +
-      `- Only use reflection_damage or weed_growth when the PHOTOS clearly show it (the description alone is not enough).\n` +
-      `- Reflection damage looks like melted, shriveled, or singed fibers in a defined band/patch, often near windows or walls.\n` +
-      `- Weed growth is visible plants emerging through or beside the turf.\n` +
-      `- If evidence is unclear, mixed, or shows any potentially covered issue (seams, wrinkles, drainage, infill loss, fading, workmanship), use needs_review.\n` +
-      `- When in doubt, needs_review — a human will look at it.`,
+      `- The customer's DESCRIPTION is the primary signal. If it clearly describes weeds/unwanted plants → weed_growth. If it clearly describes melted, burned, singed, or shriveled turf (or damage near windows from sun reflection) → reflection_damage.\n` +
+      `- Photos are supporting context only — they are NOT required to confirm the description. Do not route to review just because the photos don't show the issue.\n` +
+      `- Use needs_review only when the description doesn't clearly match either category: seams, wrinkles, drainage, infill loss, fading, workmanship, product defects, vague wording, or several mixed issues.\n` +
+      `- If the description clearly matches a category, use confidence "high".`,
   });
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
