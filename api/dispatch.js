@@ -19,8 +19,8 @@ const CFG = {
   bccEmail: process.env.BCC_EMAIL || "",
   slackToken: process.env.SLACK_BOT_TOKEN || "",
   slackChannel: process.env.SLACK_CHANNEL_ID || "C0BAZDCT5K4",
-  anthropicKey: process.env.ANTHROPIC_API_KEY || "",
-  anthropicModel: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
+  openaiKey: process.env.OPENAI_API_KEY || "",
+  openaiModel: process.env.OPENAI_MODEL || "gpt-4o",
   webhookSecret: process.env.DISPATCH_WEBHOOK_SECRET || "",
   maxDrive: Number(process.env.MAX_DRIVE_MINUTES || "45"),
   duration: Number(process.env.APPOINTMENT_DURATION_MINUTES || "60"),
@@ -175,19 +175,22 @@ async function book(rep, cand, lead) {
 
 // ─────────────────────────── Claude (messy-input parsing) ───────────────────────────
 async function parseScheduleAI(body) {
-  if (!CFG.anthropicKey) return null;
+  if (!CFG.openaiKey) return null;
   const signals = {};
   for (const [k, v] of Object.entries(body)) {
     if (typeof v === "string" && v.trim() && /day|time|appointment|schedul|prefer|window|message|availab/i.test(k)) signals[k] = v.trim();
   }
   if (!Object.keys(signals).length) return null;
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
-    headers: { "x-api-key": CFG.anthropicKey, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${CFG.openaiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: CFG.anthropicModel, max_tokens: 300,
-      system: "Extract appointment scheduling preferences from raw CRM lead fields for an Arizona turf company. Only extract what is stated; do not invent.",
-      output_config: { format: { type: "json_schema", schema: {
+      model: CFG.openaiModel, max_tokens: 300,
+      messages: [
+        { role: "system", content: "Extract appointment scheduling preferences from raw CRM lead fields for an Arizona turf company. Only extract what is stated; do not invent." },
+        { role: "user", content: `Lead fields (JSON):\n${JSON.stringify(signals, null, 2)}` },
+      ],
+      response_format: { type: "json_schema", json_schema: { name: "schedule", strict: true, schema: {
         type: "object",
         properties: {
           preferredDays: { type: "string", description: "Comma-separated full weekday names e.g. 'Friday,Saturday'. '' if none." },
@@ -196,12 +199,12 @@ async function parseScheduleAI(body) {
         },
         required: ["preferredDays", "timeWindow", "found"], additionalProperties: false,
       } } },
-      messages: [{ role: "user", content: `Lead fields (JSON):\n${JSON.stringify(signals, null, 2)}` }],
     }),
   });
   if (!res.ok) return null;
   const data = await res.json();
-  const text = (data.content || []).find((b) => b.type === "text");
+  const text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
+    ? { text: data.choices[0].message.content } : null;
   if (!text) return null;
   try { const p = JSON.parse(text.text); return p.found ? p : null; } catch { return null; }
 }
@@ -356,7 +359,7 @@ async function runDispatch(payload) {
       cands = [{ startUtc, endUtc: new Date(startUtc.getTime() + CFG.duration * 60000) }];
     } else {
       let dows = parseDays(lead.preferredDays), tw = parseWindow(lead.timeWindow);
-      if ((!dows.length || !tw) && CFG.anthropicKey) {
+      if ((!dows.length || !tw) && CFG.openaiKey) {
         const ai = await optional("ai_parse_schedule", () => parseScheduleAI(lead.body));
         if (ai) {
           if (!dows.length && ai.preferredDays) { lead.preferredDays = ai.preferredDays; dows = parseDays(ai.preferredDays); }

@@ -14,8 +14,8 @@
 
 const upsertGhlContact = require("./_ghl-contact");
 
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || "";
-const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+const OPENAI_KEY = process.env.OPENAI_API_KEY || "";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o";
 const RESEND_KEY = process.env.RESEND_API_KEY || "";
 const RESEND_FROM = process.env.RESEND_FROM || "Always Green Turf <admin@alwaysgreenturfaz.com>";
 const SLACK_TOKEN = process.env.SLACK_BOT_TOKEN || "";
@@ -50,7 +50,7 @@ const SCHEMA = {
 async function analyzeClaim(claim) {
   const content = [];
   for (const p of (claim.photos || []).slice(0, 8)) {
-    if (p && p.url) content.push({ type: "image", source: { type: "url", url: p.url } });
+    if (p && p.url) content.push({ type: "image_url", image_url: { url: p.url } });
   }
   content.push({
     type: "text",
@@ -66,27 +66,33 @@ async function analyzeClaim(claim) {
       `- When in doubt, needs_review — a human will look at it.`,
   });
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
-    headers: { "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${OPENAI_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: ANTHROPIC_MODEL,
-      max_tokens: 1500,
-      thinking: { type: "adaptive" },
-      system:
-        "You are the warranty triage analyst for Always Green Turf AZ, an artificial turf installer. " +
-        "You examine claim photos and descriptions and classify claims strictly per the provided rules. " +
-        "Auto-classifiable categories require clear visual evidence; otherwise route to human review.",
-      output_config: { format: { type: "json_schema", schema: SCHEMA } },
-      messages: [{ role: "user", content }],
+      model: OPENAI_MODEL,
+      max_tokens: 1000,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are the warranty triage analyst for Always Green Turf AZ, an artificial turf installer. " +
+            "You examine claim photos and descriptions and classify claims strictly per the provided rules. " +
+            "Auto-classifiable categories require clear visual evidence; otherwise route to human review.",
+        },
+        { role: "user", content },
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: { name: "warranty_claim_verdict", strict: true, schema: SCHEMA },
+      },
     }),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(`anthropic ${res.status}: ${(data.error && data.error.message) || ""}`.slice(0, 200));
-  if (data.stop_reason === "refusal") throw new Error("analysis refused");
-  const text = (data.content || []).find((b) => b.type === "text");
-  if (!text) throw new Error("no analysis text");
-  return JSON.parse(text.text);
+  if (!res.ok) throw new Error(`openai ${res.status}: ${(data.error && data.error.message) || ""}`.slice(0, 200));
+  const msg = data.choices && data.choices[0] && data.choices[0].message;
+  if (!msg || !msg.content) throw new Error(msg && msg.refusal ? "analysis refused" : "no analysis text");
+  return JSON.parse(msg.content);
 }
 
 // ── Email templates (AGT-approved copy) ──────────────────────────────
@@ -185,7 +191,7 @@ module.exports = async function handler(req, res) {
 
   // 2) Claude analysis (photos + description)
   let verdict = null;
-  if (ANTHROPIC_KEY) verdict = await step("ai_analysis", () => analyzeClaim({ message, installationDate: b.installationDate, photos }));
+  if (OPENAI_KEY) verdict = await step("ai_analysis", () => analyzeClaim({ message, installationDate: b.installationDate, photos }));
 
   // 3) Pick response: auto-decline only on high-confidence known exclusions
   let template = "acknowledgment", tpl = acknowledgmentEmail(first);
