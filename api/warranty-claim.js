@@ -229,9 +229,6 @@ module.exports = async function handler(req, res) {
   // 5) Slack the team
   await step("notify_slack", async () => {
     if (!SLACK_TOKEN) throw new Error("no slack token");
-    const v = verdict
-      ? `*AI verdict:* ${verdict.classification} (${verdict.confidence})\n>${verdict.reasoning}`
-      : "*AI verdict:* _analysis unavailable — routed to human review_";
     const text =
       `🛠️ *New Warranty Claim*\n\n` +
       `*Customer:* ${fullName}\n*Email:* ${email}\n*Phone:* ${phone}\n` +
@@ -239,7 +236,6 @@ module.exports = async function handler(req, res) {
       `*Message:* ${message.slice(0, 400)}\n` +
       `*Photos:* ${photos.map((p, i) => `<${p.url}|#${i + 1}>`).join(" ") || "—"}\n` +
       (contact ? `*GHL Contact:* <https://app.gohighlevel.com/v2/location/${GHL_LOC}/contacts/detail/${contact.id}|open>\n` : "") +
-      `${v}\n` +
       `*Auto-response sent:* ${template}${emailed ? "" : " (⚠ email FAILED)"}`;
     const r = await fetch("https://slack.com/api/chat.postMessage", {
       method: "POST", headers: { Authorization: `Bearer ${SLACK_TOKEN}`, "Content-Type": "application/json; charset=utf-8" },
