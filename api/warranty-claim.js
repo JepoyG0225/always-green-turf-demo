@@ -17,7 +17,7 @@ const upsertGhlContact = require("./_ghl-contact");
 const OPENAI_KEY = process.env.OPENAI_API_KEY || "";
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o";
 const RESEND_KEY = process.env.RESEND_API_KEY || "";
-const RESEND_FROM = process.env.RESEND_FROM || "Always Green Turf <admin@alwaysgreenturfaz.com>";
+const RESEND_FROM = process.env.RESEND_FROM || "Always Green Turf <warranty@alwaysgreenturfaz.com>";
 const SLACK_TOKEN = process.env.SLACK_BOT_TOKEN || "";
 const SLACK_CHANNEL = process.env.SLACK_WARRANTY_CHANNEL || process.env.SLACK_CHANNEL_ID || "C0BAZDCT5K4";
 const SUPA = process.env.SUPABASE_URL || "https://otgpzpepmurbydcghygb.supabase.co";
@@ -140,11 +140,11 @@ ${li("3. Resolution.", "Once we've assessed the issue, we'll walk you through ex
 function reflectionEmail(first) {
   return { subject: "About your warranty claim", html: wrap({ title: "About your warranty claim", body:
     `<p style="margin:0;">Hi ${first},</p>
-<p>Thank you for submitting your warranty claim and for sharing photos of your lawn. We're truly sorry to see this happen — we know how frustrating it is to find damage on a yard you've invested in, and we appreciate you bringing it to us.</p>
-<p>After reviewing your claim, the damage shown is consistent with <strong>heat reflection</strong> — concentrated sunlight bouncing off a reflective surface such as an energy-efficient (Low-E) window, mirror, metal, or glass. In the Arizona sun, these reflections can reach temperatures high enough to soften or melt turf fibers in the areas they hit.</p>
-<p>Because this type of damage is caused by an outside heat source rather than the turf product or our installation, it falls outside the coverage of our Limited Warranty. We sincerely wish we could cover every situation, but reflection damage is unfortunately something no turf product on the market is able to withstand, and it isn't something we're able to control or prevent through the installation itself.</p>
-${h3("The good news: it's preventable")}
-<p>Once the reflection source is addressed, the damage won't repeat. A few simple, effective options:</p>
+<p>Thank you for submitting your warranty claim and for sharing photos of your lawn. Our team has reviewed the details you provided.</p>
+<p>The damage shown is consistent with <strong>reflective surface damage</strong> — concentrated sunlight bouncing off a reflective surface such as an energy-efficient (Low-E) window, glass, mirror, or metal. In the Arizona sun, these reflections can reach temperatures high enough to burn or melt turf fibers in the areas they hit.</p>
+<p>As outlined in the <strong>Reflective Surface Damage</strong> section of our Limited Warranty, damage caused by a reflective surface on or adjacent to the property is not considered a product or installation defect and is not covered. The turf manufacturer does not cover reflection damage under the product warranty — no turf product on the market is rated to withstand it — and because it is caused by an outside heat source rather than the installation itself, it does not fall under our labor warranty either.</p>
+${h3("Protecting your turf going forward")}
+<p>Identifying and managing the reflection source will prevent further damage. A few common solutions:</p>
 ${li("Window screens.", "Standard exterior solar screens on the reflecting window diffuse the light before it reaches your lawn — the most common and affordable fix.")}
 ${li("Turf-safe window film.", "An anti-reflective exterior film applied to the glass.")}
 ${li("Shade.", "A shade sail, awning, or well-placed patio umbrella can block the reflection path during peak afternoon hours.")}
@@ -156,12 +156,11 @@ function weedEmail(first) {
   return { subject: "About your warranty claim", html: wrap({ title: "About your warranty claim", body:
     `<p style="margin:0;">Hi ${first},</p>
 <p>Thank you for submitting your warranty claim — we appreciate you letting us know what's going on with your lawn, and we're sorry for the frustration unwanted growth can cause.</p>
-<p>Here's the honest truth about weeds: they're remarkably persistent. They can sprout anywhere — even through cracks in asphalt and concrete — and while we take preventive measures during every installation, no treatment can permanently stop airborne seeds from landing and taking root over time, especially along turf edges.</p>
-<p>Because weed growth comes from nature rather than the turf product or our installation, ongoing weed maintenance falls outside our Limited Warranty and is part of routine lawn care — much like it would be with a natural lawn, just far less of it. We sincerely wish we could control this one for you, but it's simply beyond what any installer can prevent.</p>
-${h3("The good news: it's easy to manage")}
+<p>Here's the honest truth about weeds in Arizona: invasive species common to our region — including Bermuda grass and nutsedge — have root systems that can penetrate six to eighteen inches below the surface. While every installation is performed in accordance with industry standards, roots that deep cannot be fully controlled through standard installation practices, and wind-carried seeds and encroachment from adjacent areas can introduce new growth over time.</p>
+<p>As outlined in the <strong>Weed Control</strong> section of our Limited Warranty, growth resulting from pre-existing species, wind-carried seeds, or encroachment from adjacent areas does not constitute a defect and is not covered. Ongoing weed maintenance is part of routine lawn care — much like it would be with a natural lawn, just far less of it.</p>
+${h3("Managing weeds in your turf")}
 ${li("Spot-treat, don't spray broadly.", "Apply a weed treatment such as Roundup 365 directly onto the weed itself and let it sit so it reaches the roots. Avoid broadcast-spraying across the turf — keeping the product on the weed protects your fibers, as chemical damage to the turf isn't covered under warranty.")}
 ${li("Catch them small.", "Young weeds at the edges can be pulled by hand before they establish roots.")}
-${li("Keep it clean.", "Rinse the turf periodically with the shower setting on your hose (avoid the jet setting, which can displace the infill) and clear leaves and debris — organic material sitting on turf is where seeds like to settle.")}
 <p>With a little spot treatment as weeds appear, they're quick to knock down and your lawn will keep looking its best year-round.</p>
 <p>Thank you for your understanding, and for being part of the Always Green Turf family.</p>` }) };
 }
