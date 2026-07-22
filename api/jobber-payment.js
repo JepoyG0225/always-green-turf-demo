@@ -52,7 +52,7 @@ module.exports = async function handler(req, res) {
   const ev = (body.data && body.data.webHookEvent) || body.webHookEvent || {};
   const topic = ev.topic || body.topic || "";
   const paymentId = ev.itemId || body.itemId || body.paymentId || "";
-  if (topic && topic !== "PAYMENT_CREATE") { res.status(200).json({ ok: true, ignored: topic }); return; }
+  if (topic && !/payment/i.test(topic)) { res.status(200).json({ ok: true, ignored: topic }); return; }
   if (!paymentId) { res.status(400).json({ error: "no payment id" }); return; }
 
   const out = { status: "review", applied: false, dryRun, paymentId };
