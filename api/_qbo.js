@@ -65,4 +65,4 @@ async function createPayment(at, rlm, { customerId, amount, invoiceId }) {
   return d.Payment;
 }
 
-module.exports = { accessToken, realm, findCustomer, openInvoices, createPayment, ENV };
+module.exports = { accessToken, realm, findCustomers, openInvoices, createPayment, ENV };
