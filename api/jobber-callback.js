@@ -13,7 +13,8 @@ module.exports = async function handler(req, res) {
   if (!q.code) { page(res, `<h2>Missing authorization code</h2>`); return; }
 
   const CID = process.env.JOBBER_CLIENT_ID, CSEC = process.env.JOBBER_CLIENT_SECRET;
-  const redirect = `https://${req.headers.host}/api/jobber-callback`;
+  // Must be byte-identical to the redirect_uri used in jobber-connect + registered in the app.
+  const redirect = process.env.JOBBER_REDIRECT_URI || "https://alwaysgreenturfaz.com/jobber/oauth/callback";
   const body = new URLSearchParams({
     client_id: CID, client_secret: CSEC, grant_type: "authorization_code",
     code: String(q.code), redirect_uri: redirect,

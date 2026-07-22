@@ -5,6 +5,7 @@
     { "source": "/warranty-claim", "destination": "/warranty", "permanent": false }
   ],
   "rewrites": [
-    { "source": "/service/area/:slug", "destination": "/:slug" }
+    { "source": "/service/area/:slug", "destination": "/:slug" },
+    { "source": "/jobber/oauth/callback", "destination": "/api/jobber-callback" }
   ]
 }

@@ -3,7 +3,8 @@
 module.exports = async function handler(req, res) {
   const CID = process.env.JOBBER_CLIENT_ID;
   if (!CID) { res.status(500).send("JOBBER_CLIENT_ID not set"); return; }
-  const redirect = `https://${req.headers.host}/api/jobber-callback`;
+  // Must exactly match the redirect URI registered in the Jobber app.
+  const redirect = process.env.JOBBER_REDIRECT_URI || "https://alwaysgreenturfaz.com/jobber/oauth/callback";
   const url = new URL("https://api.getjobber.com/api/oauth/authorize");
   url.searchParams.set("client_id", CID);
   url.searchParams.set("redirect_uri", redirect);
