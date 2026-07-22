@@ -28,15 +28,30 @@ async function query(at, rlm, sql) {
   return d.QueryResponse || {};
 }
 
-async function findCustomer(at, rlm, { email, name, company }) {
-  if (email) { const c = (await query(at, rlm, `SELECT * FROM Customer WHERE PrimaryEmailAddr = '${esc(email)}'`)).Customer; if (c && c.length) return c[0]; }
+// Returns every customer (and sub-customer/job) matching the email or name —
+// QBO often puts invoices on a job (e.g. "Jodi Pullen:Jodi Pullen") rather than
+// the parent, so we gather them all and let invoice-matching decide.
+async function findCustomers(at, rlm, { email, name, company }) {
+  const byId = new Map();
+  const add = (arr) => (arr || []).forEach((c) => byId.set(c.Id, c));
+  if (email) add((await query(at, rlm, `SELECT * FROM Customer WHERE PrimaryEmailAddr = '${esc(email)}'`)).Customer);
   const dn = company || name;
-  if (dn) { const c = (await query(at, rlm, `SELECT * FROM Customer WHERE DisplayName = '${esc(dn)}'`)).Customer; if (c && c.length) return c[0]; }
-  return null;
+  if (dn) {
+    add((await query(at, rlm, `SELECT * FROM Customer WHERE DisplayName = '${esc(dn)}'`)).Customer);
+    add((await query(at, rlm, `SELECT * FROM Customer WHERE FullyQualifiedName LIKE '%${esc(dn)}%'`)).Customer);
+  }
+  return [...byId.values()];
 }
 
-async function openInvoices(at, rlm, customerId) {
-  return (await query(at, rlm, `SELECT * FROM Invoice WHERE CustomerRef = '${customerId}' AND Balance > '0' ORDERBY TxnDate`)).Invoice || [];
+// Open invoices across the given customer ids (parent + any jobs).
+async function openInvoices(at, rlm, customerIds) {
+  const ids = (Array.isArray(customerIds) ? customerIds : [customerIds]).filter(Boolean);
+  const seen = new Map();
+  for (const id of ids) {
+    const invs = (await query(at, rlm, `SELECT * FROM Invoice WHERE CustomerRef = '${id}' AND Balance > '0' ORDERBY TxnDate`)).Invoice || [];
+    invs.forEach((i) => seen.set(i.Id, i));
+  }
+  return [...seen.values()];
 }
 
 async function createPayment(at, rlm, { customerId, amount, invoiceId }) {

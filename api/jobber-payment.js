@@ -71,11 +71,12 @@ module.exports = async function handler(req, res) {
     // 2) QBO customer → open invoices → decide
     const at = await qbo.accessToken();
     const rlm = await qbo.realm();
-    const cust = await qbo.findCustomer(at, rlm, { email: cl.email, name, company: cl.companyName });
-    if (!cust) {
+    const custs = await qbo.findCustomers(at, rlm, { email: cl.email, name, company: cl.companyName });
+    if (!custs.length) {
       out.remarks = `No QBO customer found for ${out.customer}${cl.email ? " <" + cl.email + ">" : ""}. Needs review.`;
     } else {
-      const invs = await qbo.openInvoices(at, rlm, cust.Id);
+      // Open invoices across the customer AND its projects/jobs.
+      const invs = await qbo.openInvoices(at, rlm, custs.map((c) => c.Id));
       const exact = invs.filter((i) => cents(i.Balance) === cents(amount));
       let target = null, reason = "";
       if (exact.length === 1) { target = exact[0]; reason = "exact amount match"; }
@@ -87,10 +88,11 @@ module.exports = async function handler(req, res) {
           : `Ambiguous — ${invs.length} open invoices, no single match for $${amount}. Needs review.`;
       } else if (dryRun) {
         out.status = "dry_run";
-        out.match = { invoice: target.DocNumber, invoiceId: target.Id, balance: Number(target.Balance), reason };
-        out.remarks = `DRY RUN — would apply $${amount} to invoice #${target.DocNumber} (${reason}).`;
+        out.match = { invoice: target.DocNumber, invoiceId: target.Id, project: target.CustomerRef.name, balance: Number(target.Balance), reason };
+        out.remarks = `DRY RUN — would apply $${amount} to invoice #${target.DocNumber} (${target.CustomerRef.name}) — ${reason}.`;
       } else {
-        const p = await qbo.createPayment(at, rlm, { customerId: cust.Id, amount, invoiceId: target.Id });
+        // Pay against the invoice's own customer (the project/job), which may differ from the parent.
+        const p = await qbo.createPayment(at, rlm, { customerId: target.CustomerRef.value, amount, invoiceId: target.Id });
         out.status = "applied"; out.applied = true;
         out.match = { invoice: target.DocNumber, qboPaymentId: p.Id, reason };
         out.remarks = `Applied $${amount} to QBO invoice #${target.DocNumber} (${reason}). QBO payment #${p.Id}.`;
