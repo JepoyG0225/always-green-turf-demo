@@ -26,10 +26,13 @@ module.exports = async function handler(req, res) {
     const data = await r.json().catch(() => ({}));
     if (!r.ok || !data.refresh_token) { page(res, `<h2>❌ Token exchange failed</h2><pre>${JSON.stringify(data).slice(0, 400)}</pre>`); return; }
 
+    const realm = q.realmId || process.env.QBO_REALM_ID || "";
     let stored = true, err = "";
-    try { await saveToken("qbo", data.refresh_token); } catch (e) { stored = false; err = String(e.message || e); }
+    try {
+      await saveToken("qbo", data.refresh_token);
+      if (realm) await saveToken("qbo_realm", realm); // capture the authorized company id
+    } catch (e) { stored = false; err = String(e.message || e); }
 
-    const realm = q.realmId || process.env.QBO_REALM_ID || "(unknown)";
     page(res,
       `<h2>✅ QuickBooks Online connected</h2>
        <p>Company (realm) id: <code>${realm}</code></p>
