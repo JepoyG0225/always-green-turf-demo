@@ -33,7 +33,6 @@ async function getPayment(at, id) {
        paymentRecord(id: $id) {
          id amount entryDate
          client { firstName lastName companyName email }
-         allocations { nodes { amount invoice { invoiceNumber } } }
        }
      }`, { id });
   return d.paymentRecord;
