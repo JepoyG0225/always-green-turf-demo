@@ -162,15 +162,15 @@ input:disabled { background:var(--panel-2); color:var(--muted); }
 input[type="checkbox"] { width:auto; accent-color:var(--leaf); }
 
 /* shared layout for action buttons */
-.btn, button:not(.link-btn):not(.sb-signout):not(.icon-btn) {
+.btn, button:not(.link-btn):not(.sb-signout):not(.icon-btn):not(.modal-close) {
   display:inline-flex; align-items:center; gap:7px; padding:10px 17px; border-radius:50px; border:0;
   font-weight:700; font-size:.82rem; cursor:pointer; transition:transform .15s, box-shadow .15s, filter .15s;
 }
-/* default = primary green (skips secondary/danger so those keep their own look) */
-.btn:not(.secondary):not(.danger), button:not(.link-btn):not(.sb-signout):not(.icon-btn):not(.secondary):not(.danger) {
+/* default = primary green (skips secondary/danger/modal-close so those keep their own look) */
+.btn:not(.secondary):not(.danger), button:not(.link-btn):not(.sb-signout):not(.icon-btn):not(.modal-close):not(.secondary):not(.danger) {
   background:var(--grad); color:#fff; box-shadow:0 8px 18px rgba(30,138,30,.24);
 }
-.btn:not(.secondary):not(.danger):hover, button:not(.link-btn):not(.sb-signout):not(.icon-btn):not(.secondary):not(.danger):hover { transform:translateY(-1px); box-shadow:0 12px 26px rgba(30,138,30,.32); filter:brightness(1.04); }
+.btn:not(.secondary):not(.danger):hover, button:not(.link-btn):not(.sb-signout):not(.icon-btn):not(.modal-close):not(.secondary):not(.danger):hover { transform:translateY(-1px); box-shadow:0 12px 26px rgba(30,138,30,.32); filter:brightness(1.04); }
 button:disabled { opacity:.55; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
 .btn.danger, button.danger { background:transparent; color:var(--danger); border:1.5px solid var(--danger-border); box-shadow:none; }
 .btn.danger:hover, button.danger:hover { background:var(--danger-bg); border-color:var(--danger); }
@@ -228,6 +228,6 @@ button:disabled { opacity:.55; cursor:not-allowed; transform:none !important; bo
 .modal-head { display:flex; align-items:center; gap:14px; padding:22px 24px 6px; }
 .modal-icon { width:42px; height:42px; border-radius:12px; flex:none; background:var(--grad); color:#fff; display:grid; place-items:center; }
 .modal-body { padding:16px 24px 24px !important; }
-.modal-close { position:absolute; top:14px; right:14px; width:34px; height:34px; border-radius:50%; background:var(--panel-2); border:1px solid var(--border); color:var(--muted); cursor:pointer; display:grid; place-items:center; transition:background .15s, color .15s, border-color .15s; }
-.modal-close:hover { background:var(--danger-bg); color:var(--danger); border-color:var(--danger-border); }
+.modal-close { position:absolute; top:12px; right:14px; width:30px; height:30px; border-radius:8px; background:none; border:0; box-shadow:none; color:var(--muted); cursor:pointer; display:grid; place-items:center; transition:background .15s, color .15s; }
+.modal-close:hover { background:var(--danger-bg); color:var(--danger); }
 body.modal-open { overflow:hidden; }

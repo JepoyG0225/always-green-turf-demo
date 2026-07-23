@@ -16,6 +16,19 @@
     .wf-tab:hover { color:var(--text); }
     .wf-tab.active { color:var(--moss); border-bottom-color:var(--moss); }
     .panel { display:none; } .panel.active { display:block; }
+    .wf-desc { color:var(--muted); font-size:.92rem; line-height:1.6; max-width:none; width:100%; margin:0 0 20px; }
+    /* webhook tab */
+    .hook { max-width:none; }
+    .hook-lbl { font-size:.68rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+    .hook-row { display:flex; align-items:center; gap:12px; background:var(--panel-2); border:1px solid var(--border); border-radius:12px; padding:12px 14px; }
+    .hook-method { font-size:.68rem; font-weight:800; letter-spacing:.05em; padding:5px 9px; border-radius:7px; background:var(--grad); color:#fff; flex:none; }
+    .hook-url { font-family:ui-monospace,Menlo,monospace; font-size:.82rem; color:var(--text); word-break:break-all; flex:1; min-width:0; }
+    .hook-copy { flex:none; border:1px solid var(--border); background:var(--panel); color:var(--muted); border-radius:8px; padding:7px 12px; font-size:.76rem; font-weight:700; cursor:pointer; box-shadow:none; }
+    .hook-copy:hover { color:var(--moss); border-color:var(--moss); }
+    .hook-meta { display:grid; grid-template-columns:130px 1fr; gap:8px 14px; font-size:.86rem; margin:22px 0 0; }
+    .hook-meta dt { color:var(--muted); font-weight:600; }
+    .hook-meta dd { margin:0; color:var(--text); }
+    .hook-note { margin-top:20px; font-size:.82rem; color:var(--muted); line-height:1.6; background:var(--panel-2); border:1px solid var(--border-2); border-radius:10px; padding:12px 14px; }
     /* switch */
     .switch { position:relative; display:inline-flex; align-items:center; gap:10px; cursor:pointer; }
     .switch input { position:absolute; opacity:0; width:0; height:0; }
@@ -90,21 +103,24 @@
     <main class="main">
       <div class="mobile-bar"><img src="../logo.webp" alt="Always Green Turf" /></div>
       <a href="/dispatch/workflows" class="backlink"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>Workflows</a>
-      <div class="page-head">
-        <div><h1 id="wfName">Workflow</h1><p id="wfDesc"></p><p class="endpoint" id="wfEndpoint" title="Click to copy"></p></div>
+      <div class="page-head" style="margin-bottom:10px;">
+        <div style="flex:1 1 auto; min-width:0;"><h1 id="wfName">Workflow</h1></div>
         <div class="head-actions">
           <label class="switch"><input type="checkbox" id="pubToggle"><span class="track"></span><span class="switch-label" id="pubLabel">…</span></label>
         </div>
       </div>
+      <p id="wfDesc" class="wf-desc"></p>
       <div class="wf-tabs">
         <button class="wf-tab active" data-tab="nodes" type="button">Nodes</button>
         <button class="wf-tab" data-tab="exec" type="button">Executions</button>
+        <button class="wf-tab" data-tab="webhook" type="button">Webhook</button>
       </div>
       <div class="panel active" id="panel-nodes"></div>
       <div class="panel" id="panel-exec">
         <div id="execStats" class="stats"></div>
         <div id="execList"></div>
       </div>
+      <div class="panel" id="panel-webhook"></div>
     </main>
   </div>
 
@@ -126,8 +142,28 @@
     byId("wfName").textContent = wf.name;
     byId("wfDesc").textContent = wf.desc;
     const origin = location.origin.replace("://www.", "://");
-    const ep = byId("wfEndpoint"); ep.textContent = wf.trigger + "  ·  " + origin + wf.endpoint + "  📋";
-    ep.addEventListener("click", () => navigator.clipboard.writeText(origin + wf.endpoint).then(() => { const t = ep.textContent; ep.textContent = "✓ endpoint copied"; setTimeout(() => ep.textContent = t, 1200); }));
+    const fullUrl = origin + wf.endpoint;
+
+    // ── Webhook tab ──
+    byId("panel-webhook").innerHTML = `
+      <div class="hook">
+        <p class="hook-lbl">Webhook URL</p>
+        <div class="hook-row">
+          <span class="hook-method">POST</span>
+          <span class="hook-url" id="hookUrl">${esc(fullUrl)}</span>
+          <button type="button" class="hook-copy" id="hookCopy">Copy</button>
+        </div>
+        <dl class="hook-meta">
+          <dt>Method</dt><dd>POST</dd>
+          <dt>Trigger event</dt><dd>${esc(wf.trigger)}</dd>
+          <dt>Endpoint</dt><dd class="mono">${esc(wf.endpoint)}</dd>
+        </dl>
+        <div class="hook-note">Point the source system's webhook at this URL. Incoming <strong>${esc(wf.trigger)}</strong> events are processed automatically and recorded under the <strong>Executions</strong> tab. If the workflow is unpublished, requests are received but skipped (logged, not processed).</div>
+      </div>`;
+    byId("hookCopy").addEventListener("click", () => {
+      const b = byId("hookCopy");
+      navigator.clipboard.writeText(fullUrl).then(() => { b.textContent = "✓ Copied"; setTimeout(() => b.textContent = "Copy", 1200); });
+    });
 
     // ── Nodes graph ──
     byId("panel-nodes").innerHTML = `<div class="wf-canvas"><div class="wf-flow">${
