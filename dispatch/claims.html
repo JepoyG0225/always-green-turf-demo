@@ -84,6 +84,10 @@
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v6h6M20 20v-6h-6M20 8a8 8 0 10-1.29 8.31L20 14"/></svg>
             Refresh
           </button>
+          <button class="btn danger" id="clearAllBtn" type="button">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.87 12.14A2 2 0 0116.14 21H7.86a2 2 0 01-1.99-1.86L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>
+            Delete all
+          </button>
         </div>
       </div>
       <div id="configWarn" class="config-warn" style="display:none;"></div>
@@ -111,6 +115,25 @@
     const content = byId("content"), stats = byId("stats");
     byId("signOutBtn").addEventListener("click", signOut);
     byId("refreshBtn").addEventListener("click", () => load());
+
+    // Delete warranty-claim rows (always by id — scoped to claims, never touches
+    // dispatch runs). Reuses the admin-authed /api/logs-delete endpoint.
+    async function deleteClaims(ids) {
+      ids = (ids || []).filter(Boolean);
+      if (!ids.length) return;
+      const msg = ids.length === 1 ? "Delete this warranty claim? This can't be undone." : `Delete all ${ids.length} warranty claims? This can't be undone.`;
+      if (!confirm(msg)) return;
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if (!token) { alert("Session expired — please sign in again."); location.replace("/dispatch/login"); return; }
+      try {
+        const res = await fetch("/api/logs-delete", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ ids }) });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(out.error || `HTTP ${res.status}`);
+        closeModal(); load();
+      } catch (e) { alert("Delete failed: " + e.message); }
+    }
+    byId("clearAllBtn").addEventListener("click", () => deleteClaims(CLAIMS.map((c) => c.id)));
 
     if (SUPABASE_URL.includes("YOUR-PROJECT")) { const w = byId("configWarn"); w.style.display = "block"; w.textContent = "⚠ Supabase isn't configured yet — set it in dispatch/config.js."; }
     const session = await requireSession(); if (!session) throw new Error("no session");
@@ -233,7 +256,12 @@
             ${s.ok ? "" : `<span class="step-err-msg">${esc(s.error || "failed")}</span>`}
             <span class="step-ms">${s.ms != null ? s.ms + "ms" : ""}</span>
           </div>`).join("")}</div>` : ""}
+
+        <div style="display:flex; justify-content:flex-end; margin-top:24px;">
+          <button type="button" class="danger" id="claimDelBtn">Delete claim</button>
+        </div>
       `;
+      byId("claimDelBtn").addEventListener("click", () => deleteClaims([r.id]));
       modal.classList.remove("hidden"); document.body.classList.add("modal-open");
     }
 

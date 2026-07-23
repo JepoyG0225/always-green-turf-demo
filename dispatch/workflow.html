@@ -197,18 +197,20 @@
         const r = t.getBoundingClientRect();
         return { cx: r.left - sr.left + r.width / 2, cy: r.top - sr.top + r.height / 2 };
       });
-      const xL = BUS / 2, xR = sr.width - BUS / 2;
+      const OUT = TILE_R + 34; // turn just past a node's edge, clear of its label
       const paths = [];
       for (let i = 0; i < tiles.length - 1; i++) {
         const a = tiles[i], b = tiles[i + 1];
         if (Math.abs(a.cy - b.cy) < 1) {
           paths.push(`M ${a.cx + TILE_R} ${a.cy} L ${b.cx - TILE_R} ${b.cy}`); // same row
         } else if (b.cx < a.cx - 10) {
-          const lane = b.cy - 43; // wrapped to next row — sweep back through the side margins
-          paths.push(roundPath([[a.cx + TILE_R, a.cy], [xR, a.cy], [xR, lane], [xL, lane], [xL, b.cy], [b.cx - TILE_R, b.cy]]));
+          // wrapped to next row — drop just past this row's last node, run along the
+          // gap lane, and rise into the next row's first node (no far-margin stub)
+          const lane = b.cy - 43;
+          paths.push(roundPath([[a.cx + TILE_R, a.cy], [a.cx + OUT, a.cy], [a.cx + OUT, lane], [b.cx - OUT, lane], [b.cx - OUT, b.cy], [b.cx - TILE_R, b.cy]]));
         } else {
           // single column (narrow screens) — short hop down through the right margin
-          paths.push(roundPath([[a.cx + TILE_R, a.cy], [xR, a.cy], [xR, b.cy], [b.cx + TILE_R, b.cy]]));
+          paths.push(roundPath([[a.cx + TILE_R, a.cy], [a.cx + OUT, a.cy], [a.cx + OUT, b.cy], [b.cx + TILE_R, b.cy]]));
         }
       }
       svg.innerHTML = `<path d="${paths.join(" ")}" fill="none" stroke="#c7d0c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
