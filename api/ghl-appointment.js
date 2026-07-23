@@ -245,11 +245,13 @@ module.exports = async function handler(req, res) {
     const arcBody = { name: projectName, owner, customer: { name: clean(clientName || b.full_name), phone: clean(clientPhoneFriendly), email, address: addr } };
     const arcResult = await run.step("ArcSite project", { name: projectName, owner, mode: exists ? "search+upsert" : "create" }, async () => {
       if (exists) {
-        const s = await arcsite("POST", "/projects/search", { project_name: projectName }).catch(() => ({}));
-        const match = (s && (s.id || (Array.isArray(s.projects) && s.projects[0] && s.projects[0].id))) || (Array.isArray(s.data) && s.data[0] && s.data[0].id);
-        if (match) {
+        // /projects/search returns a bare JSON array of matches
+        const s = await arcsite("POST", "/projects/search", { project_name: projectName }).catch(() => null);
+        const list = Array.isArray(s) ? s : (s && (s.projects || s.data)) || [];
+        const m = list.find((p) => clean(p.name) === projectName) || list[0];
+        if (m && m.id) {
           const patch = { name: projectName, owner, operator: owner, sales_rep: { email: (assignee && assignee.email) || owner }, customer: { address: addr }, work_site_address: addr };
-          return { updated: true, project: await arcsite("PATCH", `/projects/${match}`, patch) };
+          return { updated: true, id: m.id, project: await arcsite("PATCH", `/projects/${m.id}`, patch) };
         }
       }
       return { created: true, project: await arcsite("POST", "/projects", arcBody) };
