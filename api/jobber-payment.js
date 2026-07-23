@@ -44,6 +44,19 @@ module.exports = async function handler(req, res) {
   const topic = ev.topic || body.topic || "";
   const paymentId = ev.itemId || body.itemId || body.paymentId || "";
 
+  // Jobber posts every subscribed topic to this one app webhook URL — route by topic.
+  const T = String(topic).toUpperCase();
+  if (T.startsWith("JOB")) {
+    try { res.status(200).json(await require("./_jobber-job").run({ jobId: paymentId, dryRun })); }
+    catch (e) { res.status(500).json({ ok: false, error: String(e.message || e) }); }
+    return;
+  }
+  if (T.startsWith("INVOICE")) {
+    try { res.status(200).json(await require("./_jobber-invoice").run({ invoiceId: paymentId, dryRun })); }
+    catch (e) { res.status(500).json({ ok: false, error: String(e.message || e) }); }
+    return;
+  }
+
   const run = newRun("jobber-payment", { topic, paymentId, dryRun, verified });
   if (topic && !/payment/i.test(topic)) { run.info("Ignored topic", { topic }); await run.finish("skipped", `Ignored ${topic}`); res.status(200).json({ ok: true, ignored: topic }); return; }
   if (!paymentId) { await run.finish("error", "no payment id"); res.status(400).json({ error: "no payment id" }); return; }

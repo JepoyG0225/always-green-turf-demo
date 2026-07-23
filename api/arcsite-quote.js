@@ -1,10 +1,9 @@
-// ArcSite "proposal.sent" webhook → Jobber quote (+ PDF note) → QBO customer/project/invoice.
-// Ported from the n8n "Arcsite - Jobber Send Quote" workflow. Every step is
-// recorded (input/output) via _runlog for the execution-log viewer.
+// ArcSite "proposal.sent" webhook → Jobber quote + hosted PDF note.
+// (QBO customer/project/invoice are now created from Jobber "Job created" /
+// "Invoice created" webhooks instead of here.) Every step is recorded via _runlog.
 
 const newRun = require("./_runlog");
 const jobber = require("./_jobber");
-const qbo = require("./_qbo");
 const { isPublished } = require("./_workflow-config");
 const { put } = require("@vercel/blob");
 
@@ -12,8 +11,6 @@ const ARCSITE_TOKEN = process.env.ARCSITE_TOKEN || "";
 const JVER = process.env.JOBBER_QUOTE_GRAPHQL_VERSION || "2025-04-16";
 // PDFs are hosted on Vercel Blob and served under our own domain via /quote-pdfs/.
 const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || "https://always-green-turf-demo.vercel.app").replace(/\/$/, "");
-const QBO_DISCOUNT_ITEM = process.env.QBO_DISCOUNT_ITEM || "20";
-const QBO_FEE_ITEM = process.env.QBO_FEE_ITEM || "22";
 
 async function readBody(req) {
   if (req.body && typeof req.body === "object") return req.body;
@@ -31,32 +28,6 @@ async function jobberGql(at, query, variables) {
   const d = await r.json().catch(() => ({}));
   if (d.errors) throw new Error(`Jobber gql: ${JSON.stringify(d.errors).slice(0, 250)}`);
   return d.data;
-}
-
-async function qboPost(at, rlm, entity, body) {
-  const base = qbo.ENV === "production" ? "https://quickbooks.api.intuit.com" : "https://sandbox-quickbooks.api.intuit.com";
-  const r = await fetch(`${base}/v3/company/${rlm}/${entity}?minorversion=70`, {
-    method: "POST", headers: { Authorization: `Bearer ${at}`, Accept: "application/json", "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const d = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(`QBO ${entity} ${r.status}: ${JSON.stringify(d).slice(0, 220)}`);
-  return d;
-}
-async function qboQuery(at, rlm, sql) {
-  const base = qbo.ENV === "production" ? "https://quickbooks.api.intuit.com" : "https://sandbox-quickbooks.api.intuit.com";
-  const r = await fetch(`${base}/v3/company/${rlm}/query?query=${encodeURIComponent(sql)}&minorversion=70`, { headers: { Authorization: `Bearer ${at}`, Accept: "application/json" } });
-  const d = await r.json().catch(() => ({})); return (d.QueryResponse) || {};
-}
-// QBO DisplayName must be unique — reuse if it already exists.
-async function findOrCreateCustomer(at, rlm, displayName, extra) {
-  const esc = displayName.replace(/'/g, "\\'");
-  const existing = (await qboQuery(at, rlm, `SELECT * FROM Customer WHERE DisplayName = '${esc}'${extra?.ParentRef ? "" : ""}`)).Customer;
-  if (existing && existing.length) {
-    if (extra?.ParentRef) { const sub = existing.find((c) => c.ParentRef?.value === extra.ParentRef.value); if (sub) return sub; }
-    else return existing[0];
-  }
-  return (await qboPost(at, rlm, "customer", { DisplayName: displayName, ...extra })).Customer;
 }
 
 // Port of the "Set JSON" node: ArcSite line_items + markup + discounts + fee → Jobber lineItems.
@@ -85,17 +56,6 @@ function buildLineItems(arc) {
   if (Array.isArray(src?.taxes)) { const pf = src.taxes.find((t) => t.name === "Processing Fee"); if (pf) fee = Math.abs(num(pf.total, 0)); }
   if (fee > 0) lineItems.push({ name: "Processing Fee", quantity: 1, unitPrice: Number(fee.toFixed(2)), saveToProductsAndServices: false });
   return { lineItems, title: src?.name || "Automated Quote" };
-}
-
-// Port of the "Code in JavaScript" node: Jobber lineItems → QBO invoice Line[].
-function toQboLines(lineItems) {
-  return lineItems.map((item) => {
-    const amount = Number((item.quantity * item.unitPrice).toFixed(2));
-    const detail = { Qty: item.quantity, UnitPrice: item.unitPrice };
-    if (item.name.toLowerCase().includes("discount")) detail.ItemRef = { value: QBO_DISCOUNT_ITEM };
-    else if (item.name === "Processing Fee") detail.ItemRef = { value: QBO_FEE_ITEM };
-    return { DetailType: "SalesItemLineDetail", Description: item.name, Amount: amount, SalesItemLineDetail: detail };
-  });
 }
 
 module.exports = async function handler(req, res) {
@@ -187,16 +147,10 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 8) QBO customer + project (sub-customer), then invoice
-    const at = await run.step("Get QBO Auth", {}, () => qbo.accessToken());
-    const rlm = await qbo.realm();
-    const customer = await run.step("Create QBO Customer", { DisplayName: client.name }, () => findOrCreateCustomer(at, rlm, client.name));
-    const project = await run.step("Create QBO Project", { DisplayName: customerName, parent: customer.Id }, () => findOrCreateCustomer(at, rlm, customerName, { Job: true, ParentRef: { value: customer.Id } }));
-    const qboLines = await run.step("Map QBO Invoice Lines", { lineItems }, async () => toQboLines(lineItems));
-    const invoice = await run.step("Create QBO Invoice", { CustomerRef: project.Id, lines: qboLines.length }, async () => (await qboPost(at, rlm, "invoice", { CustomerRef: { value: project.Id }, Line: qboLines })).Invoice);
-
-    await run.finish("success", `Quote ${quote.quoteNumber} + QBO invoice #${invoice.DocNumber} for ${customerName}`);
-    res.status(200).json({ ok: true, quote: quote.quoteNumber, quoteUri: quote.jobberWebUri, qboInvoice: invoice.DocNumber });
+    // QBO is handled separately now: the Jobber "Job created" webhook creates the
+    // QBO customer + project, and "Invoice created" creates the QBO invoice.
+    await run.finish("success", `Quote ${quote.quoteNumber} for ${customerName}`);
+    res.status(200).json({ ok: true, quote: quote.quoteNumber, quoteUri: quote.jobberWebUri });
   } catch (e) {
     await run.finish("error", String(e.message || e));
     res.status(500).json({ ok: false, error: String(e.message || e) });

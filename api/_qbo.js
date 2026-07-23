@@ -54,6 +54,30 @@ async function openInvoices(at, rlm, customerIds) {
   return [...seen.values()];
 }
 
+async function apiPost(at, rlm, entity, body) {
+  const r = await fetch(`${BASE}/v3/company/${rlm}/${entity}?minorversion=70`, {
+    method: "POST", headers: { Authorization: `Bearer ${at}`, Accept: "application/json", "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(`QBO ${entity} ${r.status}: ${JSON.stringify(d).slice(0, 240)}`);
+  return d;
+}
+
+// QBO DisplayName is unique — reuse a customer (or its matching sub-customer) if
+// it already exists, else create it. `extra` is merged into the create body
+// (e.g. { Job:true, ParentRef } for a project, or PrimaryEmailAddr/BillAddr).
+async function findOrCreateCustomer(at, rlm, displayName, extra) {
+  const dn = String(displayName || "").trim();
+  if (!dn) throw new Error("customer displayName required");
+  const existing = (await query(at, rlm, `SELECT * FROM Customer WHERE DisplayName = '${esc(dn)}'`)).Customer || [];
+  if (existing.length) {
+    if (extra && extra.ParentRef) { const sub = existing.find((c) => c.ParentRef && c.ParentRef.value === extra.ParentRef.value); if (sub) return sub; }
+    else return existing[0];
+  }
+  return (await apiPost(at, rlm, "customer", { DisplayName: dn, ...(extra || {}) })).Customer;
+}
+
 async function createPayment(at, rlm, { customerId, amount, invoiceId }) {
   const body = { CustomerRef: { value: String(customerId) }, TotalAmt: amount, Line: [{ Amount: amount, LinkedTxn: [{ TxnId: String(invoiceId), TxnType: "Invoice" }] }] };
   const r = await fetch(`${BASE}/v3/company/${rlm}/payment?minorversion=70`, {
@@ -65,4 +89,4 @@ async function createPayment(at, rlm, { customerId, amount, invoiceId }) {
   return d.Payment;
 }
 
-module.exports = { accessToken, realm, findCustomers, openInvoices, createPayment, ENV };
+module.exports = { accessToken, realm, findCustomers, openInvoices, createPayment, apiPost, findOrCreateCustomer, query, ENV };
