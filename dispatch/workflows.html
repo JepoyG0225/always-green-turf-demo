@@ -9,18 +9,36 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./dispatch.css" />
   <style>
-    .wf-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
-    .wf-card { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:22px; display:flex; flex-direction:column; }
-    .wf-icon { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,var(--leaf),var(--moss)); color:#fff; display:grid; place-items:center; margin-bottom:14px; }
-    .wf-name { font-size:1.02rem; font-weight:800; color:var(--text); }
-    .wf-desc { font-size:.85rem; color:var(--muted); margin-top:6px; line-height:1.5; flex:1; }
-    .wf-meta { margin-top:14px; display:flex; flex-direction:column; gap:6px; font-size:.76rem; }
+    .wf-grid { display:flex; flex-direction:column; gap:12px; }
+    .wf-card { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:18px 22px; display:flex; align-items:center; gap:18px; transition:transform .18s ease, box-shadow .18s ease; }
+    .wf-card:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+    .wf-icon { width:46px; height:46px; border-radius:12px; background:linear-gradient(135deg,var(--leaf),var(--moss)); color:#fff; display:grid; place-items:center; flex:none; }
+    .wf-main { flex:1; min-width:0; }
+    .wf-name { font-size:1rem; font-weight:800; color:var(--text); }
+    .wf-desc { font-size:.83rem; color:var(--muted); margin-top:4px; line-height:1.5; }
+    .wf-meta { margin-top:8px; display:flex; flex-wrap:wrap; gap:6px 18px; font-size:.74rem; }
     .wf-meta .row { display:flex; gap:8px; }
-    .wf-meta .k { color:var(--subtle); min-width:64px; }
+    .wf-meta .k { color:var(--subtle); }
     .wf-meta .v { color:var(--text-2); font-family:ui-monospace,Menlo,monospace; word-break:break-all; }
-    .wf-foot { margin-top:16px; display:flex; align-items:center; gap:10px; }
-    .wf-last { font-size:.74rem; color:var(--muted); margin-left:auto; }
+    .wf-side { display:flex; flex-direction:column; align-items:flex-end; gap:10px; flex:none; }
+    .wf-last { font-size:.74rem; color:var(--muted); }
     .copybtn { cursor:pointer; }
+    @media (max-width:640px){ .wf-card { flex-direction:column; align-items:stretch; } .wf-side { align-items:stretch; } }
+    .wf-item { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); overflow:hidden; transition:box-shadow .18s ease; }
+    .wf-item:hover { box-shadow:var(--shadow); }
+    .wf-item .wf-card { background:transparent; border:0; border-radius:0; box-shadow:none; cursor:pointer; }
+    .wf-item .wf-card:hover { transform:none; box-shadow:none; }
+    .wf-chev { transition:transform .18s; opacity:.45; vertical-align:-3px; margin-left:6px; }
+    .wf-item.open .wf-chev { transform:rotate(90deg); }
+    .wf-nodes { display:none; padding:2px 22px 20px; border-top:1px solid var(--border-2); }
+    .wf-item.open .wf-nodes { display:block; }
+    .wf-flow-label { font-size:.62rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--subtle); padding:14px 0 4px; }
+    .node { display:flex; align-items:center; gap:12px; padding:5px 0; position:relative; }
+    .node::before { content:""; position:absolute; left:13px; top:-6px; height:12px; width:2px; background:var(--border); }
+    .node:first-of-type::before { display:none; }
+    .node-num { width:28px; height:28px; border-radius:8px; background:var(--mint); color:var(--moss); display:grid; place-items:center; font-weight:800; font-size:.72rem; flex:none; }
+    .node.trigger .node-num { background:var(--grad); color:#fff; }
+    .node-name { font-size:.85rem; font-weight:600; color:var(--text); }
   </style>
 </head>
 <body>
@@ -73,39 +91,50 @@
       { key: "arcsite-quote", name: "ArcSite → Jobber Quote",
         desc: "When an ArcSite proposal is sent, pull its line items, create the matching Jobber quote (markup, discounts &amp; processing fee), host the PDF and attach it, then create the QuickBooks customer, project and invoice.",
         trigger: "ArcSite webhook · proposal.sent", endpoint: "/api/arcsite-quote",
-        icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+        icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+        steps: ["ArcSite proposal.sent (webhook)","Get quote details (ArcSite)","Get Jobber auth","Search client in Jobber","Build quote line items","Create quote in Jobber","Host PDF on Supabase","Attach PDF note to quote","Get QBO auth","Create QBO customer","Create QBO project","Map QBO invoice lines","Create QBO invoice"] },
       { key: "jobber-payment", name: "Jobber Payment → QBO Invoice",
         desc: "When a payment is recorded in Jobber, find the QuickBooks customer (and its projects) and apply the payment to the matching open invoice. Ambiguous matches are sent to Slack for review instead of auto-applying.",
         trigger: "Jobber webhook · PAYMENT_CREATE", endpoint: "/api/jobber-payment",
-        icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M9 12h12l-3-3m0 6l3-3' },
+        icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M9 12h12l-3-3m0 6l3-3',
+        steps: ["Jobber PAYMENT_CREATE (webhook)","Fetch Jobber payment","QBO auth","Find QBO customer(s)","Open invoices (customer + projects)","Match decision","Apply payment in QBO","Notify Slack"] },
     ];
 
-    // last run per workflow
     const { data: runs } = await supabase.from("workflow_runs").select("workflow,status,created_at").order("created_at",{ascending:false}).limit(200);
     const last = {};
     (runs||[]).forEach(r => { if (!last[r.workflow]) last[r.workflow] = r; });
+    const chev = '<svg class="wf-chev" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>';
 
     grid.innerHTML = WF.map(w => {
       const lr = last[w.key];
       const pill = lr ? `<span class="pill ${lr.status}">${lr.status}</span>` : `<span class="subtle">no runs yet</span>`;
-      return `<div class="wf-card">
-        <div class="wf-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${w.icon}"/></svg></div>
-        <div class="wf-name">${w.name}</div>
-        <div class="wf-desc">${w.desc}</div>
-        <div class="wf-meta">
-          <div class="row"><span class="k">Trigger</span><span class="v">${w.trigger}</span></div>
-          <div class="row"><span class="k">Endpoint</span><span class="v copybtn" data-copy="${origin}${w.endpoint}" title="Click to copy">${origin}${w.endpoint} 📋</span></div>
+      const nodes = w.steps.map((s,i) => `<div class="node${i===0?" trigger":""}"><div class="node-num">${i+1}</div><div class="node-name">${s}</div></div>`).join("");
+      return `<div class="wf-item" data-key="${w.key}">
+        <div class="wf-card">
+          <div class="wf-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${w.icon}"/></svg></div>
+          <div class="wf-main">
+            <div class="wf-name">${w.name}${chev}</div>
+            <div class="wf-desc">${w.desc}</div>
+            <div class="wf-meta">
+              <div class="row"><span class="k">Trigger</span><span class="v">${w.trigger}</span></div>
+              <div class="row"><span class="k">Endpoint</span><span class="v copybtn" data-copy="${origin}${w.endpoint}" title="Click to copy">${origin}${w.endpoint} 📋</span></div>
+            </div>
+          </div>
+          <div class="wf-side">
+            <span class="wf-last">${lr ? pill + " · " + fmtPhx(lr.created_at) : pill}</span>
+            <a class="btn secondary" href="/dispatch/runs?wf=${w.key}">View executions</a>
+          </div>
         </div>
-        <div class="wf-foot">
-          <a class="btn" href="/dispatch/runs?wf=${w.key}">View executions</a>
-          <span class="wf-last">${lr ? pill + " · " + fmtPhx(lr.created_at) : pill}</span>
-        </div>
+        <div class="wf-nodes"><div class="wf-flow-label">${w.steps.length} steps</div>${nodes}</div>
       </div>`;
     }).join("");
 
     grid.addEventListener("click", (e) => {
-      const el = e.target.closest("[data-copy]");
-      if (el) { navigator.clipboard.writeText(el.dataset.copy).then(()=>{ const t=el.textContent; el.textContent="✓ copied"; setTimeout(()=>el.textContent=t,1200); }); }
+      const copy = e.target.closest("[data-copy]");
+      if (copy) { e.stopPropagation(); navigator.clipboard.writeText(copy.dataset.copy).then(()=>{ const t=copy.textContent; copy.textContent="✓ copied"; setTimeout(()=>copy.textContent=t,1200); }); return; }
+      if (e.target.closest("a")) return;           // let "View executions" navigate
+      const card = e.target.closest(".wf-card");
+      if (card) card.parentElement.classList.toggle("open");
     });
   </script>
 </body>
