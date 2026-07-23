@@ -69,16 +69,20 @@ module.exports = async function handler(req, res) {
     // Re-host the signed PDF on Vercel Blob (permanent, on our domain); fall back to raw URL.
     let noteUrl = pdfUrl;
     if (pdfUrl) {
-      noteUrl = await run.step("Host signed PDF on Vercel Blob", { pdfUrl }, async () => {
-        try {
-          if (!process.env.BLOB_READ_WRITE_TOKEN) throw new Error("no BLOB token");
-          const fileName = (pdfUrl.split("?")[0].split("/").pop() || "signed.pdf").replace(/[^a-zA-Z0-9._-]/g, "");
-          const pr = await fetch(pdfUrl); if (!pr.ok) throw new Error(`PDF download ${pr.status}`);
-          const buf = Buffer.from(await pr.arrayBuffer());
-          await put(`quote-pdfs/${fileName}`, buf, { access: "public", addRandomSuffix: false, allowOverwrite: true, contentType: "application/pdf", token: process.env.BLOB_READ_WRITE_TOKEN });
-          return `${PUBLIC_BASE}/quote-pdfs/${fileName}`;
-        } catch (e) { return pdfUrl; } // fall back to the ArcSite URL
-      });
+      const fileName = (pdfUrl.split("?")[0].split("/").pop() || "signed.pdf").replace(/[^a-zA-Z0-9._-]/g, "");
+      if (dryRun) {
+        noteUrl = process.env.BLOB_READ_WRITE_TOKEN ? `${PUBLIC_BASE}/quote-pdfs/${fileName}` : pdfUrl;
+      } else {
+        noteUrl = await run.step("Host signed PDF on Vercel Blob", { pdfUrl }, async () => {
+          try {
+            if (!process.env.BLOB_READ_WRITE_TOKEN) throw new Error("no BLOB token");
+            const pr = await fetch(pdfUrl); if (!pr.ok) throw new Error(`PDF download ${pr.status}`);
+            const buf = Buffer.from(await pr.arrayBuffer());
+            await put(`quote-pdfs/${fileName}`, buf, { access: "public", addRandomSuffix: false, allowOverwrite: true, contentType: "application/pdf", token: process.env.BLOB_READ_WRITE_TOKEN });
+            return `${PUBLIC_BASE}/quote-pdfs/${fileName}`;
+          } catch (e) { return pdfUrl; } // fall back to the ArcSite URL
+        });
+      }
     }
     plan.noteUrl = noteUrl;
     const message = `Signed Proposal PDF:\n${noteUrl}`;
