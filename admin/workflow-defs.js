@@ -61,4 +61,13 @@ export const WORKFLOWS = [
     icon: 'M16 3l4 4-4 4M20 7H8a4 4 0 00-4 4v2m4 8l-4-4 4-4M4 17h12a4 4 0 004-4v-2',
     steps: [["Assignee changed","bolt"],["Get appointments","search","GHL"],["Jobber auth","lock"],["Search client","search","Jobber"],["Match new user","user"],["Reassign assessment","doc","Jobber"],["Archive project","folder","ArcSite"],["Create project","globe","ArcSite"]],
   },
+  {
+    key: "job-complete",
+    name: "Job Completed → Slack + Sheet",
+    desc: "When a crew submits the Job Completed form, post the install summary and photos to the #job-complete Slack channel and append a row to the “Job Complete -PM” Google Sheet.",
+    trigger: "Job Completed form",
+    endpoint: "/api/job-complete",
+    icon: 'M9 12l2 2 4-4m-6-6h6a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2h2m0 0a2 2 0 002 2h0a2 2 0 002-2',
+    steps: [["Form submitted","bolt"],["Notify Slack","chat","#job-complete"],["Google auth","lock"],["Read header","doc"],["Append row","sheet","Sheets"]],
+  },
 ];

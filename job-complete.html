@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Job Completed Form | Always Green Turf AZ</title>
+  <link rel="icon" type="image/png" href="assets/agt-favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --g1:#071a07; --g2:#0e300e; --g3:#165f16; --g4:#1e8a1e; --g5:#28b828; --g6:#52d652;
+      --gold:#c9a24a; --text:#162016; --muted:#5a7a5a;
+      --ease:cubic-bezier(.22,1,.36,1); --t:.35s var(--ease);
+    }
+    body { font-family:'Poppins',sans-serif; color:var(--text); background:#f6f8f7; }
+
+    .jc-head {
+      background:linear-gradient(135deg,var(--g2),var(--g1)); padding:22px 20px;
+      display:grid; place-items:center; box-shadow:0 2px 24px rgba(6,15,6,.25);
+    }
+    .jc-head img { height:52px; width:auto; display:block; filter:drop-shadow(0 2px 10px rgba(0,0,0,.35)); }
+
+    .jc-page { padding:40px 20px 80px; }
+    .wrap-form { max-width:760px; margin:0 auto; }
+    .hero-tag {
+      display:inline-flex; align-items:center; gap:9px; padding:7px 18px; border-radius:50px;
+      border:1px solid rgba(30,138,30,.25); background:rgba(82,214,82,.08);
+      font-size:.66rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--g3);
+    }
+    .page-title { text-align:center; margin:16px 0 26px; }
+    .page-title h1 { font-size:clamp(1.6rem,4vw,2.3rem); font-weight:900; color:#1e4d2b; letter-spacing:-.02em; }
+    .page-title p { margin-top:10px; color:#4b5563; font-size:.96rem; }
+
+    .card { position:relative; background:#fff; border-radius:18px; padding:30px 30px 26px; box-shadow:0 14px 40px rgba(14,30,14,.10); overflow:hidden; }
+
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media (max-width:640px) { .grid { grid-template-columns:1fr; } }
+    label { display:block; font-weight:700; margin:16px 0 6px; font-size:.86rem; color:#1f2937; }
+    .grid label { margin-top:0; }
+    input { width:100%; padding:13px 14px; border:1.5px solid #d1d5db; border-radius:12px; background:#fff; font:inherit; font-size:.92rem; transition:box-shadow .2s,border-color .2s; }
+    input:focus { outline:none; border-color:#53a75e; box-shadow:0 0 0 4px rgba(83,167,94,.18); }
+    .hint { font-size:.82rem; color:#6b7280; margin-top:6px; }
+
+    /* upload */
+    .upload { margin-top:6px; border:1.5px dashed #cbd5e1; border-radius:14px; background:linear-gradient(180deg,#fff 0%,#fbfdfc 100%); padding:18px; transition:box-shadow .2s,border-color .2s; }
+    .upload.is-dragover { border-color:var(--g5); box-shadow:0 0 0 4px rgba(83,167,94,.18); }
+    .upload-head { display:flex; gap:12px; align-items:flex-start; }
+    .upload-icon { width:44px; height:44px; border-radius:12px; background:rgba(83,167,94,.12); display:grid; place-items:center; flex:0 0 auto; }
+    .upload-icon svg { width:22px; height:22px; stroke:#1e4d2b; fill:none; stroke-width:2; }
+    .upload-title { font-weight:800; margin:0; color:#0f172a; font-size:.95rem; }
+    .upload-sub { margin:4px 0 0; color:#6b7280; font-size:.86rem; }
+    .upload-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; align-items:center; }
+    .pick-btn { display:inline-flex; align-items:center; gap:.5rem; padding:10px 16px; border-radius:12px; border:1.5px solid rgba(30,138,30,.25); background:#fff; color:#1e4d2b; font-weight:800; font-size:.84rem; cursor:pointer; transition:background .2s,border-color .2s; }
+    .pick-btn:hover { background:#f2fbf4; border-color:rgba(30,138,30,.5); }
+    .upload-meta { font-size:.82rem; color:#6b7280; }
+    .badge { display:inline-block; font-size:.72rem; font-weight:800; padding:4px 10px; border-radius:999px; background:#eaf6ec; color:#14532d; }
+    .upload-input { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); }
+    .preview-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; }
+    @media (max-width:640px) { .preview-grid { grid-template-columns:repeat(3,1fr); } }
+    @media (max-width:420px) { .preview-grid { grid-template-columns:repeat(2,1fr); } }
+    .thumb { position:relative; border-radius:12px; overflow:hidden; background:#f3f4f6; border:1px solid #e5e7eb; aspect-ratio:1/1; }
+    .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+    .thumb .remove { position:absolute; top:8px; right:8px; width:28px; height:28px; border-radius:999px; border:0; background:rgba(15,23,42,.75); color:#fff; cursor:pointer; display:grid; place-items:center; font-size:1rem; line-height:1; }
+    .thumb .remove:hover { background:rgba(15,23,42,.9); }
+    .upload-req { margin-top:10px; font-size:.86rem; color:#b91c1c; display:none; font-weight:700; }
+    .upload-req.show { display:block; }
+
+    #submitBtn { width:100%; margin-top:22px; padding:15px 16px; border:0; border-radius:50px; background:linear-gradient(135deg,var(--g4),var(--g5)); color:#fff; font-weight:800; font-size:.95rem; letter-spacing:.02em; cursor:pointer; box-shadow:0 8px 28px rgba(30,138,30,.38); transition:transform .25s,box-shadow .25s; }
+    #submitBtn:hover { transform:translateY(-2px); box-shadow:0 14px 38px rgba(30,138,30,.52); }
+    #submitBtn[disabled] { opacity:.6; cursor:not-allowed; transform:none; }
+    .error { display:none; margin-top:14px; color:#b91c1c; background:#fee2e2; border:1px solid #fecaca; padding:10px 12px; border-radius:10px; white-space:pre-wrap; font-size:.86rem; }
+
+    /* overlay + success */
+    .overlay { position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(255,255,255,.6); backdrop-filter:blur(2px); z-index:5; }
+    .overlay.show { display:flex; }
+    .spinner { width:54px; height:54px; border-radius:50%; border:6px solid rgba(30,138,30,.18); border-top-color:var(--g4); animation:spin .9s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .success { display:none; text-align:center; padding:42px 12px 10px; }
+    .success.show { display:block; }
+    .check-wrap { width:92px; height:92px; margin:0 auto 16px; border-radius:50%; background:radial-gradient(120% 120% at 30% 20%, #d7f4df 0%, #baf0c6 35%, #8de3a2 65%, #53c97a 100%); display:grid; place-items:center; box-shadow:0 8px 22px rgba(29,78,49,.25); }
+    .check-wrap svg { width:44px; height:44px; stroke:#0b3b20; stroke-width:3; fill:none; }
+    .success h3 { margin:6px 0 6px; color:#1e4d2b; font-size:1.4rem; font-weight:900; }
+    .success p { color:#374151; font-size:.95rem; }
+  </style>
+</head>
+<body>
+  <div class="jc-head"><img src="logo.webp" alt="Always Green Turf" /></div>
+
+  <div class="jc-page">
+    <div class="wrap-form">
+      <div class="page-title">
+        <span class="hero-tag">Project Managers · Install Complete</span>
+        <h1>Job Completed Form</h1>
+        <p>Log the finished install and upload at least 5 completed-project photos. The team is notified and the record is saved automatically.</p>
+      </div>
+
+      <div class="card" id="cardRoot">
+        <div class="overlay" id="overlay" aria-hidden="true"><div class="spinner" role="status" aria-label="Uploading…"></div></div>
+
+        <div class="success" id="successPanel" role="status" aria-live="polite">
+          <div class="check-wrap"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Submitted successfully</h3>
+          <p>Your photos were uploaded and the report was sent to the team.</p>
+        </div>
+
+        <form id="completionForm" novalidate>
+          <div class="grid">
+            <div><label for="crewName">Crew name</label><input id="crewName" type="text" placeholder="e.g., Team Phoenix" required /></div>
+            <div><label for="jobName">Job name</label><input id="jobName" type="text" placeholder="e.g., Mesa Residence" required /></div>
+          </div>
+          <div class="grid" style="margin-top:16px;">
+            <div><label for="startDate">Install start date</label><input id="startDate" type="date" required /></div>
+            <div><label for="endDate">Install completion date</label><input id="endDate" type="date" required /></div>
+          </div>
+          <div class="grid" style="margin-top:16px;">
+            <div><label for="materialsAmount">Left over materials amount</label><input id="materialsAmount" type="text" placeholder="e.g., 3 rolls (10x15), 2 bags infill" /></div>
+            <div><label for="emptyPallets">Left over empty pallets on site</label><input id="emptyPallets" type="number" min="0" step="1" placeholder="0" /></div>
+          </div>
+
+          <label style="margin-top:18px;">Completed-project photos <span class="badge" style="margin-left:6px;">min 5</span></label>
+          <div class="upload" id="dz">
+            <div class="upload-head">
+              <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M21 15l-5-5L5 21" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 16V5a2 2 0 012-2h11" stroke-linecap="round"/><circle cx="8.5" cy="8.5" r="1.5"/></svg></div>
+              <div>
+                <p class="upload-title">Drag &amp; drop photos here</p>
+                <p class="upload-sub">JPEG/PNG/HEIC, up to 15&nbsp;MB each. Minimum 5 photos.</p>
+              </div>
+            </div>
+            <div class="upload-actions">
+              <label class="pick-btn" for="completedPhotos">Browse files</label>
+              <span class="upload-meta"><span class="badge" id="countBadge">0 selected</span></span>
+            </div>
+            <input class="upload-input" id="completedPhotos" type="file" accept="image/*" multiple />
+            <div class="preview-grid" id="previewGrid"></div>
+            <div class="upload-req" id="uploadReq">Please add at least 5 completed-project photos.</div>
+          </div>
+
+          <button id="submitBtn" type="submit">Submit Report</button>
+          <div class="error" id="formError"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const IMGBB_API = "https://api.imgbb.com/1/upload";
+    const IMGBB_KEY = "be83b438f78343a568f2b994323c9bb6";
+    const ENDPOINT = "/api/job-complete";
+    const $ = (q) => document.querySelector(q);
+
+    const dz = $("#dz"), fileInput = $("#completedPhotos"), previewGrid = $("#previewGrid");
+    const countBadge = $("#countBadge"), uploadReq = $("#uploadReq");
+    const formEl = $("#completionForm"), overlay = $("#overlay"), successPanel = $("#successPanel");
+    const submitBtn = $("#submitBtn"), formError = $("#formError");
+
+    const prevent = (e) => { e.preventDefault(); e.stopPropagation(); };
+    ["dragenter","dragover","dragleave","drop"].forEach((ev) => dz.addEventListener(ev, prevent));
+    dz.addEventListener("dragover", () => dz.classList.add("is-dragover"));
+    dz.addEventListener("dragleave", () => dz.classList.remove("is-dragover"));
+    dz.addEventListener("drop", (e) => {
+      dz.classList.remove("is-dragover");
+      const files = Array.from(e.dataTransfer.files || []).filter((f) => f.type.startsWith("image/"));
+      if (!files.length) return;
+      const dt = new DataTransfer();
+      [...Array.from(fileInput.files || []), ...files].forEach((f) => dt.items.add(f));
+      fileInput.files = dt.files; updateUI();
+    });
+    fileInput.addEventListener("change", updateUI);
+
+    function updateUI() {
+      const files = Array.from(fileInput.files || []);
+      countBadge.textContent = `${files.length} selected`;
+      previewGrid.innerHTML = "";
+      files.forEach((file, idx) => {
+        const url = URL.createObjectURL(file);
+        const box = document.createElement("div");
+        box.className = "thumb";
+        box.innerHTML = `<img alt="${file.name}" src="${url}"><button type="button" class="remove" aria-label="Remove">&times;</button>`;
+        box.querySelector(".remove").addEventListener("click", (e) => { e.stopPropagation(); removeAt(idx); });
+        previewGrid.appendChild(box);
+      });
+      if (files.length >= 5) uploadReq.classList.remove("show");
+    }
+    function removeAt(index) {
+      const dt = new DataTransfer();
+      Array.from(fileInput.files || []).forEach((f, i) => { if (i !== index) dt.items.add(f); });
+      fileInput.files = dt.files; updateUI();
+    }
+
+    async function uploadToImgbb(file) {
+      const fd = new FormData(); fd.append("key", IMGBB_KEY); fd.append("image", file);
+      const res = await fetch(IMGBB_API, { method: "POST", body: fd });
+      if (!res.ok) throw new Error(`Photo upload failed (${res.status})`);
+      const data = await res.json();
+      return (data && data.data && (data.data.display_url || data.data.url)) || "";
+    }
+
+    function setProcessing(on) { submitBtn.disabled = on; overlay.classList.toggle("show", on); }
+
+    formEl.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      formError.style.display = "none";
+      const files = Array.from(fileInput.files || []);
+      if (files.length < 5) { uploadReq.classList.add("show"); uploadReq.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+      try {
+        setProcessing(true);
+        const completedUrls = [];
+        for (const f of files) completedUrls.push(await uploadToImgbb(f));
+
+        const payload = {
+          crew_name: $("#crewName").value.trim(),
+          job_name: $("#jobName").value.trim(),
+          install_start_date: $("#startDate").value,
+          install_completion_date: $("#endDate").value,
+          leftover_materials_amount: $("#materialsAmount").value.trim(),
+          leftover_empty_pallets_on_site: $("#emptyPallets").value || "0",
+          completed_photo_urls: completedUrls,
+          meta: { completed_photo_count: completedUrls.length, submitted_at_iso: new Date().toISOString() },
+        };
+        const res = await fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+        if (!res.ok) { const t = await res.text(); throw new Error(`Submit failed (${res.status}): ${t.slice(0, 200)}`); }
+
+        formEl.style.display = "none"; overlay.classList.remove("show"); successPanel.classList.add("show");
+        successPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch (err) {
+        setProcessing(false);
+        formError.textContent = "There was a problem submitting the form: " + (err && err.message ? err.message : err);
+        formError.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>
