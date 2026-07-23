@@ -174,13 +174,13 @@ module.exports = async function handler(req, res) {
       const existingProp = found.clientProperties && found.clientProperties.nodes && found.clientProperties.nodes[0];
       if (existingProp) {
         propertyId = await run.step("Update property", { propertyId: existingProp.id }, async () => {
-          const d = await jobberGql(at, `mutation($propertyId:EncodedId!,$address:PropertyAddressInput!){ propertyEdit(propertyId:$propertyId,input:{address:$address}){ property{ id } userErrors{ message path } } }`, { propertyId: existingProp.id, address: billingAddress });
+          const d = await jobberGql(at, `mutation($propertyId:EncodedId!,$address:AddressAttributes!){ propertyEdit(propertyId:$propertyId,input:{address:$address}){ property{ id } userErrors{ message path } } }`, { propertyId: existingProp.id, address: billingAddress });
           if (d.propertyEdit?.userErrors?.length) throw new Error(`propertyEdit: ${JSON.stringify(d.propertyEdit.userErrors)}`);
           return d.propertyEdit.property.id;
         });
       } else {
         propertyId = await run.step("Create property", { clientId }, async () => {
-          const d = await jobberGql(at, `mutation($clientId:EncodedId!,$address:PropertyAddressInput!){ propertyCreate(clientId:$clientId,input:{properties:[{address:$address}]}){ properties{ id } userErrors{ message path } } }`, { clientId, address: billingAddress });
+          const d = await jobberGql(at, `mutation($clientId:EncodedId!,$address:AddressAttributes!){ propertyCreate(clientId:$clientId,input:{properties:[{address:$address}]}){ properties{ id } userErrors{ message path } } }`, { clientId, address: billingAddress });
           if (d.propertyCreate?.userErrors?.length) throw new Error(`propertyCreate: ${JSON.stringify(d.propertyCreate.userErrors)}`);
           return d.propertyCreate.properties[0].id;
         });
@@ -205,7 +205,7 @@ module.exports = async function handler(req, res) {
       if (tags.length) await run.step("Add tags", { tags }, () => jobberGql(at, `mutation($clientId:EncodedId!,$tags:[String!]!){ clientEdit(clientId:$clientId,input:{tagsToAdd:$tags}){ client{ id } userErrors{ message path } } }`, { clientId, tags }));
       // 1c) Property
       propertyId = await run.step("Create property", { clientId }, async () => {
-        const d = await jobberGql(at, `mutation($clientId:EncodedId!,$address:PropertyAddressInput!){ propertyCreate(clientId:$clientId,input:{properties:[{address:$address}]}){ properties{ id } userErrors{ message path } } }`, { clientId, address: billingAddress });
+        const d = await jobberGql(at, `mutation($clientId:EncodedId!,$address:AddressAttributes!){ propertyCreate(clientId:$clientId,input:{properties:[{address:$address}]}){ properties{ id } userErrors{ message path } } }`, { clientId, address: billingAddress });
         if (d.propertyCreate?.userErrors?.length) throw new Error(`propertyCreate: ${JSON.stringify(d.propertyCreate.userErrors)}`);
         return d.propertyCreate.properties[0].id;
       });
