@@ -26,6 +26,15 @@ export const WORKFLOWS = [
     steps: [["ArcSite proposal.sent","bolt"],["Get quote details","globe","ArcSite"],["Get Jobber auth","lock"],["Search client in Jobber","search"],["Match salesperson","user"],["Build quote line items","braces"],["Create quote in Jobber","globe","Jobber"],["Host PDF on Vercel Blob","cloud"],["Attach PDF note","doc"],["Get QBO auth","lock"],["Create QBO customer","user"],["Create QBO project","folder"],["Map QBO invoice lines","braces"],["Create QBO invoice","doc","QBO"]],
   },
   {
+    key: "arcsite-signed",
+    name: "ArcSite Signed → Jobber Note",
+    desc: "When an ArcSite proposal is signed/approved, find the customer's Jobber quote and attach a note linking the signed proposal PDF (re-hosted on our domain).",
+    trigger: "ArcSite webhook · proposal approved",
+    endpoint: "/api/arcsite-signed",
+    icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+    steps: [["Proposal signed","bolt"],["Jobber auth","lock"],["Search client + quote","search","Jobber"],["Check approved","filter"],["Host signed PDF","cloud"],["Attach note to quote","doc","Jobber"]],
+  },
+  {
     key: "jobber-payment",
     name: "Jobber Payment → QBO Invoice",
     desc: "When a payment is recorded in Jobber, find the QuickBooks customer (and its projects) and apply the payment to the matching open invoice. Ambiguous matches are sent to Slack for review instead of auto-applying.",
