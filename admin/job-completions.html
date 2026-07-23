@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="./admin.css" />
   <style>
     tbody tr.clickable { cursor:pointer; }
+    .chk-cell { width:38px; text-align:center; }
+    .chk-cell input { width:16px; height:16px; cursor:pointer; accent-color:var(--moss); }
     .crew-av { width:34px; height:34px; border-radius:9px; background:var(--grad); color:#fff; display:grid; place-items:center; font-weight:800; font-size:.82rem; flex:none; }
     .thumbs { display:flex; gap:4px; align-items:center; }
     .thumbs img { width:34px; height:34px; border-radius:7px; object-fit:cover; border:1px solid var(--border); background:var(--panel-2); }
@@ -76,9 +78,17 @@
         </div>
         <div class="head-actions">
           <span class="subtle" id="count" style="margin-right:4px;"></span>
+          <button class="btn danger" id="delSelBtn" type="button" style="display:none;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.87 12.14A2 2 0 0116.14 21H7.86a2 2 0 01-1.99-1.86L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>
+            Delete selected (<span id="selCount">0</span>)
+          </button>
           <button class="btn secondary" id="refreshBtn" type="button">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v6h6M20 20v-6h-6M20 8a8 8 0 10-1.29 8.31L20 14"/></svg>
             Refresh
+          </button>
+          <button class="btn danger" id="delAllBtn" type="button">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.87 12.14A2 2 0 0116.14 21H7.86a2 2 0 01-1.99-1.86L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>
+            Delete all
           </button>
         </div>
       </div>
@@ -115,10 +125,17 @@
 
     const photosOf = (r) => { const p = r.trigger_payload || {}; return (Array.isArray(p.completed_photo_urls) ? p.completed_photo_urls : []).filter((u) => typeof u === "string" && /^https?:\/\//i.test(u)); };
 
-    let ROWS = [];
+    let ROWS = [], SEL = new Set();
+    function updateSelUI() {
+      const n = SEL.size;
+      byId("selCount").textContent = n;
+      byId("delSelBtn").style.display = n ? "" : "none";
+      const head = byId("chkAll");
+      if (head) head.checked = n > 0 && n === ROWS.length;
+    }
     async function load() {
       content.innerHTML = `<div class="empty"><div class="spinner"></div>Loading job completions…</div>`;
-      stats.innerHTML = ""; byId("count").textContent = "";
+      stats.innerHTML = ""; byId("count").textContent = ""; SEL.clear(); updateSelUI();
       const { data, error } = await supabase
         .from("workflow_runs")
         .select("id, created_at, status, summary, trigger_payload, steps")
@@ -149,6 +166,7 @@
         const thumbs = photos.slice(0, 4).map((u) => `<img src="${esc(u)}" loading="lazy" alt="" />`).join("");
         const more = photos.length > 4 ? `<span class="more">+${photos.length - 4}</span>` : "";
         return `<tr class="clickable" data-i="${i}">
+          <td class="chk-cell"><input type="checkbox" class="row-chk" data-id="${esc(r.id)}" ${SEL.has(r.id) ? "checked" : ""} /></td>
           <td class="mono muted" style="white-space:nowrap;">${fmtPhx(r.created_at)}</td>
           <td><div class="flex"><div class="crew-av">${esc(av)}</div><div style="font-weight:700;">${esc(crew)}</div></div></td>
           <td style="font-weight:600;">${esc(p.job_name || "—")}</td>
@@ -160,10 +178,38 @@
       }).join("");
 
       content.innerHTML = `<div class="table-wrap"><table>
-        <thead><tr><th>When</th><th>Crew</th><th>Job</th><th>Install Start</th><th>Completion</th><th>Photos</th><th>Slack</th></tr></thead>
+        <thead><tr><th class="chk-cell"><input type="checkbox" id="chkAll" /></th><th>When</th><th>Crew</th><th>Job</th><th>Install Start</th><th>Completion</th><th>Photos</th><th>Slack</th></tr></thead>
         <tbody>${rows}</tbody></table></div>`;
-      content.querySelectorAll("tr.clickable").forEach((tr) => tr.addEventListener("click", () => openRow(ROWS[+tr.dataset.i])));
+
+      // row click → detail (ignore clicks on the checkbox cell)
+      content.querySelectorAll("tr.clickable").forEach((tr) => tr.addEventListener("click", (e) => { if (e.target.closest(".chk-cell")) return; openRow(ROWS[+tr.dataset.i]); }));
+      // per-row selection
+      content.querySelectorAll(".row-chk").forEach((cb) => cb.addEventListener("change", () => { cb.checked ? SEL.add(cb.dataset.id) : SEL.delete(cb.dataset.id); updateSelUI(); }));
+      // select-all
+      byId("chkAll").addEventListener("change", (e) => {
+        SEL.clear();
+        if (e.target.checked) ROWS.forEach((r) => SEL.add(r.id));
+        content.querySelectorAll(".row-chk").forEach((cb) => { cb.checked = e.target.checked; });
+        updateSelUI();
+      });
+      updateSelUI();
     }
+
+    // ── Delete ──
+    async function deleteRuns(payload, confirmMsg) {
+      if (!confirm(confirmMsg)) return;
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if (!token) { alert("Session expired — please sign in again."); location.replace("/admin/login"); return; }
+      try {
+        const res = await fetch("/api/runs-delete", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(out.error || `HTTP ${res.status}`);
+        closeModal(); load();
+      } catch (e) { alert("Delete failed: " + e.message); }
+    }
+    byId("delSelBtn").addEventListener("click", () => { const ids = [...SEL]; if (ids.length) deleteRuns({ ids }, `Delete ${ids.length} selected submission${ids.length === 1 ? "" : "s"}? This can't be undone.`); });
+    byId("delAllBtn").addEventListener("click", () => { if (!ROWS.length) return; deleteRuns({ workflow: "job-complete", all: true }, `Delete ALL ${ROWS.length} job-completion submissions? This can't be undone.`); });
 
     // ── Detail modal ──
     const modal = byId("jcModal");
@@ -199,7 +245,12 @@
             <span class="step-ms">${s.ms != null ? s.ms + "ms" : ""}</span>
           </div>`).join("")}</div>` : ""}
         ${r.status === "error" && r.summary ? `<div class="sec-lbl">Error</div><div class="subtle" style="color:var(--danger);">${esc(r.summary)}</div>` : ""}
+
+        <div style="display:flex; justify-content:flex-end; margin-top:24px;">
+          <button type="button" class="danger" id="rowDelBtn">Delete submission</button>
+        </div>
       `;
+      byId("rowDelBtn").addEventListener("click", () => deleteRuns({ ids: [r.id] }, "Delete this submission? This can't be undone."));
       modal.classList.remove("hidden"); document.body.classList.add("modal-open");
     }
 
