@@ -22,7 +22,7 @@ export const WORKFLOWS = [
     trigger: "ArcSite webhook · proposal.sent",
     endpoint: "/api/arcsite-quote",
     icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-    steps: [["ArcSite proposal.sent","bolt"],["Get quote details","globe","ArcSite"],["Get Jobber auth","lock"],["Search client in Jobber","search"],["Build quote line items","braces"],["Create quote in Jobber","globe","Jobber"],["Host PDF on Supabase","cloud"],["Attach PDF note","doc"],["Get QBO auth","lock"],["Create QBO customer","user"],["Create QBO project","folder"],["Map QBO invoice lines","braces"],["Create QBO invoice","doc","QBO"]],
+    steps: [["ArcSite proposal.sent","bolt"],["Get quote details","globe","ArcSite"],["Get Jobber auth","lock"],["Search client in Jobber","search"],["Match salesperson","user"],["Build quote line items","braces"],["Create quote in Jobber","globe","Jobber"],["Host PDF on Supabase","cloud"],["Attach PDF note","doc"],["Get QBO auth","lock"],["Create QBO customer","user"],["Create QBO project","folder"],["Map QBO invoice lines","braces"],["Create QBO invoice","doc","QBO"]],
   },
   {
     key: "jobber-payment",

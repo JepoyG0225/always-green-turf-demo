@@ -129,14 +129,37 @@ module.exports = async function handler(req, res) {
     });
     const propertyId = client.clientProperties?.nodes?.[0]?.id || null;
 
+    // 3b) Match the ArcSite sales rep to a Jobber user (salesperson).
+    //     Email is authoritative — the ArcSite display name often differs from
+    //     the Jobber user's name (e.g. "Aaron Karkhoff" → Jobber "Aaron K").
+    const repEmail = String(data.contact_email || "").trim().toLowerCase();
+    const repName = String(data.sales_representative || "").trim().toLowerCase();
+    let salespersonId = null;
+    if (repEmail || repName) {
+      salespersonId = await run.step("Match Salesperson in Jobber", { repEmail, repName }, async () => {
+        const d = await jobberGql(jat, `query { users(first: 100){ nodes { id name { full } email { raw } status } } }`, {});
+        const users = d.users?.nodes || [];
+        const active = (u) => u.status === "ACTIVATED";
+        const emailMatch = repEmail ? users.find((u) => (u.email?.raw || "").toLowerCase() === repEmail) : null;
+        const nameMatch = !emailMatch && repName
+          ? (users.find((u) => (u.name?.full || "").toLowerCase() === repName && active(u)) || users.find((u) => (u.name?.full || "").toLowerCase() === repName))
+          : null;
+        const m = emailMatch || nameMatch;
+        return m ? { id: m.id, name: m.name?.full, email: m.email?.raw, matchedBy: emailMatch ? "email" : "name" } : { id: null, reason: "no matching Jobber user" };
+      });
+      salespersonId = salespersonId && salespersonId.id ? salespersonId.id : null;
+    }
+
     // 4) Build Jobber quote line items (markup/discounts/fee)
     const { lineItems, title } = await run.step("Build Quote Line Items", arc, async () => buildLineItems(arc));
 
-    // 5) Create Jobber quote
-    const quote = await run.step("Create Quote in Jobber", { clientId: client.id, propertyId, title, lineItems }, async () => {
+    // 5) Create Jobber quote (assigned to the matched salesperson when found)
+    const quote = await run.step("Create Quote in Jobber", { clientId: client.id, propertyId, title, salespersonId, lineItems }, async () => {
+      const attributes = { clientId: client.id, propertyId, title: data.name || title, lineItems };
+      if (salespersonId) attributes.salespersonId = salespersonId;
       const d = await jobberGql(jat,
-        `mutation($attributes: QuoteCreateAttributes!){ quoteCreate(attributes:$attributes){ quote { id quoteNumber quoteStatus jobberWebUri } userErrors { message path } } }`,
-        { attributes: { clientId: client.id, propertyId, title: data.name || title, lineItems } });
+        `mutation($attributes: QuoteCreateAttributes!){ quoteCreate(attributes:$attributes){ quote { id quoteNumber quoteStatus jobberWebUri salesperson { id name { full } } } userErrors { message path } } }`,
+        { attributes });
       if (d.quoteCreate?.userErrors?.length) throw new Error(`quoteCreate: ${JSON.stringify(d.quoteCreate.userErrors)}`);
       return d.quoteCreate.quote;
     });
