@@ -99,34 +99,35 @@ module.exports = async function handler(req, res) {
       return u ? { id: u.id, name: u.name && u.name.full, email: u.email && u.email.raw } : null;
     });
     plan.matchedUser = user;
-    if (!user && !dryRun) { await run.finish("skipped", `Assignee ${assignedEmail} is not an activated Jobber user`); res.status(200).json({ ok: true, skipped: "no-user-match" }); return; }
+    // No hard stop when the assignee isn't a Jobber user: we still re-owner the
+    // ArcSite project to the generic account; only the Jobber reassignment is skipped.
 
     const firstReq = client && client.requests && client.requests.nodes && client.requests.nodes[0];
     const assessmentId = (firstReq && firstReq.assessment && firstReq.assessment.id) || null;
     plan.assessmentId = assessmentId;
 
-    // ArcSite owner routing (only computable once we have the client + matched user)
+    // ArcSite owner routing. No matched Jobber user → generic account.
     const shared = SHARED.some((s) => assignedEmail.includes(s));
-    const owner = user ? (shared ? ARC_GENERIC_OWNER : user.email) : null;
+    const owner = user ? (shared ? ARC_GENERIC_OWNER : user.email) : ARC_GENERIC_OWNER;
     const projectName = client ? `${clean(client.name)}-${clean(client.billingAddress && client.billingAddress.city)}` : null;
     if (client) plan.arcsite = { search: clean(client.name), archiveThenCreate: projectName, owner };
 
     if (dryRun) {
-      const gate = !hasAppt.has ? "no-appointment" : !client ? "no-client" : !user ? "no-user-match" : "would-run";
-      await run.finish("dry_run", `DRY RUN — gate:${gate}${client && user ? `; reassign ${assessmentId ? "→ " + user.name : "(no assessment)"}; ArcSite archive+create "${projectName}" owner ${owner}` : ""}`);
+      const gate = !hasAppt.has ? "no-appointment" : !client ? "no-client" : "would-run";
+      await run.finish("dry_run", `DRY RUN — gate:${gate}${client ? `; ${user ? `reassign ${assessmentId ? "→ " + user.name : "(no assessment)"}` : "no Jobber user → reassign skipped"}; ArcSite archive+create "${projectName}" owner ${owner}` : ""}`);
       res.status(200).json({ ok: true, gate, plan }); return;
     }
 
     // ===== LIVE =====
-    // 1) Reassign the assessment to the new user
-    if (assessmentId) {
+    // 1) Reassign the assessment to the new user — only when we matched a Jobber user.
+    if (user && assessmentId) {
       await run.step("Reassign assessment", { assessmentId, userId: user.id, user: user.name }, async () => {
         const d = await jobberGql(at, `mutation($assessmentId:EncodedId!,$userId:EncodedId!){ assessmentEdit(assessmentId:$assessmentId,input:{schedule:{teamMemberIdsToAssign:[$userId]}}){ assessment{ id assignedUsers(last:5){ nodes{ id email{ raw } } } } userErrors{ message path } } }`, { assessmentId, userId: user.id });
         if (d.assessmentEdit?.userErrors?.length) throw new Error(`assessmentEdit: ${JSON.stringify(d.assessmentEdit.userErrors)}`);
         return d.assessmentEdit.assessment;
       });
     } else {
-      run.info("No assessment on the client's first request — skipped reassignment", {});
+      run.info(user ? "No assessment on the client's first request — reassignment skipped" : `Assignee ${assignedEmail} not an activated Jobber user — Jobber reassignment skipped (ArcSite owner → ${ARC_GENERIC_OWNER})`, {});
     }
 
     // 2) ArcSite: search by client name → archive matches → create new project
@@ -151,8 +152,8 @@ module.exports = async function handler(req, res) {
     });
     plan.arcsite.result = arc;
 
-    await run.finish("success", `Reassigned to ${user.name}; ArcSite archived ${arc.archived.length}, created ${projectName}`);
-    res.status(200).json({ ok: true, reassignedTo: user.name, assessmentId, arcsite: arc });
+    await run.finish("success", `${user ? `Reassigned to ${user.name}` : "No Jobber user match (Jobber reassign skipped)"}; ArcSite archived ${arc.archived.length}, created ${projectName} (owner ${owner})`);
+    res.status(200).json({ ok: true, reassignedTo: user ? user.name : null, owner, assessmentId, arcsite: arc });
   } catch (e) {
     await run.finish("error", String(e.message || e));
     res.status(500).json({ ok: false, error: String(e.message || e) });
