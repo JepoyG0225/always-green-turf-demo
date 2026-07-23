@@ -11,6 +11,7 @@
 const newRun = require("./_runlog");
 const qbo = require("./_qbo");
 const jobber = require("./_jobber");
+const { isPublished } = require("./_workflow-config");
 
 const SLACK_TOKEN = process.env.SLACK_BOT_TOKEN || "";
 const SLACK_CHANNEL = process.env.SLACK_PAYMENTS_CHANNEL || "C096A9CR62Y"; // #workflow-testing
@@ -46,6 +47,7 @@ module.exports = async function handler(req, res) {
   const run = newRun("jobber-payment", { topic, paymentId, dryRun, verified });
   if (topic && !/payment/i.test(topic)) { run.info("Ignored topic", { topic }); await run.finish("skipped", `Ignored ${topic}`); res.status(200).json({ ok: true, ignored: topic }); return; }
   if (!paymentId) { await run.finish("error", "no payment id"); res.status(400).json({ error: "no payment id" }); return; }
+  if (!dryRun && !(await isPublished("jobber-payment"))) { run.info("Workflow unpublished — skipped", {}); await run.finish("skipped", "Workflow is unpublished"); res.status(200).json({ ok: true, skipped: "unpublished" }); return; }
 
   const out = { status: "review", applied: false, dryRun, paymentId };
   try {

@@ -1,0 +1,36 @@
+// Shared workflow definitions (node graph) used by the Workflows list + detail page.
+export const ICONS = {
+  bolt:'M13 10V3L4 14h7v7l9-11h-7z',
+  globe:'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18',
+  lock:'M6 10V8a6 6 0 1112 0v2M5 10h14v10H5z',
+  search:'M21 21l-4.3-4.3M11 18a7 7 0 100-14 7 7 0 000 14z',
+  braces:'M8 3H7a2 2 0 00-2 2v4a2 2 0 01-2 2 2 2 0 012 2v4a2 2 0 002 2h1M16 3h1a2 2 0 012 2v4a2 2 0 002 2 2 2 0 00-2 2v4a2 2 0 01-2 2h-1',
+  cloud:'M7 18a4 4 0 01-.9-7.9A5 5 0 0117 9a4 4 0 011 7.9M12 12v6m-2.5-3.5L12 12l2.5 2.5',
+  doc:'M14 3v4a1 1 0 001 1h4M9 13h6m-6 4h6M7 21h10a2 2 0 002-2V8l-5-5H7a2 2 0 00-2 2v14a2 2 0 002 2z',
+  user:'M16 7a4 4 0 11-8 0 4 4 0 018 0zM4 21a8 8 0 0116 0',
+  folder:'M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z',
+  filter:'M3 4h18l-7 8v6l-4 2v-8z',
+  dollar:'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',
+  chat:'M21 12a8 8 0 01-11.3 7.3L3 21l1.7-6.7A8 8 0 1121 12z',
+};
+
+export const WORKFLOWS = [
+  {
+    key: "arcsite-quote",
+    name: "ArcSite → Jobber Quote",
+    desc: "When an ArcSite proposal is sent, pull its line items, create the matching Jobber quote (markup, discounts and processing fee), host the PDF and attach it, then create the QuickBooks customer, project and invoice.",
+    trigger: "ArcSite webhook · proposal.sent",
+    endpoint: "/api/arcsite-quote",
+    icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+    steps: [["ArcSite proposal.sent","bolt"],["Get quote details","globe","ArcSite"],["Get Jobber auth","lock"],["Search client in Jobber","search"],["Build quote line items","braces"],["Create quote in Jobber","globe","Jobber"],["Host PDF on Supabase","cloud"],["Attach PDF note","doc"],["Get QBO auth","lock"],["Create QBO customer","user"],["Create QBO project","folder"],["Map QBO invoice lines","braces"],["Create QBO invoice","doc","QBO"]],
+  },
+  {
+    key: "jobber-payment",
+    name: "Jobber Payment → QBO Invoice",
+    desc: "When a payment is recorded in Jobber, find the QuickBooks customer (and its projects) and apply the payment to the matching open invoice. Ambiguous matches are sent to Slack for review instead of auto-applying.",
+    trigger: "Jobber webhook · PAYMENT_CREATE",
+    endpoint: "/api/jobber-payment",
+    icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M9 12h12l-3-3m0 6l3-3',
+    steps: [["Jobber PAYMENT_CREATE","bolt"],["Fetch Jobber payment","globe"],["QBO auth","lock"],["Find QBO customer(s)","search"],["Open invoices","doc"],["Match decision","filter"],["Apply payment in QBO","dollar"],["Notify Slack","chat"]],
+  },
+];

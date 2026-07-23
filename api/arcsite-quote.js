@@ -5,6 +5,7 @@
 const newRun = require("./_runlog");
 const jobber = require("./_jobber");
 const qbo = require("./_qbo");
+const { isPublished } = require("./_workflow-config");
 
 const ARCSITE_TOKEN = process.env.ARCSITE_TOKEN || "";
 const SUPA = process.env.SUPABASE_URL || "https://otgpzpepmurbydcghygb.supabase.co";
@@ -106,6 +107,7 @@ module.exports = async function handler(req, res) {
 
   try {
     if ((body.event && body.event !== "proposal.sent")) { run.info("Ignored event", { event: body.event }); await run.finish("skipped", `Ignored ${body.event}`); res.status(200).json({ ok: true, ignored: body.event }); return; }
+    if (!(await isPublished("arcsite-quote"))) { run.info("Workflow unpublished — skipped", {}); await run.finish("skipped", "Workflow is unpublished"); res.status(200).json({ ok: true, skipped: "unpublished" }); return; }
     if (!customerName || !opt.drawing_id) throw new Error("Missing customer_name or drawing_id");
 
     // 1) ArcSite quote details (line items, markup, discounts, taxes)

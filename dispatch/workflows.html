@@ -9,40 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./dispatch.css" />
   <style>
-    .wf-grid { display:flex; flex-direction:column; gap:12px; }
-    .wf-card { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:18px 22px; display:flex; align-items:center; gap:18px; transition:transform .18s ease, box-shadow .18s ease; }
-    .wf-card:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
-    .wf-icon { width:46px; height:46px; border-radius:12px; background:linear-gradient(135deg,var(--leaf),var(--moss)); color:#fff; display:grid; place-items:center; flex:none; }
-    .wf-main { flex:1; min-width:0; }
-    .wf-name { font-size:1rem; font-weight:800; color:var(--text); }
-    .wf-desc { font-size:.83rem; color:var(--muted); margin-top:4px; line-height:1.5; }
-    .wf-meta { margin-top:8px; display:flex; flex-wrap:wrap; gap:6px 18px; font-size:.74rem; }
-    .wf-meta .row { display:flex; gap:8px; }
-    .wf-meta .k { color:var(--subtle); }
-    .wf-meta .v { color:var(--text-2); font-family:ui-monospace,Menlo,monospace; word-break:break-all; }
-    .wf-side { display:flex; flex-direction:column; align-items:flex-end; gap:10px; flex:none; }
-    .wf-last { font-size:.74rem; color:var(--muted); }
-    .copybtn { cursor:pointer; }
-    @media (max-width:640px){ .wf-card { flex-direction:column; align-items:stretch; } .wf-side { align-items:stretch; } }
-    .wf-item { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); overflow:hidden; transition:box-shadow .18s ease; }
-    .wf-item:hover { box-shadow:var(--shadow); }
-    .wf-item .wf-card { background:transparent; border:0; border-radius:0; box-shadow:none; cursor:pointer; }
-    .wf-item .wf-card:hover { transform:none; box-shadow:none; }
-    .wf-chev { transition:transform .18s; opacity:.45; vertical-align:-3px; margin-left:6px; }
-    .wf-item.open .wf-chev { transform:rotate(90deg); }
-    .wf-nodes { display:none; border-top:1px solid var(--border-2); }
-    .wf-item.open .wf-nodes { display:block; }
-    .wf-flow-label { font-size:.62rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--subtle); padding:14px 22px 0; }
-    .wf-canvas { background:#191c1e; margin:12px 0 0; padding:32px 26px; overflow-x:auto; }
-    .wf-flow { display:flex; align-items:flex-start; gap:0; min-width:max-content; }
-    .node { display:flex; flex-direction:column; align-items:center; width:106px; flex:none; position:relative; }
-    .node::after { content:""; position:absolute; top:26px; left:calc(50% + 26px); width:calc(100% - 52px); height:2px; background:#39424a; }
-    .node:last-child::after { display:none; }
-    .node-tile { width:52px; height:52px; border-radius:14px; background:#2a3036; border:1px solid #3a434b; display:grid; place-items:center; color:#9fb0c0; box-shadow:0 5px 14px rgba(0,0,0,.3); }
-    .node-tile svg { width:24px; height:24px; }
-    .node.trigger .node-tile { background:#33281a; border-color:#7a5c2e; color:#f2b552; border-radius:16px 16px 16px 5px; }
-    .node-label { margin-top:11px; font-size:.68rem; color:#d5dde3; text-align:center; font-weight:600; line-height:1.25; max-width:98px; }
-    .node-sub { font-size:.58rem; color:#6a747d; margin-top:3px; text-align:center; }
+    .wf-row { display:flex; align-items:center; gap:16px; padding:16px 20px; background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); margin-bottom:12px; cursor:pointer; transition:transform .16s ease, box-shadow .16s ease; }
+    .wf-row:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+    .wf-ic { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,var(--leaf),var(--moss)); color:#fff; display:grid; place-items:center; flex:none; }
+    .wf-mid { flex:1; min-width:0; }
+    .wf-nm { font-size:1rem; font-weight:800; color:var(--text); }
+    .wf-tr { font-size:.78rem; color:var(--muted); margin-top:2px; }
+    .wf-rt { display:flex; align-items:center; gap:12px; flex:none; }
+    .wf-arrow { color:var(--subtle); flex:none; }
   </style>
 </head>
 <body>
@@ -50,9 +24,7 @@
     <aside class="sidebar">
       <div class="sb-brand" style="justify-content:center; padding-bottom:22px;"><img src="../logo.webp" alt="Always Green Turf" style="height:40px;" /></div>
       <div class="sb-section-label">Time Off</div>
-      <nav class="sb-nav">
-        <a href="/admin/dashboard.html" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Time Off Requests</a>
-      </nav>
+      <nav class="sb-nav"><a href="/admin/dashboard.html" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Time Off Requests</a></nav>
       <div class="sb-section-label">Appointment Dispatch</div>
       <nav class="sb-nav">
         <a href="/dispatch/" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h12"/></svg>Dispatch Logs</a>
@@ -69,90 +41,46 @@
       </div>
     </aside>
     <main class="main">
-      <div class="mobile-bar"><img src="../logo.webp" alt="Always Green Turf" /><span class="tag">⚡ AGT Admin</span></div>
+      <div class="mobile-bar"><img src="../logo.webp" alt="Always Green Turf" /></div>
       <nav class="mobile-tabs">
         <a href="/admin/dashboard.html">Time Off</a><a href="/dispatch/">Dispatch</a><a href="/dispatch/reps">Reps</a>
         <a href="/dispatch/workflows" class="active">Workflows</a><a href="/dispatch/runs">Executions</a>
       </nav>
-      <div class="page-head">
-        <div><h1>Workflows</h1><p>Automations running on the Always Green Turf serverless backend. Click <strong>View executions</strong> for the step-by-step run log.</p></div>
-      </div>
-      <div class="wf-grid" id="grid"></div>
+      <div class="page-head"><div><h1>Workflows</h1><p>Automations running on the Always Green Turf backend. Open one to view its nodes, executions, and publish state.</p></div></div>
+      <div id="list"></div>
     </main>
   </div>
 
   <script type="module">
     import { supabase, requireSession, signOut, fmtPhx } from "./config.js";
-    const grid = document.getElementById("grid");
+    import { WORKFLOWS } from "./workflow-defs.js";
     document.getElementById("signOutBtn").addEventListener("click", signOut);
     const session = await requireSession(); if (!session) throw new Error("no session");
     document.getElementById("userEmail").textContent = session.user.email;
     document.getElementById("userAvatar").textContent = (session.user.email || "?").charAt(0).toUpperCase();
-    const origin = location.origin.replace("://www.", "://"); // webhook host
 
-    const WF = [
-      { key: "arcsite-quote", name: "ArcSite → Jobber Quote",
-        desc: "When an ArcSite proposal is sent, pull its line items, create the matching Jobber quote (markup, discounts &amp; processing fee), host the PDF and attach it, then create the QuickBooks customer, project and invoice.",
-        trigger: "ArcSite webhook · proposal.sent", endpoint: "/api/arcsite-quote",
-        icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-        steps: [["ArcSite proposal.sent","bolt"],["Get quote details","globe","ArcSite"],["Get Jobber auth","lock"],["Search client in Jobber","search"],["Build quote line items","braces"],["Create quote in Jobber","globe","Jobber"],["Host PDF on Supabase","cloud"],["Attach PDF note","doc"],["Get QBO auth","lock"],["Create QBO customer","user"],["Create QBO project","folder"],["Map QBO invoice lines","braces"],["Create QBO invoice","doc","QBO"]] },
-      { key: "jobber-payment", name: "Jobber Payment → QBO Invoice",
-        desc: "When a payment is recorded in Jobber, find the QuickBooks customer (and its projects) and apply the payment to the matching open invoice. Ambiguous matches are sent to Slack for review instead of auto-applying.",
-        trigger: "Jobber webhook · PAYMENT_CREATE", endpoint: "/api/jobber-payment",
-        icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M9 12h12l-3-3m0 6l3-3',
-        steps: [["Jobber PAYMENT_CREATE","bolt"],["Fetch Jobber payment","globe"],["QBO auth","lock"],["Find QBO customer(s)","search"],["Open invoices","doc"],["Match decision","filter"],["Apply payment in QBO","dollar"],["Notify Slack","chat"]] },
-    ];
+    const [{ data: runs }, { data: cfg }] = await Promise.all([
+      supabase.from("workflow_runs").select("workflow,status,created_at").order("created_at", { ascending: false }).limit(200),
+      supabase.from("workflow_config").select("workflow,published"),
+    ]);
+    const last = {}; (runs||[]).forEach((r) => { if (!last[r.workflow]) last[r.workflow] = r; });
+    const pub = {}; (cfg||[]).forEach((c) => { pub[c.workflow] = c.published; });
 
-    const { data: runs } = await supabase.from("workflow_runs").select("workflow,status,created_at").order("created_at",{ascending:false}).limit(200);
-    const last = {};
-    (runs||[]).forEach(r => { if (!last[r.workflow]) last[r.workflow] = r; });
-    const chev = '<svg class="wf-chev" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>';
-    const ICONS = {
-      bolt:'M13 10V3L4 14h7v7l9-11h-7z',
-      globe:'M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18',
-      lock:'M6 10V8a6 6 0 1112 0v2M5 10h14v10H5z',
-      search:'M21 21l-4.3-4.3M11 18a7 7 0 100-14 7 7 0 000 14z',
-      braces:'M8 3H7a2 2 0 00-2 2v4a2 2 0 01-2 2 2 2 0 012 2v4a2 2 0 002 2h1M16 3h1a2 2 0 012 2v4a2 2 0 002 2 2 2 0 00-2 2v4a2 2 0 01-2 2h-1',
-      cloud:'M7 18a4 4 0 01-.9-7.9A5 5 0 0117 9a4 4 0 011 7.9M12 12v6m-2.5-3.5L12 12l2.5 2.5',
-      doc:'M14 3v4a1 1 0 001 1h4M9 13h6m-6 4h6M7 21h10a2 2 0 002-2V8l-5-5H7a2 2 0 00-2 2v14a2 2 0 002 2z',
-      user:'M16 7a4 4 0 11-8 0 4 4 0 018 0zM4 21a8 8 0 0116 0',
-      folder:'M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z',
-      filter:'M3 4h18l-7 8v6l-4 2v-8z',
-      dollar:'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',
-      chat:'M21 12a8 8 0 01-11.3 7.3L3 21l1.7-6.7A8 8 0 1121 12z',
-    };
-
-    grid.innerHTML = WF.map(w => {
+    document.getElementById("list").innerHTML = WORKFLOWS.map((w) => {
       const lr = last[w.key];
-      const pill = lr ? `<span class="pill ${lr.status}">${lr.status}</span>` : `<span class="subtle">no runs yet</span>`;
-      const nodes = w.steps.map(([name, ic, sub], i) => `<div class="node${i===0?" trigger":""}"><div class="node-tile"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${ICONS[ic]||ICONS.globe}"/></svg></div><div class="node-label">${name}</div>${sub?`<div class="node-sub">${sub}</div>`:""}</div>`).join("");
-      return `<div class="wf-item" data-key="${w.key}">
-        <div class="wf-card">
-          <div class="wf-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${w.icon}"/></svg></div>
-          <div class="wf-main">
-            <div class="wf-name">${w.name}${chev}</div>
-            <div class="wf-desc">${w.desc}</div>
-            <div class="wf-meta">
-              <div class="row"><span class="k">Trigger</span><span class="v">${w.trigger}</span></div>
-              <div class="row"><span class="k">Endpoint</span><span class="v copybtn" data-copy="${origin}${w.endpoint}" title="Click to copy">${origin}${w.endpoint} 📋</span></div>
-            </div>
-          </div>
-          <div class="wf-side">
-            <span class="wf-last">${lr ? pill + " · " + fmtPhx(lr.created_at) : pill}</span>
-            <a class="btn secondary" href="/dispatch/runs?wf=${w.key}">View executions</a>
-          </div>
+      const published = pub[w.key] !== false;
+      const runPill = lr ? `<span class="pill ${lr.status}">${lr.status}</span>` : `<span class="subtle">no runs</span>`;
+      return `<div class="wf-row" data-href="/dispatch/workflow?wf=${w.key}">
+        <div class="wf-ic"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${w.icon}"/></svg></div>
+        <div class="wf-mid"><div class="wf-nm">${w.name}</div><div class="wf-tr">${w.trigger}</div></div>
+        <div class="wf-rt">
+          <span class="pill ${published ? "success" : "skipped"}">${published ? "Published" : "Unpublished"}</span>
+          ${runPill}${lr ? `<span class="subtle">${fmtPhx(lr.created_at)}</span>` : ""}
+          <svg class="wf-arrow" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
         </div>
-        <div class="wf-nodes"><div class="wf-flow-label">${w.steps.length} steps</div><div class="wf-canvas"><div class="wf-flow">${nodes}</div></div></div>
       </div>`;
     }).join("");
-
-    grid.addEventListener("click", (e) => {
-      const copy = e.target.closest("[data-copy]");
-      if (copy) { e.stopPropagation(); navigator.clipboard.writeText(copy.dataset.copy).then(()=>{ const t=copy.textContent; copy.textContent="✓ copied"; setTimeout(()=>copy.textContent=t,1200); }); return; }
-      if (e.target.closest("a")) return;           // let "View executions" navigate
-      const card = e.target.closest(".wf-card");
-      if (card) card.parentElement.classList.toggle("open");
-    });
+    document.getElementById("list").querySelectorAll(".wf-row").forEach((el) => el.addEventListener("click", () => { location.href = el.dataset.href; }));
   </script>
 </body>
 </html>
