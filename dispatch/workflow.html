@@ -38,19 +38,14 @@
     .switch input:checked + .track::after { transform:translateX(20px); }
     .switch-label { font-size:.82rem; font-weight:700; color:var(--text-2); }
     /* node graph — light canvas that blends into the page */
-    .wf-canvas { background-color:transparent; background-image:radial-gradient(#dfe6e0 1px, transparent 0); background-size:20px 20px; border-radius:var(--radius-lg); padding:34px; overflow:visible; }
-    /* Snake layout: rows stack vertically; odd rows reverse direction so the end
-       of one row turns straight DOWN into the start of the next — stays connected
-       when wrapping, no scrollbar. Row chunking is done in JS from the width. */
-    .wf-snake { display:flex; flex-direction:column; gap:34px; }
+    .wf-canvas { position:relative; background-color:transparent; background-image:radial-gradient(#dfe6e0 1px, transparent 0); background-size:20px 20px; border-radius:var(--radius-lg); padding:34px; overflow:visible; }
+    /* Rows read left→right and wrap; a routed SVG connector (drawn in JS) sweeps
+       the end of each row back through the side margins into the start of the
+       next — no scrollbar, natural reading order, always connected. */
+    .wf-links { position:absolute; top:0; left:0; overflow:visible; pointer-events:none; z-index:0; }
+    .wf-snake { display:flex; flex-direction:column; gap:34px; padding:0 26px; position:relative; z-index:1; }
     .wf-row { display:flex; align-items:flex-start; gap:0; }
-    .wf-row.rev { flex-direction:row-reverse; justify-content:flex-start; }
     .node { display:flex; flex-direction:column; align-items:center; width:112px; height:104px; flex:none; position:relative; }
-    /* horizontal link to the next node in the same row (mirrored on reversed rows) */
-    .wf-row:not(.rev) .node:not(:last-child)::after { content:""; position:absolute; top:26px; left:calc(50% + 26px); width:60px; height:2px; background:#c7d0c8; }
-    .wf-row.rev .node:not(:last-child)::after { content:""; position:absolute; top:26px; right:calc(50% + 26px); width:60px; height:2px; background:#c7d0c8; }
-    /* vertical link turning down into the next row; hidden on the final node */
-    .wf-row .node:last-child:not(.last-node)::after { content:""; position:absolute; top:52px; left:calc(50% - 1px); width:2px; height:86px; background:#c7d0c8; }
     .node-tile { width:52px; height:52px; border-radius:14px; background:#fff; border:1px solid var(--border); display:grid; place-items:center; color:var(--moss); box-shadow:0 4px 12px rgba(20,50,30,.08); }
     .node-tile svg { width:24px; height:24px; }
     .node.trigger .node-tile { background:#fbf3e0; border-color:#e4c988; color:#b8912f; border-radius:16px 16px 16px 5px; }
@@ -173,27 +168,67 @@
       navigator.clipboard.writeText(fullUrl).then(() => { b.textContent = "✓ Copied"; setTimeout(() => b.textContent = "Copy", 1200); });
     });
 
-    // ── Nodes graph (snake layout, rebuilt to fit the width) ──
-    const NODE_W = 112, CANVAS_PAD = 34;
-    function nodeHtml([name, ic, sub], gi, isFinal) {
-      return `<div class="node${gi === 0 ? " trigger" : ""}${isFinal ? " last-node" : ""}"><div class="node-tile"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${ICONS[ic] || ICONS.globe}"/></svg></div><div class="node-label">${name}</div>${sub ? `<div class="node-sub">${sub}</div>` : ""}</div>`;
+    // ── Nodes graph (left→right rows, wraps to fit width, routed connectors) ──
+    const NODE_W = 112, CANVAS_PAD = 34, BUS = 26, TILE_R = 26, CORNER = 12;
+    function nodeHtml([name, ic, sub], gi) {
+      return `<div class="node${gi === 0 ? " trigger" : ""}"><div class="node-tile"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${ICONS[ic] || ICONS.globe}"/></svg></div><div class="node-label">${name}</div>${sub ? `<div class="node-sub">${sub}</div>` : ""}</div>`;
+    }
+    // rounded-corner path through a polyline of [x,y] points
+    function roundPath(pts) {
+      if (pts.length < 2) return "";
+      let d = `M ${pts[0][0]} ${pts[0][1]}`;
+      for (let i = 1; i < pts.length - 1; i++) {
+        const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+        const d1 = Math.hypot(x1 - x0, y1 - y0), d2 = Math.hypot(x2 - x1, y2 - y1);
+        const r = Math.min(CORNER, d1 / 2, d2 / 2);
+        const a = [x1 + (x0 - x1) / d1 * r, y1 + (y0 - y1) / d1 * r];
+        const b = [x1 + (x2 - x1) / d2 * r, y1 + (y2 - y1) / d2 * r];
+        d += ` L ${a[0].toFixed(1)} ${a[1].toFixed(1)} Q ${x1} ${y1} ${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
+      }
+      const e = pts[pts.length - 1];
+      return d + ` L ${e[0]} ${e[1]}`;
+    }
+    function drawLinks(perRow) {
+      const snake = byId("wfSnake"), svg = byId("wfLinks");
+      const sr = snake.getBoundingClientRect();
+      svg.style.left = snake.offsetLeft + "px"; svg.style.top = snake.offsetTop + "px";
+      svg.setAttribute("width", Math.max(1, sr.width)); svg.setAttribute("height", Math.max(1, sr.height));
+      const tiles = [...snake.querySelectorAll(".node-tile")].map((t) => {
+        const r = t.getBoundingClientRect();
+        return { cx: r.left - sr.left + r.width / 2, cy: r.top - sr.top + r.height / 2 };
+      });
+      const xL = BUS / 2, xR = sr.width - BUS / 2;
+      const paths = [];
+      for (let i = 0; i < tiles.length - 1; i++) {
+        const a = tiles[i], b = tiles[i + 1];
+        if (Math.abs(a.cy - b.cy) < 1) {
+          paths.push(`M ${a.cx + TILE_R} ${a.cy} L ${b.cx - TILE_R} ${b.cy}`); // same row
+        } else if (b.cx < a.cx - 10) {
+          const lane = b.cy - 43; // wrapped to next row — sweep back through the side margins
+          paths.push(roundPath([[a.cx + TILE_R, a.cy], [xR, a.cy], [xR, lane], [xL, lane], [xL, b.cy], [b.cx - TILE_R, b.cy]]));
+        } else {
+          // single column (narrow screens) — short hop down through the right margin
+          paths.push(roundPath([[a.cx + TILE_R, a.cy], [xR, a.cy], [xR, b.cy], [b.cx + TILE_R, b.cy]]));
+        }
+      }
+      svg.innerHTML = `<path d="${paths.join(" ")}" fill="none" stroke="#c7d0c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
     }
     function buildGraph() {
       const host = byId("panel-nodes");
       let canvas = byId("wfCanvas");
-      if (!canvas) { host.innerHTML = `<div class="wf-canvas" id="wfCanvas"><div class="wf-snake" id="wfSnake"></div></div>`; canvas = byId("wfCanvas"); }
-      const avail = canvas.clientWidth - CANVAS_PAD * 2;
+      if (!canvas) { host.innerHTML = `<div class="wf-canvas" id="wfCanvas"><svg class="wf-links" id="wfLinks"></svg><div class="wf-snake" id="wfSnake"></div></div>`; canvas = byId("wfCanvas"); }
+      const avail = canvas.clientWidth - CANVAS_PAD * 2 - BUS * 2;
       if (avail <= 0) return; // panel hidden — rebuild when it becomes visible
       const perRow = Math.max(1, Math.floor(avail / NODE_W));
       const steps = wf.steps, n = steps.length;
       let html = "";
       for (let i = 0; i < n; i += perRow) {
-        const rev = Math.floor(i / perRow) % 2 === 1 ? " rev" : "";
-        html += `<div class="wf-row${rev}">`;
-        for (let j = i; j < Math.min(i + perRow, n); j++) html += nodeHtml(steps[j], j, j === n - 1);
+        html += `<div class="wf-row">`;
+        for (let j = i; j < Math.min(i + perRow, n); j++) html += nodeHtml(steps[j], j);
         html += `</div>`;
       }
       byId("wfSnake").innerHTML = html;
+      drawLinks(perRow);
     }
     buildGraph();
     let _rz; window.addEventListener("resize", () => { clearTimeout(_rz); _rz = setTimeout(buildGraph, 150); });
