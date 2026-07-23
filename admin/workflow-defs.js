@@ -12,6 +12,7 @@ export const ICONS = {
   filter:'M3 4h18l-7 8v6l-4 2v-8z',
   dollar:'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',
   chat:'M21 12a8 8 0 01-11.3 7.3L3 21l1.7-6.7A8 8 0 1121 12z',
+  sheet:'M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18',
 };
 
 export const WORKFLOWS = [
@@ -32,5 +33,14 @@ export const WORKFLOWS = [
     endpoint: "/api/jobber-payment",
     icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M9 12h12l-3-3m0 6l3-3',
     steps: [["Jobber PAYMENT_CREATE","bolt"],["Fetch Jobber payment","globe"],["QBO auth","lock"],["Find QBO customer(s)","search"],["Open invoices","doc"],["Match decision","filter"],["Apply payment in QBO","dollar"],["Notify Slack","chat"]],
+  },
+  {
+    key: "ghl-master-sheet",
+    name: "GHL → Master Sheet",
+    desc: "When a contact comes in from GoHighLevel, fetch the full contact record and append a row (name, phone, email, source, last activity) to the AGTAZ Leads/Confirmations “Master Sheet” in Google Sheets.",
+    trigger: "GHL webhook · contact",
+    endpoint: "/api/ghl-master-sheet",
+    icon: 'M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18',
+    steps: [["GHL contact webhook","bolt"],["Search contact","search","GHL"],["Google auth","lock"],["Read sheet header","doc"],["Append row","sheet","Sheets"]],
   },
 ];
