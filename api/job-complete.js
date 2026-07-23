@@ -1,16 +1,13 @@
-// Job Completed form → Slack (#job-complete) + Google Sheets ("Job Complete -PM").
-// Ported from the n8n "Job Completed - Slack Integration" workflow.
-//   webhook → post a block message with the details + photos → append a row.
+// Job Completed form → Slack (#job-complete).
+// Ported from the n8n "Job Completed - Slack Integration" workflow (Slack only —
+// the Google Sheets append was intentionally dropped).
 // Photos are uploaded to imgbb client-side; this receives completed_photo_urls.
 
 const newRun = require("./_runlog");
-const google = require("./_google");
 const { isPublished } = require("./_workflow-config");
 
 const SLACK_TOKEN = process.env.SLACK_BOT_TOKEN || "";
 const SLACK_CHANNEL = process.env.SLACK_JOBCOMPLETE_CHANNEL || "C02M55MSRFB"; // #job-complete
-const SHEET_ID = process.env.JOB_COMPLETE_SHEET_ID || "1zLeXQaLWIq79qrTKFaBcV26gyffomz46-gMPg9vgMVE";
-const SHEET_NAME = process.env.JOB_COMPLETE_SHEET_NAME || "Sheet1";
 
 async function readBody(req) {
   if (req.body && typeof req.body === "object") return req.body;
@@ -35,7 +32,6 @@ module.exports = async function handler(req, res) {
     const pallets = clean(b.leftover_empty_pallets_on_site) || "0";
     const photos = (Array.isArray(b.completed_photo_urls) ? b.completed_photo_urls : []).map(clean).filter((u) => /^https?:\/\//i.test(u));
     if (!crew && !job) throw new Error("crew_name or job_name required");
-    const photoStr = photos.join(", ");
 
     // 1) Slack — block message to #job-complete
     await run.step("Notify Slack (#job-complete)", { crew, job, photos: photos.length }, async () => {
@@ -63,35 +59,8 @@ module.exports = async function handler(req, res) {
       return { ts: d.ts };
     });
 
-    // 2) Google Sheets — append a row (keyed by column header)
-    let gtoken;
-    await run.step("Google auth", {}, async () => { gtoken = await google.accessToken("https://www.googleapis.com/auth/spreadsheets"); return { ok: true }; });
-    const fields = {
-      "Crew": crew, "Job": job,
-      "Install Start": startDate, "Install Completion": endDate,
-      "Left Over Materials Amount": materials, "Empty Pallets On Site": pallets,
-      "Project Photos": photoStr,
-    };
-    const header = await run.step("Read sheet header", { sheet: SHEET_NAME }, async () => {
-      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(`${SHEET_NAME}!1:1`)}`, { headers: { Authorization: `Bearer ${gtoken}` } });
-      const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(`Sheets header ${r.status}: ${JSON.stringify(d).slice(0, 150)}`);
-      const h = (d.values && d.values[0]) || [];
-      if (!h.length) throw new Error(`no header row found in "${SHEET_NAME}"`);
-      return h;
-    });
-    const row = header.map((h) => (h in fields ? fields[h] : ""));
-    const appended = await run.step("Append row (Job Complete -PM)", { fields }, async () => {
-      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(`${SHEET_NAME}!A1`)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, {
-        method: "POST", headers: { Authorization: `Bearer ${gtoken}`, "Content-Type": "application/json" }, body: JSON.stringify({ values: [row] }),
-      });
-      const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(`Sheets append ${r.status}: ${JSON.stringify(d).slice(0, 150)}`);
-      return { updatedRange: d.updates && d.updates.updatedRange };
-    });
-
-    await run.finish("success", `Job "${job || crew}" — Slack sent, ${photos.length} photos, row ${appended.updatedRange || "ok"}`);
-    res.status(200).json({ ok: true, job: job || crew, photos: photos.length, range: appended.updatedRange });
+    await run.finish("success", `Job "${job || crew}" — Slack sent, ${photos.length} photos`);
+    res.status(200).json({ ok: true, job: job || crew, photos: photos.length });
   } catch (e) {
     await run.finish("error", String(e.message || e));
     res.status(500).json({ ok: false, error: String(e.message || e) });
