@@ -78,7 +78,8 @@ module.exports = async function handler(req, res) {
       return { count: events.length, has: events.length > 0 };
     });
     plan.hasAppointment = hasAppt.has;
-    if (!hasAppt.has) { await run.finish("skipped", "Contact has no appointment — nothing to reassign"); res.status(200).json({ ok: true, skipped: "no-appointment" }); return; }
+    // Gates hard-stop a LIVE run; a dry run continues so it can report the full plan.
+    if (!hasAppt.has && !dryRun) { await run.finish("skipped", "Contact has no appointment — nothing to reassign"); res.status(200).json({ ok: true, skipped: "no-appointment" }); return; }
 
     const at = await run.step("Jobber auth", {}, () => jobber.accessToken());
 
@@ -88,7 +89,7 @@ module.exports = async function handler(req, res) {
       return (d.clients && d.clients.nodes && d.clients.nodes[0]) || null;
     });
     plan.clientExists = !!client;
-    if (!client) { await run.finish("skipped", `No Jobber client for ${email}`); res.status(200).json({ ok: true, skipped: "no-client" }); return; }
+    if (!client && !dryRun) { await run.finish("skipped", `No Jobber client for ${email}`); res.status(200).json({ ok: true, skipped: "no-client" }); return; }
 
     // Gate 3: new assignee matches an activated Jobber user
     const user = await run.step("Match assigned user in Jobber", { assignedEmail }, async () => {
@@ -98,21 +99,22 @@ module.exports = async function handler(req, res) {
       return u ? { id: u.id, name: u.name && u.name.full, email: u.email && u.email.raw } : null;
     });
     plan.matchedUser = user;
-    if (!user) { await run.finish("skipped", `Assignee ${assignedEmail} is not an activated Jobber user`); res.status(200).json({ ok: true, skipped: "no-user-match" }); return; }
+    if (!user && !dryRun) { await run.finish("skipped", `Assignee ${assignedEmail} is not an activated Jobber user`); res.status(200).json({ ok: true, skipped: "no-user-match" }); return; }
 
-    const firstReq = (client.requests && client.requests.nodes && client.requests.nodes[0]) || null;
-    const assessmentId = firstReq && firstReq.assessment && firstReq.assessment.id;
-    plan.assessmentId = assessmentId || null;
+    const firstReq = client && client.requests && client.requests.nodes && client.requests.nodes[0];
+    const assessmentId = (firstReq && firstReq.assessment && firstReq.assessment.id) || null;
+    plan.assessmentId = assessmentId;
 
-    // ArcSite owner routing
+    // ArcSite owner routing (only computable once we have the client + matched user)
     const shared = SHARED.some((s) => assignedEmail.includes(s));
-    const owner = shared ? ARC_GENERIC_OWNER : user.email;
-    const projectName = `${clean(client.name)}-${clean(client.billingAddress && client.billingAddress.city)}`;
-    plan.arcsite = { search: clean(client.name), archiveThenCreate: projectName, owner };
+    const owner = user ? (shared ? ARC_GENERIC_OWNER : user.email) : null;
+    const projectName = client ? `${clean(client.name)}-${clean(client.billingAddress && client.billingAddress.city)}` : null;
+    if (client) plan.arcsite = { search: clean(client.name), archiveThenCreate: projectName, owner };
 
     if (dryRun) {
-      await run.finish("dry_run", `DRY RUN — reassign assessment ${assessmentId ? "→ " + user.name : "(none found)"}; ArcSite archive+create "${projectName}" owner ${owner}`);
-      res.status(200).json({ ok: true, plan }); return;
+      const gate = !hasAppt.has ? "no-appointment" : !client ? "no-client" : !user ? "no-user-match" : "would-run";
+      await run.finish("dry_run", `DRY RUN — gate:${gate}${client && user ? `; reassign ${assessmentId ? "→ " + user.name : "(no assessment)"}; ArcSite archive+create "${projectName}" owner ${owner}` : ""}`);
+      res.status(200).json({ ok: true, gate, plan }); return;
     }
 
     // ===== LIVE =====
