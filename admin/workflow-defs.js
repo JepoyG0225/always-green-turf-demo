@@ -43,4 +43,13 @@ export const WORKFLOWS = [
     icon: 'M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18',
     steps: [["GHL contact webhook","bolt"],["Search contact","search","GHL"],["Google auth","lock"],["Read sheet header","doc"],["Append row","sheet","Sheets"]],
   },
+  {
+    key: "ghl-appointment",
+    name: "GHL Appointment → Jobber",
+    desc: "When an appointment is booked in GoHighLevel, upsert the Jobber client (tags + property), match the assigned salesperson, and create/reuse a Jobber request with a scheduled assessment — then create or update the matching ArcSite project.",
+    trigger: "GHL webhook · appointment booked",
+    endpoint: "/api/ghl-appointment",
+    icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+    steps: [["Appointment booked","bolt"],["Jobber auth","lock"],["Search client","search","Jobber"],["Upsert client","user"],["Add tags","filter"],["Property","folder"],["Match salesperson","user"],["Request + assessment","doc","Jobber"],["ArcSite project","globe","ArcSite"]],
+  },
 ];
