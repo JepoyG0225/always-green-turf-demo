@@ -141,7 +141,7 @@
     document.getElementById("userAvatar").textContent = (session.user.email || "?").charAt(0).toUpperCase();
 
     async function load() {
-      content.innerHTML = `<div class="empty"><div class="empty-icon">⏳</div>Loading dispatch logs…</div>`;
+      content.innerHTML = `<div class="empty"><div class="spinner"></div>Loading dispatch logs…</div>`;
       stats.innerHTML = "";
       const { data, error } = await supabase
         .from("dispatch_logs")

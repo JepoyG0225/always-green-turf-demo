@@ -218,7 +218,7 @@
 
     // ── Rep CRUD ──
     async function load() {
-      list.innerHTML = `<div class="empty"><div class="empty-icon">⏳</div>Loading team…</div>`;
+      list.innerHTML = `<div class="empty"><div class="spinner"></div>Loading team…</div>`;
       const { data, error } = await supabase.from("sales_rep_data")
         .select("assigned_id, name, address, active, lat, lng").order("name");
       if (error) { list.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>Could not load reps: ${error.message}</div>`; byId("teamCount").textContent = ""; return; }

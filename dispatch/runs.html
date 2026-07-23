@@ -112,7 +112,7 @@
     let RUNS = [];
 
     async function load() {
-      content.innerHTML = `<div class="empty"><div class="empty-icon">⏳</div>Loading runs…</div>`;
+      content.innerHTML = `<div class="empty"><div class="spinner"></div>Loading runs…</div>`;
       const { data, error } = await supabase.from("workflow_runs").select("*").order("created_at",{ascending:false}).limit(100);
       if (error) { content.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>${error.message}</div>`; return; }
       RUNS = data || [];
