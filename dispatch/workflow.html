@@ -38,11 +38,13 @@
     .switch input:checked + .track::after { transform:translateX(20px); }
     .switch-label { font-size:.82rem; font-weight:700; color:var(--text-2); }
     /* node graph — light canvas that blends into the page */
-    .wf-canvas { background-color:transparent; background-image:radial-gradient(#dfe6e0 1px, transparent 0); background-size:20px 20px; border-radius:var(--radius-lg); padding:34px 26px; overflow-x:auto; }
-    .wf-flow { display:flex; align-items:flex-start; gap:0; min-width:max-content; }
+    .wf-canvas { background-color:transparent; background-image:radial-gradient(#dfe6e0 1px, transparent 0); background-size:20px 20px; border-radius:var(--radius-lg); padding:34px; overflow:visible; }
+    /* wrap onto multiple rows instead of scrolling; each node carries an
+       inbound connector on its left so rows read left-to-right and stay linked */
+    .wf-flow { display:flex; flex-wrap:wrap; align-items:flex-start; gap:34px 0; }
     .node { display:flex; flex-direction:column; align-items:center; width:112px; flex:none; position:relative; }
-    .node::after { content:""; position:absolute; top:26px; left:calc(50% + 26px); width:calc(100% - 52px); height:2px; background:#c7d0c8; }
-    .node:last-child::after { display:none; }
+    .node::before { content:""; position:absolute; top:26px; left:-30px; width:60px; height:2px; background:#c7d0c8; }
+    .node:first-child::before { display:none; }
     .node-tile { width:52px; height:52px; border-radius:14px; background:#fff; border:1px solid var(--border); display:grid; place-items:center; color:var(--moss); box-shadow:0 4px 12px rgba(20,50,30,.08); }
     .node-tile svg { width:24px; height:24px; }
     .node.trigger .node-tile { background:#fbf3e0; border-color:#e4c988; color:#b8912f; border-radius:16px 16px 16px 5px; }
