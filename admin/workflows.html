@@ -7,7 +7,7 @@
   <title>Workflows | Always Green Turf — Internal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./dispatch.css" />
+  <link rel="stylesheet" href="./admin.css" />
   <style>
     .wf-row { display:flex; align-items:center; gap:16px; padding:16px 20px; background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); margin-bottom:12px; cursor:pointer; transition:transform .16s ease, box-shadow .16s ease; }
     .wf-row:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
@@ -27,17 +27,17 @@
       <nav class="sb-nav"><a href="/admin/dashboard.html" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Time Off Requests</a></nav>
       <div class="sb-section-label">Appointment Dispatch</div>
       <nav class="sb-nav">
-        <a href="/dispatch/" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h12"/></svg>Dispatch Logs</a>
-        <a href="/dispatch/reps" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M8 11a4 4 0 100-8 4 4 0 000 8z"/></svg>Sales Reps</a>
+        <a href="/admin/" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h12"/></svg>Dispatch Logs</a>
+        <a href="/admin/reps" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M8 11a4 4 0 100-8 4 4 0 000 8z"/></svg>Sales Reps</a>
       </nav>
       <div class="sb-section-label">Workflows</div>
       <nav class="sb-nav">
-        <a href="/dispatch/workflows" class="sb-link active"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Workflows</a>
-        <a href="/dispatch/runs" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Executions</a>
+        <a href="/admin/workflows" class="sb-link active"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Workflows</a>
+        <a href="/admin/runs" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Executions</a>
       </nav>
       <div class="sb-section-label">Warranty</div>
       <nav class="sb-nav">
-        <a href="/dispatch/claims" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Warranty Claims</a>
+        <a href="/admin/claims" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Warranty Claims</a>
       </nav>
       <div class="sb-footer">
         <div class="sb-user"><div class="sb-avatar" id="userAvatar">J</div><div class="sb-user-info"><div class="sb-user-name" id="userEmail">…</div><div class="subtle">Admin</div></div></div>
@@ -47,8 +47,8 @@
     <main class="main">
       <div class="mobile-bar"><img src="../logo.webp" alt="Always Green Turf" /></div>
       <nav class="mobile-tabs">
-        <a href="/admin/dashboard.html">Time Off</a><a href="/dispatch/">Dispatch</a><a href="/dispatch/reps">Reps</a>
-        <a href="/dispatch/workflows" class="active">Workflows</a><a href="/dispatch/runs">Executions</a><a href="/dispatch/claims">Warranty</a>
+        <a href="/admin/dashboard.html">Time Off</a><a href="/admin/">Dispatch</a><a href="/admin/reps">Reps</a>
+        <a href="/admin/workflows" class="active">Workflows</a><a href="/admin/runs">Executions</a><a href="/admin/claims">Warranty</a>
       </nav>
       <div class="page-head"><div><h1>Workflows</h1><p>Automations running on the Always Green Turf backend. Open one to view its nodes, executions, and publish state.</p></div></div>
       <div id="list"></div>
@@ -74,7 +74,7 @@
       const lr = last[w.key];
       const published = pub[w.key] !== false;
       const runPill = lr ? `<span class="pill ${lr.status}">${lr.status}</span>` : `<span class="subtle">no runs</span>`;
-      return `<div class="wf-row" data-href="/dispatch/workflow?wf=${w.key}">
+      return `<div class="wf-row" data-href="/admin/workflow?wf=${w.key}">
         <div class="wf-ic"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${w.icon}"/></svg></div>
         <div class="wf-mid"><div class="wf-nm">${w.name}</div><div class="wf-tr">${w.trigger}</div></div>
         <div class="wf-rt">

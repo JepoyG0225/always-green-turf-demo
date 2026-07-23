@@ -7,7 +7,7 @@
   <title>Dispatch Logs | Always Green Turf — Internal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./dispatch.css" />
+  <link rel="stylesheet" href="./admin.css" />
 </head>
 <body>
   <div class="app">
@@ -24,29 +24,29 @@
       </nav>
       <div class="sb-section-label">Appointment Dispatch</div>
       <nav class="sb-nav">
-        <a href="/dispatch/" class="sb-link active">
+        <a href="/admin/" class="sb-link active">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h12"/></svg>
           Dispatch Logs
         </a>
-        <a href="/dispatch/reps" class="sb-link">
+        <a href="/admin/reps" class="sb-link">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M8 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
           Sales Reps
         </a>
       </nav>
       <div class="sb-section-label">Workflows</div>
       <nav class="sb-nav">
-        <a href="/dispatch/workflows" class="sb-link">
+        <a href="/admin/workflows" class="sb-link">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
           Workflows
         </a>
-        <a href="/dispatch/runs" class="sb-link">
+        <a href="/admin/runs" class="sb-link">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           Executions
         </a>
       </nav>
       <div class="sb-section-label">Warranty</div>
       <nav class="sb-nav">
-        <a href="/dispatch/claims" class="sb-link">
+        <a href="/admin/claims" class="sb-link">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           Warranty Claims
         </a>
@@ -73,17 +73,17 @@
       </div>
       <nav class="mobile-tabs">
         <a href="/admin/dashboard.html">Time Off</a>
-        <a href="/dispatch/" class="active">Dispatch</a>
-        <a href="/dispatch/reps">Reps</a>
-        <a href="/dispatch/workflows">Workflows</a>
-        <a href="/dispatch/runs">Executions</a>
-        <a href="/dispatch/claims">Warranty</a>
+        <a href="/admin/" class="active">Dispatch</a>
+        <a href="/admin/reps">Reps</a>
+        <a href="/admin/workflows">Workflows</a>
+        <a href="/admin/runs">Executions</a>
+        <a href="/admin/claims">Warranty</a>
       </nav>
 
       <div class="page-head">
         <div>
           <h1>Dispatch Logs</h1>
-          <p>Every lead the CRM sent to <span class="mono">/api/dispatch</span> and what the engine did with it — newest first.</p>
+          <p>Every lead the CRM sent to <span class="mono">/api/admin</span> and what the engine did with it — newest first.</p>
         </div>
         <div class="head-actions">
           <button class="btn secondary" id="refreshBtn" type="button">
@@ -118,7 +118,7 @@
       if (!confirm(msg)) return;
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
-      if (!token) { alert("Session expired — please sign in again."); window.location.replace("/dispatch/login"); return; }
+      if (!token) { alert("Session expired — please sign in again."); window.location.replace("/admin/login"); return; }
       try {
         const res = await fetch("/api/logs-delete", {
           method: "POST",
@@ -165,7 +165,7 @@
           <div class="empty">
             <div class="empty-icon">📭</div>
             <div style="font-weight:700; color:var(--text); margin-bottom:6px;">No dispatches yet</div>
-            <div>Point your GHL webhook at <span class="mono">/api/dispatch</span> to see runs here.</div>
+            <div>Point your GHL webhook at <span class="mono">/api/admin</span> to see runs here.</div>
           </div>`;
         return;
       }

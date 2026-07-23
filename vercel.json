@@ -2,7 +2,9 @@
   "cleanUrls": true,
   "redirects": [
     { "source": "/schedule", "destination": "/direct-booking", "permanent": false },
-    { "source": "/warranty-claim", "destination": "/warranty", "permanent": false }
+    { "source": "/warranty-claim", "destination": "/warranty", "permanent": false },
+    { "source": "/dispatch", "destination": "/admin", "permanent": false },
+    { "source": "/dispatch/:path*", "destination": "/admin/:path*", "permanent": false }
   ],
   "rewrites": [
     { "source": "/service/area/:slug", "destination": "/:slug" },
