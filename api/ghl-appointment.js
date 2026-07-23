@@ -88,7 +88,7 @@ module.exports = async function handler(req, res) {
   const b = raw.body && typeof raw.body === "object" ? raw.body : raw; // accept {body:{...}} or the body directly
   const dryRun = (req.query && req.query.dryRun === "1") || raw.dryRun === true || b.dryRun === true;
 
-  const run = newRun("ghl-appointment", { dryRun, contact: b.full_name, email: b.email });
+  const run = newRun("ghl-appointment", b); // log the full body so a failed run can be replayed
   const out = { dryRun, plan: {} };
   try {
     if (!dryRun && !(await isPublished("ghl-appointment"))) { run.info("Workflow unpublished — skipped", {}); await run.finish("skipped", "Workflow is unpublished"); res.status(200).json({ ok: true, skipped: "unpublished" }); return; }
