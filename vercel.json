@@ -8,6 +8,7 @@
   ],
   "rewrites": [
     { "source": "/service/area/:slug", "destination": "/:slug" },
-    { "source": "/jobber/oauth/callback", "destination": "/api/jobber-callback" }
+    { "source": "/jobber/oauth/callback", "destination": "/api/jobber-callback" },
+    { "source": "/quote-pdfs/:file", "destination": "/api/quote-pdf?file=:file" }
   ]
 }

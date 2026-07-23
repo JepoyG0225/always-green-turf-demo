@@ -6,11 +6,12 @@ const newRun = require("./_runlog");
 const jobber = require("./_jobber");
 const qbo = require("./_qbo");
 const { isPublished } = require("./_workflow-config");
+const { put } = require("@vercel/blob");
 
 const ARCSITE_TOKEN = process.env.ARCSITE_TOKEN || "";
-const SUPA = process.env.SUPABASE_URL || "https://otgpzpepmurbydcghygb.supabase.co";
-const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 const JVER = process.env.JOBBER_QUOTE_GRAPHQL_VERSION || "2025-04-16";
+// PDFs are hosted on Vercel Blob and served under our own domain via /quote-pdfs/.
+const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || "https://always-green-turf-demo.vercel.app").replace(/\/$/, "");
 const QBO_DISCOUNT_ITEM = process.env.QBO_DISCOUNT_ITEM || "20";
 const QBO_FEE_ITEM = process.env.QBO_FEE_ITEM || "22";
 
@@ -164,18 +165,21 @@ module.exports = async function handler(req, res) {
       return d.quoteCreate.quote;
     });
 
-    // 6) Download the ArcSite PDF and host it on Supabase Storage
+    // 6) Download the ArcSite PDF and host it on Vercel Blob (served under our domain)
     let publicPdf = null;
     if (opt.pdf_url) {
-      const fileName = opt.pdf_url.split("?")[0].split("/").pop();
-      await run.step("Host PDF on Supabase", { fileName }, async () => {
+      const fileName = (opt.pdf_url.split("?")[0].split("/").pop() || "quote.pdf").replace(/[^a-zA-Z0-9._-]/g, "");
+      await run.step("Host PDF on Vercel Blob", { fileName }, async () => {
         const pr = await fetch(opt.pdf_url); if (!pr.ok) throw new Error(`PDF download ${pr.status}`);
         const buf = Buffer.from(await pr.arrayBuffer());
-        const up = await fetch(`${SUPA}/storage/v1/object/quote-pdfs/${fileName}`, { method: "POST", headers: { Authorization: `Bearer ${SKEY}`, apikey: SKEY, "Content-Type": "application/pdf", "x-upsert": "true" }, body: buf });
-        if (!up.ok) throw new Error(`storage ${up.status}: ${(await up.text()).slice(0, 150)}`);
-        return { bytes: buf.length };
+        if (!process.env.BLOB_READ_WRITE_TOKEN) throw new Error("BLOB_READ_WRITE_TOKEN not set — create a Vercel Blob store");
+        const blob = await put(`quote-pdfs/${fileName}`, buf, {
+          access: "public", addRandomSuffix: false, allowOverwrite: true,
+          contentType: "application/pdf", token: process.env.BLOB_READ_WRITE_TOKEN,
+        });
+        return { bytes: buf.length, blobUrl: blob.url };
       });
-      publicPdf = `${SUPA}/storage/v1/object/public/quote-pdfs/${fileName}`;
+      publicPdf = `${PUBLIC_BASE}/quote-pdfs/${fileName}`;
       // 7) Attach the PDF link as a quote note
       await run.step("Attach PDF note to Quote", { quoteId: quote.id, publicPdf }, async () => {
         const d = await jobberGql(jat, `mutation($id: EncodedId!, $msg: String!){ quoteCreateNote(quoteId: $id, input:{ message: $msg }){ quote { id } } }`, { id: quote.id, msg: `Drawing Proposal PDF:\n${publicPdf}` });
