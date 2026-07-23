@@ -52,4 +52,13 @@ export const WORKFLOWS = [
     icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
     steps: [["Appointment booked","bolt"],["Jobber auth","lock"],["Search client","search","Jobber"],["Upsert client","user"],["Add tags","filter"],["Property","folder"],["Match salesperson","user"],["Request + assessment","doc","Jobber"],["ArcSite project","globe","ArcSite"]],
   },
+  {
+    key: "ghl-reassign",
+    name: "GHL Reassign → Jobber + ArcSite",
+    desc: "When a contact's assigned rep changes in GoHighLevel (and they have an appointment), reassign the Jobber assessment to the new user and re-owner the ArcSite project — archive the old one and create a new project under the correct owner.",
+    trigger: "GHL webhook · assignee changed",
+    endpoint: "/api/ghl-reassign",
+    icon: 'M16 3l4 4-4 4M20 7H8a4 4 0 00-4 4v2m4 8l-4-4 4-4M4 17h12a4 4 0 004-4v-2',
+    steps: [["Assignee changed","bolt"],["Get appointments","search","GHL"],["Jobber auth","lock"],["Search client","search","Jobber"],["Match new user","user"],["Reassign assessment","doc","Jobber"],["Archive project","folder","ArcSite"],["Create project","globe","ArcSite"]],
+  },
 ];
