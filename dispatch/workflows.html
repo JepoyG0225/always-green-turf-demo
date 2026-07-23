@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+  <title>Workflows | Always Green Turf — Internal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./dispatch.css" />
+  <style>
+    .wf-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
+    .wf-card { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:22px; display:flex; flex-direction:column; }
+    .wf-icon { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,var(--leaf),var(--moss)); color:#fff; display:grid; place-items:center; margin-bottom:14px; }
+    .wf-name { font-size:1.02rem; font-weight:800; color:var(--text); }
+    .wf-desc { font-size:.85rem; color:var(--muted); margin-top:6px; line-height:1.5; flex:1; }
+    .wf-meta { margin-top:14px; display:flex; flex-direction:column; gap:6px; font-size:.76rem; }
+    .wf-meta .row { display:flex; gap:8px; }
+    .wf-meta .k { color:var(--subtle); min-width:64px; }
+    .wf-meta .v { color:var(--text-2); font-family:ui-monospace,Menlo,monospace; word-break:break-all; }
+    .wf-foot { margin-top:16px; display:flex; align-items:center; gap:10px; }
+    .wf-last { font-size:.74rem; color:var(--muted); margin-left:auto; }
+    .copybtn { cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sb-brand"><img src="../logo.webp" alt="Always Green Turf" /></div>
+      <div class="sb-brand" style="padding:0 8px 22px;"><span class="tag">⚡ AGT Admin</span></div>
+      <div class="sb-section-label">Time Off</div>
+      <nav class="sb-nav">
+        <a href="/admin/dashboard.html" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Time Off Requests</a>
+      </nav>
+      <div class="sb-section-label">Appointment Dispatch</div>
+      <nav class="sb-nav">
+        <a href="/dispatch/" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h12"/></svg>Dispatch Logs</a>
+        <a href="/dispatch/reps" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M8 11a4 4 0 100-8 4 4 0 000 8z"/></svg>Sales Reps</a>
+      </nav>
+      <div class="sb-section-label">Workflows</div>
+      <nav class="sb-nav">
+        <a href="/dispatch/workflows" class="sb-link active"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Workflows</a>
+        <a href="/dispatch/runs" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Executions</a>
+      </nav>
+      <div class="sb-footer">
+        <div class="sb-user"><div class="sb-avatar" id="userAvatar">J</div><div class="sb-user-info"><div class="sb-user-name" id="userEmail">…</div><div class="subtle">Admin</div></div></div>
+        <button id="signOutBtn" class="sb-signout" type="button">Sign out</button>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="mobile-bar"><img src="../logo.webp" alt="Always Green Turf" /><span class="tag">⚡ AGT Admin</span></div>
+      <nav class="mobile-tabs">
+        <a href="/admin/dashboard.html">Time Off</a><a href="/dispatch/">Dispatch</a><a href="/dispatch/reps">Reps</a>
+        <a href="/dispatch/workflows" class="active">Workflows</a><a href="/dispatch/runs">Executions</a>
+      </nav>
+      <div class="page-head">
+        <div><h1>Workflows</h1><p>Automations running on the Always Green Turf serverless backend. Click <strong>View executions</strong> for the step-by-step run log.</p></div>
+      </div>
+      <div class="wf-grid" id="grid"></div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { supabase, requireSession, signOut, fmtPhx } from "./config.js";
+    const grid = document.getElementById("grid");
+    document.getElementById("signOutBtn").addEventListener("click", signOut);
+    const session = await requireSession(); if (!session) throw new Error("no session");
+    document.getElementById("userEmail").textContent = session.user.email;
+    document.getElementById("userAvatar").textContent = (session.user.email || "?").charAt(0).toUpperCase();
+    const origin = location.origin.replace("://www.", "://"); // webhook host
+
+    const WF = [
+      { key: "arcsite-quote", name: "ArcSite → Jobber Quote",
+        desc: "When an ArcSite proposal is sent, pull its line items, create the matching Jobber quote (markup, discounts &amp; processing fee), host the PDF and attach it, then create the QuickBooks customer, project and invoice.",
+        trigger: "ArcSite webhook · proposal.sent", endpoint: "/api/arcsite-quote",
+        icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+      { key: "jobber-payment", name: "Jobber Payment → QBO Invoice",
+        desc: "When a payment is recorded in Jobber, find the QuickBooks customer (and its projects) and apply the payment to the matching open invoice. Ambiguous matches are sent to Slack for review instead of auto-applying.",
+        trigger: "Jobber webhook · PAYMENT_CREATE", endpoint: "/api/jobber-payment",
+        icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M9 12h12l-3-3m0 6l3-3' },
+    ];
+
+    // last run per workflow
+    const { data: runs } = await supabase.from("workflow_runs").select("workflow,status,created_at").order("created_at",{ascending:false}).limit(200);
+    const last = {};
+    (runs||[]).forEach(r => { if (!last[r.workflow]) last[r.workflow] = r; });
+
+    grid.innerHTML = WF.map(w => {
+      const lr = last[w.key];
+      const pill = lr ? `<span class="pill ${lr.status}">${lr.status}</span>` : `<span class="subtle">no runs yet</span>`;
+      return `<div class="wf-card">
+        <div class="wf-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${w.icon}"/></svg></div>
+        <div class="wf-name">${w.name}</div>
+        <div class="wf-desc">${w.desc}</div>
+        <div class="wf-meta">
+          <div class="row"><span class="k">Trigger</span><span class="v">${w.trigger}</span></div>
+          <div class="row"><span class="k">Endpoint</span><span class="v copybtn" data-copy="${origin}${w.endpoint}" title="Click to copy">${origin}${w.endpoint} 📋</span></div>
+        </div>
+        <div class="wf-foot">
+          <a class="btn" href="/dispatch/runs?wf=${w.key}">View executions</a>
+          <span class="wf-last">${lr ? pill + " · " + fmtPhx(lr.created_at) : pill}</span>
+        </div>
+      </div>`;
+    }).join("");
+
+    grid.addEventListener("click", (e) => {
+      const el = e.target.closest("[data-copy]");
+      if (el) { navigator.clipboard.writeText(el.dataset.copy).then(()=>{ const t=el.textContent; el.textContent="✓ copied"; setTimeout(()=>el.textContent=t,1200); }); }
+    });
+  </script>
+</body>
+</html>

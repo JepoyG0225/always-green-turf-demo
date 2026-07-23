@@ -165,6 +165,11 @@ td.mono, .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-s
 .pill.warn { background:var(--warn-bg); color:var(--warn); }
 .pill.callback_request { background:var(--info-bg); color:var(--info); }
 .pill.warranty_claim { background:#f3e8ff; color:#7c3aed; }
+.pill.success { background:var(--ok-bg); color:var(--ok); }
+.pill.error { background:var(--danger-bg); color:var(--danger); }
+.pill.skipped { background:var(--panel-2); color:var(--muted); }
+.pill.running { background:var(--warn-bg); color:var(--warn); }
+.pill.dry_run, .pill.review { background:var(--info-bg); color:var(--info); }
 
 /* ─── Forms / buttons ─── */
 label { display:block; font-weight:700; margin:0 0 6px; font-size:.75rem; color:var(--text-2); letter-spacing:.02em; }

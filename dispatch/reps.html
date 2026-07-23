@@ -17,10 +17,17 @@
         <img src="../logo.webp" alt="Always Green Turf" />
       </div>
       <div class="sb-brand" style="padding:0 8px 22px;">
-        <span class="tag">⚡ DispatchAI</span>
+        <span class="tag">⚡ AGT Admin</span>
       </div>
 
-      <div class="sb-section-label">Main</div>
+      <div class="sb-section-label">Time Off</div>
+      <nav class="sb-nav">
+        <a href="/admin/dashboard.html" class="sb-link">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          Time Off Requests
+        </a>
+      </nav>
+      <div class="sb-section-label">Appointment Dispatch</div>
       <nav class="sb-nav">
         <a href="/dispatch/" class="sb-link">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h12"/></svg>
@@ -30,9 +37,16 @@
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M8 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
           Sales Reps
         </a>
-        <a href="/dispatch/runs" class="sb-link">
+      </nav>
+      <div class="sb-section-label">Workflows</div>
+      <nav class="sb-nav">
+        <a href="/dispatch/workflows" class="sb-link">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          Workflow Runs
+          Workflows
+        </a>
+        <a href="/dispatch/runs" class="sb-link">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Executions
         </a>
       </nav>
 
@@ -52,12 +66,14 @@
     <main class="main">
       <div class="mobile-bar">
         <img src="../logo.webp" alt="Always Green Turf" />
-        <span class="tag">⚡ DispatchAI</span>
+        <span class="tag">⚡ AGT Admin</span>
       </div>
       <nav class="mobile-tabs">
-        <a href="/dispatch/">Dispatch Logs</a>
-        <a href="/dispatch/reps" class="active">Sales Reps</a>
-        <a href="/dispatch/runs">Workflow Runs</a>
+        <a href="/admin/dashboard.html">Time Off</a>
+        <a href="/dispatch/">Dispatch</a>
+        <a href="/dispatch/reps" class="active">Reps</a>
+        <a href="/dispatch/workflows">Workflows</a>
+        <a href="/dispatch/runs">Executions</a>
       </nav>
 
       <div class="page-head">
