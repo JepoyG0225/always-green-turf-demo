@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+  <title>Documentation | Always Green Turf — Internal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./admin.css" />
+  <style>
+    .doc { max-width:900px; }
+    .doc h2 { font-size:1.15rem; font-weight:800; color:var(--text); margin:34px 0 12px; padding-top:10px; border-top:1px solid var(--border); }
+    .doc h2:first-of-type { border-top:0; padding-top:0; margin-top:8px; }
+    .doc h3 { font-size:.98rem; font-weight:800; color:var(--text); margin:22px 0 8px; }
+    .doc p, .doc li { color:var(--text-2); font-size:.9rem; line-height:1.7; }
+    .doc ul, .doc ol { margin:8px 0 8px 20px; }
+    .doc li { margin:5px 0; }
+    .doc code { font-family:ui-monospace,Menlo,monospace; font-size:.82rem; background:var(--panel-2); border:1px solid var(--border); border-radius:6px; padding:1px 6px; color:#1e4d2b; word-break:break-word; }
+    .doc a { color:var(--moss); font-weight:600; }
+    .toc { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:18px 22px; margin-bottom:8px; }
+    .toc h4 { font-size:.68rem; letter-spacing:1.2px; text-transform:uppercase; color:var(--subtle); font-weight:800; margin-bottom:10px; }
+    .toc ol { columns:2; column-gap:28px; margin-left:16px; }
+    @media (max-width:640px){ .toc ol { columns:1; } }
+    .toc a { font-size:.86rem; }
+    .callout { background:#f2fbf4; border:1px solid var(--ok-border,#bbf7d0); border-radius:12px; padding:12px 16px; margin:14px 0; font-size:.86rem; color:var(--text-2); }
+    .callout.warn { background:var(--warn-bg,#fef3c7); border-color:var(--warn-border,#fde68a); }
+    .callout b { color:var(--text); }
+    .doc table { width:100%; border-collapse:collapse; margin:12px 0; font-size:.84rem; }
+    .doc th, .doc td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+    .doc th { font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; color:var(--subtle); font-weight:800; }
+    .doc td code { font-size:.78rem; }
+    .steps-num { counter-reset:s; list-style:none; margin-left:0; }
+    .steps-num li { counter-increment:s; position:relative; padding-left:34px; margin:10px 0; }
+    .steps-num li::before { content:counter(s); position:absolute; left:0; top:0; width:24px; height:24px; border-radius:50%; background:var(--grad); color:#fff; font-size:.74rem; font-weight:800; display:grid; place-items:center; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sb-brand" style="justify-content:center; padding-bottom:22px;"><img src="../logo.webp" alt="Always Green Turf" style="height:40px;" /></div>
+      <div class="sb-section-label">Time Off</div>
+      <nav class="sb-nav">
+        <a href="/admin/dashboard.html" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Time Off Requests</a>
+      </nav>
+      <div class="sb-section-label">Appointment Dispatch</div>
+      <nav class="sb-nav">
+        <a href="/admin/" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h12"/></svg>Dispatch Logs</a>
+        <a href="/admin/reps" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M8 11a4 4 0 100-8 4 4 0 000 8z"/></svg>Sales Reps</a>
+      </nav>
+      <div class="sb-section-label">Workflows</div>
+      <nav class="sb-nav">
+        <a href="/admin/workflows" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Workflows</a>
+        <a href="/admin/runs" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Executions</a>
+      </nav>
+      <div class="sb-section-label">Warranty</div>
+      <nav class="sb-nav">
+        <a href="/admin/claims" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Warranty Claims</a>
+      </nav>
+      <div class="sb-section-label">Field Ops</div>
+      <nav class="sb-nav">
+        <a href="/admin/job-completions" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>Job Completions</a>
+      </nav>
+      <div class="sb-section-label">Help</div>
+      <nav class="sb-nav">
+        <a href="/admin/docs" class="sb-link active"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>Documentation</a>
+      </nav>
+      <div class="sb-footer">
+        <div class="sb-user"><div class="sb-avatar" id="userAvatar">J</div><div class="sb-user-info"><div class="sb-user-name" id="userEmail">…</div><div class="subtle">Admin</div></div></div>
+        <button id="signOutBtn" class="sb-signout" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="mobile-bar"><img src="../logo.webp" alt="Always Green Turf" /><span class="tag">⚡ AGT Admin</span></div>
+      <nav class="mobile-tabs">
+        <a href="/admin/dashboard.html">Time Off</a><a href="/admin/">Dispatch</a>
+        <a href="/admin/reps">Reps</a><a href="/admin/workflows">Workflows</a>
+        <a href="/admin/runs">Executions</a><a href="/admin/claims">Warranty</a><a href="/admin/job-completions">Jobs</a><a href="/admin/docs" class="active">Docs</a>
+      </nav>
+      <div class="page-head">
+        <div><h1>Documentation</h1><p>How the AGT admin panel and its automations work — for the office team.</p></div>
+      </div>
+
+      <div class="doc">
+        <div class="toc">
+          <h4>Contents</h4>
+          <ol>
+            <li><a href="#signin">Signing in &amp; users</a></li>
+            <li><a href="#layout">Panel layout</a></li>
+            <li><a href="#sections">What each screen does</a></li>
+            <li><a href="#workflows">Automations (workflows)</a></li>
+            <li><a href="#executions">Reading execution logs</a></li>
+            <li><a href="#pause">Pausing a workflow</a></li>
+            <li><a href="#webhooks">Updating webhooks</a></li>
+            <li><a href="#forms">Public forms</a></li>
+            <li><a href="#trouble">Troubleshooting</a></li>
+            <li><a href="#reference">Endpoint reference</a></li>
+          </ol>
+        </div>
+
+        <h2 id="signin">1. Signing in &amp; users</h2>
+        <p>The admin lives at <code>www.alwaysgreenturfaz.com/admin</code> (old <code>/dispatch</code> links redirect here). Sign in at <code>/admin/login</code> with your work email and password.</p>
+        <h3>Adding a user</h3>
+        <p>Users are managed in <b>Supabase</b> (the database behind the login), not inside this panel:</p>
+        <ol class="steps-num">
+          <li>Open the Supabase project → <b>Authentication → Users</b>.</li>
+          <li>Click <b>Add user → Create new user</b>.</li>
+          <li>Enter their email and a password, and tick <b>Auto Confirm User</b>.</li>
+          <li>They can now sign in at <code>/admin/login</code>. Any signed-in user has full admin access.</li>
+        </ol>
+
+        <h2 id="layout">2. Panel layout</h2>
+        <p>The left sidebar is grouped into sections. On mobile the same links appear as tabs across the top. Every list is <b>newest-first</b>, and most rows open a detail popup when clicked.</p>
+
+        <h2 id="sections">3. What each screen does</h2>
+        <table>
+          <thead><tr><th>Screen</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td><b>Time Off Requests</b></td><td>Team time-off submissions. Click a row to approve/reject with an optional note.</td></tr>
+            <tr><td><b>Dispatch Logs</b></td><td>Every lead the CRM sent to the appointment-dispatch engine and which rep it was routed to.</td></tr>
+            <tr><td><b>Sales Reps</b></td><td>The rep roster used for routing. Add/edit a rep (name, GHL user id, home address, active toggle).</td></tr>
+            <tr><td><b>Workflows</b></td><td>The list of automations. Click one to see its steps, executions, and webhook URL.</td></tr>
+            <tr><td><b>Executions</b></td><td>Every workflow run across all automations, with per-step input/output.</td></tr>
+            <tr><td><b>Warranty Claims</b></td><td>Claims from the warranty form, the AI verdict, photos, and the auto-response sent.</td></tr>
+            <tr><td><b>Job Completions</b></td><td>Crew job-completed submissions with install details and photo previews.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="workflows">4. Automations (workflows)</h2>
+        <p>Each automation listens for an event in one system and does something in another. They run automatically — you don't start them by hand.</p>
+        <table>
+          <thead><tr><th>Workflow</th><th>Fires when…</th><th>Does</th></tr></thead>
+          <tbody>
+            <tr><td>ArcSite → Jobber Quote</td><td>An ArcSite proposal is <i>sent</i></td><td>Creates the matching Jobber quote (markup/discounts/fee), hosts the PDF, and creates the QuickBooks customer/project/invoice.</td></tr>
+            <tr><td>ArcSite Signed → Jobber Note</td><td>An ArcSite proposal is <i>approved/signed</i></td><td>Attaches the signed-proposal PDF as a note on the customer's Jobber quote.</td></tr>
+            <tr><td>Jobber Payment → QBO Invoice</td><td>A payment is recorded in Jobber</td><td>Applies the payment to the matching open QuickBooks invoice (ambiguous ones go to Slack).</td></tr>
+            <tr><td>GHL → Master Sheet</td><td>A contact comes in from GoHighLevel</td><td>Appends the contact to the Master Sheet in Google Sheets.</td></tr>
+            <tr><td>GHL Appointment → Jobber</td><td>An appointment is booked in GHL</td><td>Upserts the Jobber client + property, assigns the rep, creates a request with a scheduled assessment, and creates the ArcSite project.</td></tr>
+            <tr><td>GHL Reassign → Jobber + ArcSite</td><td>A contact's assigned rep changes in GHL</td><td>Reassigns the Jobber assessment and re-owners the ArcSite project.</td></tr>
+            <tr><td>Job Completed → Slack</td><td>A crew submits the Job Completed form</td><td>Posts the install summary + photos to the <code>#job-complete</code> Slack channel.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="executions">5. Reading execution logs</h2>
+        <p>Two ways to see what an automation did:</p>
+        <ul>
+          <li><b>Per workflow:</b> <b>Workflows</b> → click a workflow → the <b>Executions</b> tab shows that workflow's runs.</li>
+          <li><b>All at once:</b> the <b>Executions</b> screen lists every run.</li>
+        </ul>
+        <p>Click a run to expand it. Each <b>step</b> shows its input and output, timing, and a status dot:</p>
+        <ul>
+          <li><b>success</b> — the step completed. The run's overall status is <code>success</code>.</li>
+          <li><b>error</b> — a step failed; the error message is shown and the run status is <code>error</code>.</li>
+          <li><b>skipped</b> — the run intentionally did nothing (e.g. an ArcSite event that wasn't "approved", or the workflow is paused).</li>
+          <li><b>dry_run</b> — a test run that read data and reported a plan <i>without writing anything</i>.</li>
+        </ul>
+        <div class="callout"><b>Tip:</b> if a step shows <code>error</code>, the message usually says exactly what's wrong (e.g. "No Jobber client found", a QuickBooks auth error, a bad field). That's the first place to look.</div>
+
+        <h2 id="pause">6. Pausing a workflow</h2>
+        <p>Open a workflow (Workflows → click it) and use the <b>Published / Unpublished</b> toggle at the top.</p>
+        <ul>
+          <li><b>Published</b> (default) — the workflow runs normally.</li>
+          <li><b>Unpublished</b> — incoming events are still received but <b>skipped</b> (logged as <code>skipped</code>, nothing is written). Use this to pause an automation without touching the webhook.</li>
+        </ul>
+
+        <h2 id="webhooks">7. Updating webhooks</h2>
+        <p>A "webhook" is just a URL that an outside system (GoHighLevel, ArcSite, Jobber) calls when something happens. Each workflow has its own URL. <b>You change where an automation listens by updating the URL in the source system</b> — not inside this panel.</p>
+        <h3>Find a workflow's URL</h3>
+        <p>Open the workflow (Workflows → click it) → the <b>Webhook</b> tab shows the exact <code>POST</code> URL and a <b>Copy</b> button. That's the value to paste into the source system.</p>
+
+        <h3>GoHighLevel (GHL)</h3>
+        <ol class="steps-num">
+          <li>GHL → <b>Automation → Workflows</b> → open the workflow that fires the event (e.g. "Send Appointment").</li>
+          <li>Open its <b>Webhook / Custom Webhook</b> action.</li>
+          <li>Set the URL to the workflow's endpoint (from the Webhook tab), method <b>POST</b>, JSON body.</li>
+          <li><b>Save/Publish</b> the GHL workflow.</li>
+        </ol>
+
+        <h3>ArcSite</h3>
+        <ol class="steps-num">
+          <li>In ArcSite's webhook settings, find the subscription for the event (proposal <b>sent</b> vs proposal <b>approved/signed</b> are separate).</li>
+          <li>Set its URL to the matching workflow endpoint.</li>
+          <li>Save. ArcSite usually shows recent delivery attempts — check for a <code>200</code> response.</li>
+        </ol>
+
+        <h3>Jobber</h3>
+        <p>Jobber payment events are configured on the Jobber app/webhook side (topic <code>PAYMENT_CREATE</code> → the payment endpoint). This rarely changes.</p>
+
+        <div class="callout warn"><b>Important:</b> when you point a source at one of these URLs, <b>turn off the old n8n version</b> of that workflow, or both will run and you'll get duplicates (double invoices, double notes, etc.).</div>
+
+        <h2 id="forms">8. Public forms</h2>
+        <p>Two customer/crew-facing forms feed the panel:</p>
+        <ul>
+          <li><b>Warranty claim</b> — <code>/warranty</code>. Submissions appear under <b>Warranty Claims</b>.</li>
+          <li><b>Job Completed</b> — <code>/job-complete</code>. Give this link to PMs/crews; submissions post to Slack and appear under <b>Job Completions</b>.</li>
+        </ul>
+
+        <h2 id="trouble">9. Troubleshooting</h2>
+        <ul>
+          <li><b>Nothing showed up after an event?</b> Open the workflow's <b>Executions</b> tab. No run at all → the source didn't reach us (check the webhook URL/event in that system). A <code>skipped</code> run → a condition wasn't met (e.g. not approved, or the workflow is paused). An <code>error</code> run → read the failing step's message.</li>
+          <li><b>A workflow is misbehaving</b> — pause it with the Published toggle while you investigate.</li>
+          <li><b>QuickBooks / Jobber auth errors</b> — the connection may need re-authorizing; contact your admin.</li>
+        </ul>
+
+        <h2 id="reference">10. Endpoint reference</h2>
+        <p>Base: <code>https://www.alwaysgreenturfaz.com</code> (also reachable at the vercel.app address).</p>
+        <table>
+          <thead><tr><th>Workflow / form</th><th>URL</th></tr></thead>
+          <tbody>
+            <tr><td>ArcSite → Jobber Quote</td><td><code>/api/arcsite-quote</code></td></tr>
+            <tr><td>ArcSite Signed → Jobber Note</td><td><code>/api/arcsite-signed</code></td></tr>
+            <tr><td>Jobber Payment → QBO</td><td><code>/api/jobber-payment</code></td></tr>
+            <tr><td>GHL → Master Sheet</td><td><code>/api/ghl-master-sheet</code></td></tr>
+            <tr><td>GHL Appointment → Jobber</td><td><code>/api/ghl-appointment</code></td></tr>
+            <tr><td>GHL Reassign → Jobber + ArcSite</td><td><code>/api/ghl-reassign</code></td></tr>
+            <tr><td>Job Completed → Slack</td><td><code>/api/job-complete</code></td></tr>
+            <tr><td>Warranty form</td><td><code>/warranty</code></td></tr>
+            <tr><td>Job Completed form</td><td><code>/job-complete</code></td></tr>
+          </tbody>
+        </table>
+        <div class="callout">Add <code>?dryRun=1</code> to a workflow URL (where supported) to test it — it reads data and reports a plan without writing anything.</div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { requireSession, signOut } from "./config.js";
+    document.getElementById("signOutBtn").addEventListener("click", signOut);
+    const s = await requireSession(); if (!s) throw new Error("no session");
+    document.getElementById("userEmail").textContent = s.user.email;
+    document.getElementById("userAvatar").textContent = (s.user.email || "?").charAt(0).toUpperCase();
+  </script>
+</body>
+</html>
