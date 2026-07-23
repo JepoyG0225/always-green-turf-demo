@@ -158,17 +158,21 @@ input:focus, select:focus, textarea:focus { outline:none; border-color:var(--lea
 input:disabled { background:var(--panel-2); color:var(--muted); }
 input[type="checkbox"] { width:auto; accent-color:var(--leaf); }
 
-.btn, button.btn, button:not(.link-btn):not(.sb-signout):not(.icon-btn) {
+/* shared layout for action buttons */
+.btn, button:not(.link-btn):not(.sb-signout):not(.icon-btn) {
   display:inline-flex; align-items:center; gap:7px; padding:10px 17px; border-radius:50px; border:0;
-  background:var(--grad); color:#fff; font-weight:700; font-size:.82rem; cursor:pointer;
-  box-shadow:0 8px 18px rgba(30,138,30,.24); transition:transform .15s, box-shadow .15s, filter .15s;
+  font-weight:700; font-size:.82rem; cursor:pointer; transition:transform .15s, box-shadow .15s, filter .15s;
 }
-.btn:hover, button:not(.link-btn):not(.sb-signout):not(.icon-btn):not(.danger):not(.secondary):hover { transform:translateY(-1px); box-shadow:0 12px 26px rgba(30,138,30,.32); filter:brightness(1.04); }
+/* default = primary green (skips secondary/danger so those keep their own look) */
+.btn:not(.secondary):not(.danger), button:not(.link-btn):not(.sb-signout):not(.icon-btn):not(.secondary):not(.danger) {
+  background:var(--grad); color:#fff; box-shadow:0 8px 18px rgba(30,138,30,.24);
+}
+.btn:not(.secondary):not(.danger):hover, button:not(.link-btn):not(.sb-signout):not(.icon-btn):not(.secondary):not(.danger):hover { transform:translateY(-1px); box-shadow:0 12px 26px rgba(30,138,30,.32); filter:brightness(1.04); }
 button:disabled { opacity:.55; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
-button.danger, .btn.danger { background:transparent; color:var(--danger); border:1.5px solid var(--danger-border); box-shadow:none; }
-button.danger:hover { background:var(--danger-bg); border-color:var(--danger); }
-button.secondary, .btn.secondary { background:var(--panel); color:var(--text-2); border:1px solid var(--border); box-shadow:var(--shadow-sm); }
-button.secondary:hover { background:var(--mint); color:var(--moss); border-color:var(--leaf); }
+.btn.danger, button.danger { background:transparent; color:var(--danger); border:1.5px solid var(--danger-border); box-shadow:none; }
+.btn.danger:hover, button.danger:hover { background:var(--danger-bg); border-color:var(--danger); }
+.btn.secondary, button.secondary { background:var(--panel); color:var(--text-2); border:1px solid var(--border); box-shadow:var(--shadow-sm); }
+.btn.secondary:hover, button.secondary:hover { background:var(--mint); color:var(--moss); border-color:var(--leaf); }
 
 /* Rep form grid */
 .rep-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px 18px; align-items:end; }

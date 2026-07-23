@@ -8,117 +8,67 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./dispatch.css" />
+  <style>
+    .row-avatar { width:34px; height:34px; border-radius:50%; background:var(--grad); color:#fff; display:grid; place-items:center; font-weight:800; font-size:.82rem; flex:none; }
+    tbody tr.clickable { cursor:pointer; }
+  </style>
 </head>
 <body>
   <div class="app">
-    <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="sb-brand">
-        <img src="../logo.webp" alt="Always Green Turf" />
-      </div>
-      <div class="sb-brand" style="padding:0 8px 22px;">
-        <span class="tag">⚡ AGT Admin</span>
-      </div>
-
+      <div class="sb-brand"><img src="../logo.webp" alt="Always Green Turf" /></div>
+      <div class="sb-brand" style="padding:0 8px 22px;"><span class="tag">⚡ AGT Admin</span></div>
       <div class="sb-section-label">Time Off</div>
       <nav class="sb-nav">
-        <a href="/admin/dashboard.html" class="sb-link">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          Time Off Requests
-        </a>
+        <a href="/admin/dashboard.html" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Time Off Requests</a>
       </nav>
       <div class="sb-section-label">Appointment Dispatch</div>
       <nav class="sb-nav">
-        <a href="/dispatch/" class="sb-link">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h12"/></svg>
-          Dispatch Logs
-        </a>
-        <a href="/dispatch/reps" class="sb-link active">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M8 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
-          Sales Reps
-        </a>
+        <a href="/dispatch/" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h12"/></svg>Dispatch Logs</a>
+        <a href="/dispatch/reps" class="sb-link active"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M8 11a4 4 0 100-8 4 4 0 000 8z"/></svg>Sales Reps</a>
       </nav>
       <div class="sb-section-label">Workflows</div>
       <nav class="sb-nav">
-        <a href="/dispatch/workflows" class="sb-link">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          Workflows
-        </a>
-        <a href="/dispatch/runs" class="sb-link">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          Executions
-        </a>
+        <a href="/dispatch/workflows" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Workflows</a>
+        <a href="/dispatch/runs" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Executions</a>
       </nav>
-
       <div class="sb-footer">
-        <div class="sb-user">
-          <div class="sb-avatar" id="userAvatar">J</div>
-          <div class="sb-user-info">
-            <div class="sb-user-name" id="userEmail">…</div>
-            <div class="subtle">Admin</div>
-          </div>
-        </div>
+        <div class="sb-user"><div class="sb-avatar" id="userAvatar">J</div><div class="sb-user-info"><div class="sb-user-name" id="userEmail">…</div><div class="subtle">Admin</div></div></div>
         <button id="signOutBtn" class="sb-signout" type="button">Sign out</button>
       </div>
     </aside>
 
-    <!-- Main -->
     <main class="main">
-      <div class="mobile-bar">
-        <img src="../logo.webp" alt="Always Green Turf" />
-        <span class="tag">⚡ AGT Admin</span>
-      </div>
+      <div class="mobile-bar"><img src="../logo.webp" alt="Always Green Turf" /><span class="tag">⚡ AGT Admin</span></div>
       <nav class="mobile-tabs">
-        <a href="/admin/dashboard.html">Time Off</a>
-        <a href="/dispatch/">Dispatch</a>
-        <a href="/dispatch/reps" class="active">Reps</a>
-        <a href="/dispatch/workflows">Workflows</a>
-        <a href="/dispatch/runs">Executions</a>
+        <a href="/admin/dashboard.html">Time Off</a><a href="/dispatch/">Dispatch</a>
+        <a href="/dispatch/reps" class="active">Reps</a><a href="/dispatch/workflows">Workflows</a><a href="/dispatch/runs">Executions</a>
       </nav>
-
       <div class="page-head">
         <div>
           <h1>Sales Reps</h1>
-          <p><span class="mono">assigned_id</span> is the GHL user id used for booking; <span class="mono">address</span> is the rep's home base for drive-time scoring. Add a new rep by searching GHL — no ID copying needed.</p>
+          <p><span class="mono">assigned_id</span> is the GHL user id used for booking; <span class="mono">address</span> is the rep's home base for drive-time scoring.</p>
         </div>
         <div class="head-actions">
-          <button class="btn" id="openAddBtn" type="button">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-            Add rep
-          </button>
+          <span class="subtle" id="teamCount" style="margin-right:4px;"></span>
+          <button class="btn" id="openAddBtn" type="button"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Add rep</button>
         </div>
       </div>
-
       <div id="configWarn" class="config-warn" style="display:none;"></div>
-
-      <div class="page-head" style="margin-bottom:14px;">
-        <div>
-          <h2 style="font-size:1.05rem; font-weight:800; color:var(--text);">Team</h2>
-          <p style="font-size:.82rem; color:var(--muted); margin-top:2px;" id="teamCount">Loading…</p>
-        </div>
-      </div>
-
       <div id="list"></div>
     </main>
   </div>
 
-  <!-- Add-rep modal -->
-  <div id="addModal" class="modal-overlay hidden" aria-modal="true" role="dialog">
+  <!-- Add / Edit rep modal -->
+  <div id="repModal" class="modal-overlay hidden" aria-modal="true" role="dialog">
     <div class="modal-card">
-      <button class="modal-close" type="button" data-close aria-label="Close">
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
+      <button class="modal-close" type="button" data-close aria-label="Close"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="modal-head">
-        <div class="modal-icon">
-          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M8 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
-        </div>
-        <div>
-          <h2 style="font-size:1.15rem; font-weight:800; color:var(--text);">Add a rep</h2>
-          <p style="font-size:.82rem; color:var(--muted); margin-top:2px;">Search GHL — we'll auto-fill the user id.</p>
-        </div>
+        <div class="modal-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M8 11a4 4 0 100-8 4 4 0 000 8z"/></svg></div>
+        <div><h2 id="modalTitle" style="font-size:1.15rem; font-weight:800; color:var(--text);">Add a rep</h2><p id="modalSub" style="font-size:.82rem; color:var(--muted); margin-top:2px;">Search GHL — we'll auto-fill the user id.</p></div>
       </div>
-      <form id="addForm" class="rep-grid modal-body">
-        <div class="wide ghl-wrap">
+      <form id="repForm" class="rep-grid modal-body">
+        <div class="wide ghl-wrap" id="ghlRow">
           <label>Find sales rep in GHL</label>
           <input id="ghlSearch" placeholder="Search GHL users by name or email…" autocomplete="off" />
           <div id="ghlResults" class="ghl-results"></div>
@@ -127,157 +77,128 @@
         <div><label>Name</label><input name="name" required /></div>
         <div><label>assigned_id (GHL user id)</label><input name="assigned_id" class="mono" required /></div>
         <div class="wide"><label>Home address</label><input name="address" required placeholder="123 Main St, Chandler, AZ 85224" /></div>
-        <div class="checkbox"><input type="checkbox" name="active" checked id="addActive" /><label for="addActive" style="margin:0;">Active</label></div>
+        <div class="checkbox"><input type="checkbox" name="active" checked id="repActive" /><label for="repActive" style="margin:0;">Active</label></div>
         <div class="row">
+          <button type="button" class="danger" id="repDelBtn" style="margin-right:auto; display:none;">Delete rep</button>
           <button type="button" class="secondary" data-close>Cancel</button>
-          <button type="submit">Add rep</button>
+          <button type="submit" id="repSubmit">Add rep</button>
         </div>
-        <div class="wide"><div class="error" id="addErr"></div></div>
+        <div class="wide"><div class="error" id="repErr"></div></div>
       </form>
     </div>
   </div>
 
   <script type="module">
     import { supabase, requireSession, signOut, SUPABASE_URL } from "./config.js";
-
     const list = document.getElementById("list");
     const byId = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
     byId("signOutBtn").addEventListener("click", signOut);
 
-    // ── Modal open/close ──
-    const addModal = byId("addModal");
-    function openAddModal() {
-      addModal.classList.remove("hidden");
-      document.body.classList.add("modal-open");
-      setTimeout(() => ghlSearch.focus(), 60);
-    }
-    function closeAddModal() {
-      addModal.classList.add("hidden");
-      document.body.classList.remove("modal-open");
-      byId("addErr").classList.remove("show");
-    }
-    byId("openAddBtn").addEventListener("click", openAddModal);
-    addModal.addEventListener("click", (e) => {
-      if (e.target === addModal || e.target.closest("[data-close]")) closeAddModal();
-    });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !addModal.classList.contains("hidden")) closeAddModal(); });
-    const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-
-    if (SUPABASE_URL.includes("YOUR-PROJECT")) {
-      const w = byId("configWarn"); w.style.display = "block";
-      w.textContent = "⚠ Supabase isn't configured yet — set it in dispatch/config.js.";
-    }
-
-    const session = await requireSession();
-    if (!session) throw new Error("no session");
+    if (SUPABASE_URL.includes("YOUR-PROJECT")) { const w = byId("configWarn"); w.style.display = "block"; w.textContent = "⚠ Supabase isn't configured yet — set it in dispatch/config.js."; }
+    const session = await requireSession(); if (!session) throw new Error("no session");
     byId("userEmail").textContent = session.user.email;
     byId("userAvatar").textContent = (session.user.email || "?").charAt(0).toUpperCase();
 
-    // ── GHL user search ──
+    let REPS = [], editId = null;
+    const modal = byId("repModal"), form = byId("repForm"), ghlRow = byId("ghlRow");
     const ghlSearch = byId("ghlSearch"), ghlResults = byId("ghlResults"), ghlMsg = byId("ghlMsg");
+
+    function openModal(rep) {
+      editId = rep ? rep.assigned_id : null;
+      byId("repErr").classList.remove("show");
+      form.name.value = rep ? rep.name : "";
+      form.assigned_id.value = rep ? rep.assigned_id : "";
+      form.assigned_id.disabled = !!rep;
+      form.address.value = rep ? (rep.address || "") : "";
+      form.active.checked = rep ? rep.active !== false : true;
+      byId("modalTitle").textContent = rep ? "Edit rep" : "Add a rep";
+      byId("modalSub").textContent = rep ? esc(rep.name) : "Search GHL — we'll auto-fill the user id.";
+      ghlRow.style.display = rep ? "none" : "";
+      byId("repDelBtn").style.display = rep ? "" : "none";
+      byId("repSubmit").textContent = rep ? "Save changes" : "Add rep";
+      ghlSearch.value = ""; ghlMsg.textContent = "";
+      modal.classList.remove("hidden"); document.body.classList.add("modal-open");
+      if (!rep) setTimeout(() => ghlSearch.focus(), 60);
+    }
+    function closeModal() { modal.classList.add("hidden"); document.body.classList.remove("modal-open"); }
+    byId("openAddBtn").addEventListener("click", () => openModal(null));
+    modal.addEventListener("click", (e) => { if (e.target === modal || e.target.closest("[data-close]")) closeModal(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.classList.contains("hidden")) closeModal(); });
+
+    // ── GHL user search (add mode) ──
     let ghlUsers = null, ghlLoading = false;
     async function loadGhlUsers() {
       if (ghlUsers || ghlLoading) return;
       ghlLoading = true; ghlMsg.className = "ghl-msg"; ghlMsg.textContent = "Loading GHL users…";
       try {
-        const res = await fetch("/api/ghl-users");
-        const data = await res.json();
+        const res = await fetch("/api/ghl-users"); const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to load GHL users.");
-        ghlUsers = data.users || [];
-        ghlMsg.textContent = ghlUsers.length + " GHL users available — start typing to filter.";
+        ghlUsers = data.users || []; ghlMsg.textContent = ghlUsers.length + " GHL users — start typing to filter.";
       } catch (e) { ghlUsers = []; ghlMsg.className = "ghl-msg warn"; ghlMsg.textContent = "⚠ " + e.message; }
       finally { ghlLoading = false; }
     }
     function renderGhl(q) {
       if (!ghlUsers) return;
       const term = q.trim().toLowerCase();
-      const matches = ghlUsers.filter((u) =>
-        !term || u.name.toLowerCase().includes(term) || (u.email || "").toLowerCase().includes(term)
-      ).slice(0, 40);
+      const matches = ghlUsers.filter((u) => !term || u.name.toLowerCase().includes(term) || (u.email || "").toLowerCase().includes(term)).slice(0, 40);
       if (!matches.length) { ghlResults.classList.remove("show"); ghlResults.innerHTML = ""; return; }
-      ghlResults.innerHTML = matches.map((u) => `
-        <div class="ghl-item" data-id="${esc(u.id)}" data-name="${esc(u.name)}">
-          <div class="ghl-name">${esc(u.name)}</div>
-          ${u.email ? `<div class="ghl-email">${esc(u.email)}</div>` : ""}
-          <div class="ghl-id">${esc(u.id)}</div>
-        </div>`).join("");
+      ghlResults.innerHTML = matches.map((u) => `<div class="ghl-item" data-id="${esc(u.id)}" data-name="${esc(u.name)}"><div class="ghl-name">${esc(u.name)}</div>${u.email ? `<div class="ghl-email">${esc(u.email)}</div>` : ""}<div class="ghl-id">${esc(u.id)}</div></div>`).join("");
       ghlResults.classList.add("show");
     }
     ghlSearch.addEventListener("focus", async () => { await loadGhlUsers(); renderGhl(ghlSearch.value); });
     ghlSearch.addEventListener("input", () => renderGhl(ghlSearch.value));
     ghlResults.addEventListener("click", (e) => {
       const item = e.target.closest(".ghl-item"); if (!item) return;
-      const f = byId("addForm");
-      f.name.value = item.dataset.name;
-      f.assigned_id.value = item.dataset.id;
-      ghlSearch.value = item.dataset.name;
-      ghlResults.classList.remove("show");
+      form.name.value = item.dataset.name; form.assigned_id.value = item.dataset.id;
+      ghlSearch.value = item.dataset.name; ghlResults.classList.remove("show");
       ghlMsg.className = "ghl-msg ok"; ghlMsg.textContent = "✓ " + item.dataset.name + " — user id copied to assigned_id.";
     });
     document.addEventListener("click", (e) => { if (!e.target.closest(".ghl-wrap")) ghlResults.classList.remove("show"); });
 
-    // ── Rep CRUD ──
+    // ── List ──
     async function load() {
       list.innerHTML = `<div class="empty"><div class="spinner"></div>Loading team…</div>`;
-      const { data, error } = await supabase.from("sales_rep_data")
-        .select("assigned_id, name, address, active, lat, lng").order("name");
+      const { data, error } = await supabase.from("sales_rep_data").select("assigned_id, name, address, active, lat, lng").order("name");
       if (error) { list.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>Could not load reps: ${error.message}</div>`; byId("teamCount").textContent = ""; return; }
-      const active = data.filter((r) => r.active !== false).length;
-      byId("teamCount").textContent = `${data.length} rep${data.length === 1 ? "" : "s"} · ${active} active`;
-      if (!data.length) { list.innerHTML = `<div class="empty"><div class="empty-icon">👥</div><div style="font-weight:700; color:var(--text); margin-bottom:6px;">No reps yet</div><div>Use the form above to add your first rep.</div></div>`; return; }
-      list.innerHTML = data.map((r) => {
-        const initial = (r.name || "?").charAt(0).toUpperCase();
-        const geo = r.lat != null && r.lng != null;
-        return `
-        <div class="card rep-card">
-          <div class="rep-summary">
-            <div class="rep-avatar">${esc(initial)}</div>
-            <div class="rep-name-block">
-              <div class="rep-name">${esc(r.name)}</div>
-              <div class="rep-meta">${esc(r.assigned_id)}</div>
-            </div>
-            <div class="rep-badges">
-              ${r.active !== false ? `<span class="pill booked">Active</span>` : `<span class="pill warn">Inactive</span>`}
-              ${geo ? `<span class="pill memory_locked">Geocoded</span>` : `<span class="pill" style="background:var(--info-bg);color:var(--info);">Pending geocode</span>`}
-            </div>
-          </div>
-          <form class="rep-grid" data-id="${esc(r.assigned_id)}">
-            <div><label>Name</label><input name="name" value="${esc(r.name)}" required /></div>
-            <div><label>assigned_id</label><input value="${esc(r.assigned_id)}" class="mono" disabled /></div>
-            <div class="wide"><label>Home address</label><input name="address" value="${esc(r.address)}" required /></div>
-            <div class="checkbox"><input type="checkbox" name="active" ${r.active !== false ? "checked" : ""} id="active-${esc(r.assigned_id)}" /><label for="active-${esc(r.assigned_id)}" style="margin:0;">Active</label></div>
-            <div class="row">
-              <button type="submit">Save changes</button>
-              <button type="button" class="danger" data-del="${esc(r.assigned_id)}">Delete</button>
-            </div>
-          </form>
-        </div>`;
-      }).join("");
+      REPS = data || [];
+      const active = REPS.filter((r) => r.active !== false).length;
+      byId("teamCount").textContent = `${REPS.length} rep${REPS.length === 1 ? "" : "s"} · ${active} active`;
+      if (!REPS.length) { list.innerHTML = `<div class="empty"><div class="empty-icon">👥</div><div style="font-weight:700;color:var(--text);margin-bottom:6px;">No reps yet</div><div>Add your first rep to start routing.</div></div>`; return; }
+      list.innerHTML = `<div class="table-wrap"><table>
+        <thead><tr><th>Rep</th><th>Home address</th><th>Status</th><th></th></tr></thead>
+        <tbody>${REPS.map(rowHtml).join("")}</tbody></table></div>`;
+      list.querySelectorAll("tr.clickable").forEach((tr) => tr.addEventListener("click", () => openModal(REPS.find((r) => r.assigned_id === tr.dataset.id))));
+    }
+    function rowHtml(r) {
+      const initial = (r.name || "?").charAt(0).toUpperCase();
+      const geo = r.lat != null && r.lng != null;
+      return `<tr class="clickable" data-id="${esc(r.assigned_id)}">
+        <td><div class="flex"><div class="row-avatar">${esc(initial)}</div><div><div style="font-weight:700;">${esc(r.name)}</div><div class="subtle mono">${esc(r.assigned_id)}</div></div></div></td>
+        <td class="muted">${esc(r.address || "—")}</td>
+        <td><div class="flex" style="gap:6px;">${r.active !== false ? `<span class="pill success">Active</span>` : `<span class="pill warn">Inactive</span>`}${geo ? `<span class="pill memory_locked">Geocoded</span>` : ""}</div></td>
+        <td style="text-align:right;"><button class="btn secondary" type="button" data-edit="${esc(r.assigned_id)}">Edit</button></td>
+      </tr>`;
     }
 
-    list.addEventListener("submit", async (e) => {
+    // ── Save / delete ──
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const f = e.target, id = f.dataset.id;
-      const patch = { name: f.name.value.trim(), address: f.address.value.trim(), active: f.active.checked, lat: null, lng: null };
-      const { error } = await supabase.from("sales_rep_data").update(patch).eq("assigned_id", id);
-      if (error) alert("Save failed: " + error.message); else load();
+      const err = byId("repErr"); err.classList.remove("show");
+      const name = form.name.value.trim(), assigned_id = form.assigned_id.value.trim(), address = form.address.value.trim(), active = form.active.checked;
+      if (!name || !assigned_id || !address) { err.textContent = "Name, assigned_id and address are required."; err.classList.add("show"); return; }
+      let res;
+      if (editId) res = await supabase.from("sales_rep_data").update({ name, address, active, lat: null, lng: null }).eq("assigned_id", editId);
+      else res = await supabase.from("sales_rep_data").upsert({ name, assigned_id, address, active }, { onConflict: "assigned_id" });
+      if (res.error) { err.textContent = "Save failed: " + res.error.message; err.classList.add("show"); return; }
+      closeModal(); load();
     });
-
-    list.addEventListener("click", async (e) => {
-      const id = e.target.dataset?.del; if (!id) return;
+    byId("repDelBtn").addEventListener("click", async () => {
+      if (!editId) return;
       if (!confirm("Delete this rep? This can't be undone.")) return;
-      const { error } = await supabase.from("sales_rep_data").delete().eq("assigned_id", id);
-      if (error) alert("Delete failed: " + error.message); else load();
-    });
-
-    byId("addForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const f = e.target, err = byId("addErr"); err.classList.remove("show");
-      const row = { name: f.name.value.trim(), assigned_id: f.assigned_id.value.trim(), address: f.address.value.trim(), active: f.active.checked };
-      if (!row.name || !row.assigned_id || !row.address) { err.textContent = "Name, assigned_id and address are required."; err.classList.add("show"); return; }
-      const { error } = await supabase.from("sales_rep_data").upsert(row, { onConflict: "assigned_id" });
-      if (error) { err.textContent = "Add failed: " + error.message; err.classList.add("show"); return; }
-      f.reset(); f.active.checked = true; ghlSearch.value = ""; ghlMsg.textContent = ""; closeAddModal(); load();
+      const { error } = await supabase.from("sales_rep_data").delete().eq("assigned_id", editId);
+      if (error) { alert("Delete failed: " + error.message); return; }
+      closeModal(); load();
     });
 
     load();
