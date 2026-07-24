@@ -27,7 +27,8 @@ const money = (n) => Number(num(n, 0).toFixed(2));
 const JOB_QUERY = `query($id:EncodedId!){ job(id:$id){ id jobNumber title jobStatus total invoicedTotal uninvoicedTotal
   client{ id name firstName lastName companyName emails{ address } }
   property{ address{ street1 street2 city province postalCode country } }
-  quote{ id quoteNumber taxDetails{ totalTaxAmount } }
+  quote{ id quoteNumber taxDetails{ totalTaxAmount }
+    depositAmountUnallocated unallocatedDepositRecords(first:20){ nodes{ id amount } } }
   lineItems{ nodes{ id name description quantity unitPrice taxable } }
   invoices(first:5){ nodes{ id invoiceNumber } } } }`;
 
@@ -35,7 +36,7 @@ const INVOICE_CREATE = `mutation($input:InvoiceCreateInput!){ invoiceCreate(inpu
   invoice{ id invoiceNumber invoiceStatus
     client{ id name firstName lastName companyName emails{ address } }
     lineItems{ nodes{ name description quantity unitPrice totalPrice } }
-    amounts{ subtotal discountAmount taxAmount total } }
+    amounts{ subtotal discountAmount taxAmount depositAmount paymentsTotal invoiceBalance total } }
   userErrors{ message path } } }`;
 
 // Jobber invoice → QBO lines, including the invoice-level discount and the
@@ -83,6 +84,14 @@ async function run({ jobId, dryRun }) {
     // Mirror the quote's processing-fee decision onto the invoice's tax rate.
     const quoteTax = num(job.quote && job.quote.taxDetails && job.quote.taxDetails.totalTaxAmount, 0);
     const taxRateId = quoteTax > 0 ? TAX_RATE_FEE : TAX_RATE_NONE;
+
+    // Deposits the customer already paid against the quote. Passing their ids to
+    // invoiceCreate allocates them to this invoice, so the Jobber balance is net
+    // of the deposit; we mirror that in QBO as a payment on the new invoice.
+    const depositRecords = ((job.quote && job.quote.unallocatedDepositRecords && job.quote.unallocatedDepositRecords.nodes) || []);
+    const depositIds = depositRecords.map((d) => d.id);
+    const depositTotal = money(depositRecords.reduce((s, d) => s + num(d.amount), 0));
+    if (depositTotal > 0) log.info("Applying prior quote deposits", { quote: job.quote.quoteNumber, count: depositIds.length, depositTotal });
     const jobLines = (job.lineItems && job.lineItems.nodes) || [];
     const lineItems = jobLines.map((li) => ({
       name: li.name || "Item",
@@ -95,18 +104,19 @@ async function run({ jobId, dryRun }) {
     if (!lineItems.length) throw new Error(`Job #${job.jobNumber} has no line items to invoice`);
 
     if (dryRun) {
-      await log.finish("dry_run", `DRY RUN — would invoice job #${job.jobNumber} (${name}, ${lineItems.length} lines, uninvoiced ${uninvoiced}) with ${quoteTax > 0 ? "Processing Fee" : "No Processing Fee"} rate, then post to QBO`);
-      return { ok: true, dryRun: true, jobNumber: job.jobNumber, clientName: name, uninvoicedTotal: uninvoiced, lineCount: lineItems.length, quoteTaxAmount: quoteTax, taxRate: quoteTax > 0 ? "Processing Fee" : "No Processing Fee", invoiceNet: INVOICE_NET, markSent: MARK_SENT, existingInvoices: existing };
+      await log.finish("dry_run", `DRY RUN — would invoice job #${job.jobNumber} (${name}, ${lineItems.length} lines, uninvoiced ${uninvoiced}) with ${quoteTax > 0 ? "Processing Fee" : "No Processing Fee"} rate${depositTotal > 0 ? `, applying $${depositTotal} in prior deposits` : ""}, then post to QBO`);
+      return { ok: true, dryRun: true, jobNumber: job.jobNumber, clientName: name, uninvoicedTotal: uninvoiced, lineCount: lineItems.length, quoteTaxAmount: quoteTax, taxRate: quoteTax > 0 ? "Processing Fee" : "No Processing Fee", invoiceNet: INVOICE_NET, markSent: MARK_SENT, existingInvoices: existing, depositTotal, depositCount: depositIds.length, estimatedBalanceDue: money(uninvoiced - depositTotal) };
     }
 
     // 1) Create the invoice in Jobber.
-    const inv = await log.step("Create Jobber invoice", { jobId, lines: lineItems.length, taxRateId, invoiceNet: INVOICE_NET, markSent: MARK_SENT }, async () => {
+    const inv = await log.step("Create Jobber invoice", { jobId, lines: lineItems.length, taxRateId, invoiceNet: INVOICE_NET, markSent: MARK_SENT, depositIds, depositTotal }, async () => {
       const input = {
         clientId: job.client.id,
         jobId,
         lineItems,
         dueDetails: { invoiceNet: INVOICE_NET },
         tax: { taxCalculationMethod: "EXCLUSIVE", taxRateId },
+        ...(depositIds.length ? { depositIds } : {}),
         ...(MARK_SENT ? { markSent: true } : {}),
       };
       const d = await jobberGql(at, INVOICE_CREATE, { input });
@@ -124,8 +134,19 @@ async function run({ jobId, dryRun }) {
     const qboInv = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length, computed, jobberTotal, jobberInvoice: inv.invoiceNumber }, async () =>
       (await qbo.apiPost(qat, rlm, "invoice", { CustomerRef: { value: project.Id }, Line: lines })).Invoice);
 
-    await log.finish("success", `Job #${job.jobNumber} → Jobber invoice #${inv.invoiceNumber} ($${jobberTotal}) + QBO invoice #${qboInv.DocNumber} for ${name}`);
-    return { ok: true, jobNumber: job.jobNumber, jobberInvoice: inv.invoiceNumber, qboInvoice: qboInv.DocNumber, total: jobberTotal, clientName: name };
+    // 3) Mirror any deposit Jobber allocated, so both invoices show the same balance.
+    const applied = money((inv.amounts || {}).depositAmount);
+    let qboPayment = null;
+    if (applied > 0) {
+      qboPayment = await log.step("Apply deposit to QBO invoice", { amount: applied, invoiceId: qboInv.Id, customerRef: project.Id }, () =>
+        qbo.createPayment(qat, rlm, { customerId: project.Id, amount: applied, invoiceId: qboInv.Id }));
+    }
+
+    const balance = money((inv.amounts || {}).invoiceBalance);
+    await log.finish("success",
+      `Job #${job.jobNumber} → Jobber invoice #${inv.invoiceNumber} ($${jobberTotal}) + QBO invoice #${qboInv.DocNumber} for ${name}` +
+      (applied > 0 ? ` — $${applied} deposit applied, $${balance} due` : ""));
+    return { ok: true, jobNumber: job.jobNumber, jobberInvoice: inv.invoiceNumber, qboInvoice: qboInv.DocNumber, total: jobberTotal, depositApplied: applied, balanceDue: balance, qboPaymentId: qboPayment && qboPayment.Id, clientName: name };
   } catch (e) { await log.finish("error", String(e.message || e)); throw e; }
 }
 

@@ -13,13 +13,6 @@ const qbo = require("./_qbo");
 const jobber = require("./_jobber");
 const { isPublished } = require("./_workflow-config");
 
-// Quote deposits aren't invoice payments — Jobber holds them as an unallocated
-// deposit until the job is invoiced. AGT books these as a SalesReceipt against
-// the "Customer Deposit" item, which posts to the Customer Deposits liability
-// and lands in Undeposited Funds for the bookkeeper to match to the bank deposit.
-const DEPOSIT_ITEM = process.env.QBO_DEPOSIT_ITEM || "150";           // "Customer Deposit"
-const DEPOSIT_TO_ACCOUNT = process.env.QBO_UNDEPOSITED_ACCOUNT || "49"; // "12200 Undeposited Funds"
-
 const SLACK_TOKEN = process.env.SLACK_BOT_TOKEN || "";
 const SLACK_CHANNEL = process.env.SLACK_PAYMENTS_CHANNEL || "C096A9CR62Y"; // #workflow-testing
 
@@ -108,38 +101,13 @@ module.exports = async function handler(req, res) {
       });
       const target = decision.target;
       if (!target && decision.reason === "no open invoices" && deposit) {
-        // Quote deposit — no invoice exists yet in either system. Book it to the
-        // Customer Deposits liability instead of asking for a human.
-        const cust = custs.find((c) => c.ParentRef) || custs[0]; // project sub-customer when we have one
-        const txnDate = String(pay.entryDate || "").slice(0, 10);
-        const dupe = await run.step("Check for existing deposit", { customerId: cust.Id, amount, txnDate }, async () => {
-          const prior = (await qbo.query(at, rlm, `SELECT * FROM SalesReceipt WHERE CustomerRef = '${cust.Id}'`)).SalesReceipt || [];
-          const hit = prior.find((s) => cents(s.TotalAmt) === cents(amount) && String(s.TxnDate) === txnDate);
-          return hit ? { duplicate: true, docNumber: hit.DocNumber } : { duplicate: false };
-        });
-        out.deposit = { quote: deposit.quoteNumber, quoteTotal: deposit.amounts && deposit.amounts.total, customerId: cust.Id, customerName: cust.FullyQualifiedName };
-        if (dupe.duplicate) {
-          out.status = "skipped";
-          out.remarks = `Deposit of $${amount} already recorded in QBO as sales receipt #${dupe.docNumber} — skipped.`;
-        } else if (dryRun) {
-          out.status = "dry_run";
-          out.remarks = `DRY RUN — would record $${amount} deposit on quote #${deposit.quoteNumber} as a QBO sales receipt for ${cust.FullyQualifiedName} (Customer Deposits liability, to Undeposited Funds).`;
-        } else {
-          const sr = await run.step("Record deposit in QBO", { customerId: cust.Id, amount, txnDate, item: DEPOSIT_ITEM, depositTo: DEPOSIT_TO_ACCOUNT }, async () =>
-            (await qbo.apiPost(at, rlm, "salesreceipt", {
-              CustomerRef: { value: String(cust.Id) },
-              ...(txnDate ? { TxnDate: txnDate } : {}),
-              DepositToAccountRef: { value: DEPOSIT_TO_ACCOUNT },
-              PrivateNote: `Jobber deposit on quote #${deposit.quoteNumber} — payment ${paymentId}`,
-              Line: [{
-                DetailType: "SalesItemLineDetail", Description: "Customer Deposit", Amount: amount,
-                SalesItemLineDetail: { ItemRef: { value: DEPOSIT_ITEM }, Qty: 1, UnitPrice: amount },
-              }],
-            })).SalesReceipt);
-          out.status = "deposit"; out.applied = true;
-          out.deposit.salesReceipt = sr.DocNumber;
-          out.remarks = `Recorded $${amount} deposit on quote #${deposit.quoteNumber} as QBO sales receipt #${sr.DocNumber} for ${cust.FullyQualifiedName} (Customer Deposits → Undeposited Funds).`;
-        }
+        // Deposit paid against a quote. Nothing to write yet: the QBO customer
+        // and project only exist once a job is created, and the invoice only
+        // once the job is closed. The Job Closed workflow picks the deposit up
+        // from the quote and applies it to the invoice it creates.
+        out.status = "deposit_held";
+        out.deposit = { quote: deposit.quoteNumber, quoteTotal: deposit.amounts && deposit.amounts.total, unallocated: deposit.depositAmountUnallocated };
+        out.remarks = `Deposit of $${amount} on quote #${deposit.quoteNumber} — no invoice in Jobber or QBO yet, so nothing to apply to. Held; it will be applied when the job is closed and invoiced.`;
       } else if (!target) {
         out.remarks = decision.reason === "no open invoices"
           ? `${out.customer} has no open QBO invoices and no matching quote deposit — nothing to apply to. Needs review.`
@@ -151,23 +119,47 @@ module.exports = async function handler(req, res) {
         run.info("Dry run — not applied", out.match);
       } else {
         const p = await run.step("Apply payment in QBO", { customerRef: target.CustomerRef.value, amount, invoiceId: target.Id }, () => qbo.createPayment(at, rlm, { customerId: target.CustomerRef.value, amount, invoiceId: target.Id }));
+        const remaining = Number((Number(target.Balance) - amount).toFixed(2));
         out.status = "applied"; out.applied = true;
-        out.match = { invoice: target.DocNumber, qboPaymentId: p.Id, reason: decision.reason };
-        out.remarks = `Applied $${amount} to QBO invoice #${target.DocNumber} (${decision.reason}). QBO payment #${p.Id}.`;
+        out.paymentType = remaining > 0 ? "partial" : "full";
+        out.match = { invoice: target.DocNumber, qboPaymentId: p.Id, reason: decision.reason, invoiceBalance: Number(target.Balance), remaining };
+        out.remarks = remaining > 0
+          ? `Partial payment — applied $${amount} to QBO invoice #${target.DocNumber}; $${remaining} still outstanding. QBO payment #${p.Id}.`
+          : `Paid in full — applied $${amount} to QBO invoice #${target.DocNumber}, now settled. QBO payment #${p.Id}.`;
       }
     }
   } catch (e) { out.status = "error"; out.remarks = String(e.message || e); }
 
   await run.step("Notify Slack", { channel: SLACK_CHANNEL }, async () => {
-    const icon = out.status === "applied" ? "✅" : out.status === "deposit" ? "🏦" : out.status === "skipped" ? "⏭️" : out.status === "dry_run" ? "🧪" : out.status === "error" ? "⚠️" : "👀";
-    await notifySlack(
-      `${icon} *Jobber → QBO Payment* ${dryRun ? "_(dry run)_" : ""}\n` +
-      `*Customer:* ${out.customer || "—"}${out.email ? " <" + out.email + ">" : ""}\n*Amount:* $${out.amount != null ? out.amount : "—"}\n` +
-      `*Result:* ${out.remarks || out.status}\n*Jobber payment:* \`${paymentId}\`${verified || dryRun ? "" : "  ⚠ unverified signature"}`);
+    // Deposits, invoice payments and problems are three different things to a
+    // reader — give each its own headline rather than one generic "Payment".
+    let icon = "👀", title = "Payment needs review";
+    if (out.status === "deposit_held") { icon = "🏦"; title = "Deposit received"; }
+    else if (out.status === "applied") { icon = out.paymentType === "partial" ? "💵" : "✅"; title = out.paymentType === "partial" ? "Partial payment applied" : "Payment applied — invoice paid in full"; }
+    else if (out.status === "dry_run") { icon = "🧪"; title = "Payment (dry run)"; }
+    else if (out.status === "error") { icon = "⚠️"; title = "Payment failed"; }
+
+    const lines = [
+      `${icon} *${title}* ${dryRun ? "_(dry run)_" : ""}`,
+      `*Customer:* ${out.customer || "—"}${out.email ? " <" + out.email + ">" : ""}`,
+      `*Amount:* $${out.amount != null ? out.amount : "—"}`,
+    ];
+    if (out.status === "deposit_held") {
+      lines.push(`*Quote:* #${out.deposit.quote}${out.deposit.quoteTotal != null ? ` ($${out.deposit.quoteTotal})` : ""}`);
+      lines.push("*Status:* No invoice yet in Jobber or QBO — deposit held on the quote.");
+      lines.push("_It will be applied automatically when the job is closed and invoiced._");
+    } else if (out.status === "applied") {
+      lines.push(`*Invoice:* #${out.match.invoice}${out.paymentType === "partial" ? ` — $${out.match.remaining} still outstanding` : " — settled"}`);
+      lines.push(`*Matched by:* ${out.match.reason}`);
+    } else {
+      lines.push(`*Result:* ${out.remarks || out.status}`);
+    }
+    lines.push(`*Jobber payment:* \`${paymentId}\`${verified || dryRun ? "" : "  ⚠ unverified signature"}`);
+    await notifySlack(lines.join("\n"));
     return { sent: !!SLACK_TOKEN };
   });
 
-  const finalStatus = out.status === "error" ? "error" : (out.status === "applied" || out.status === "deposit") ? "success" : out.status;
+  const finalStatus = out.status === "error" ? "error" : out.status === "applied" ? "success" : out.status === "deposit_held" ? "info" : out.status;
   await run.finish(finalStatus, out.remarks || out.status);
   res.status(out.status === "error" ? 500 : 200).json(out);
 };

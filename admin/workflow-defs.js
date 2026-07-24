@@ -37,11 +37,11 @@ export const WORKFLOWS = [
   {
     key: "jobber-job-closed",
     name: "Jobber Job Closed → Invoice + QBO",
-    desc: "When a job is closed in Jobber, create the invoice for that job in Jobber, then post the matching invoice to QuickBooks on the customer's project. Skips if the job has nothing left uninvoiced. Discount and processing-fee lines map to the right QBO items.",
+    desc: "When a job is closed in Jobber, create the invoice for that job in Jobber, then post the matching invoice to QuickBooks on the customer's project. Any deposit the customer already paid against the quote is applied to both invoices. Skips if the job has nothing left uninvoiced. Discount and processing-fee lines map to the right QBO items.",
     trigger: "Jobber webhook · JOB_CLOSED",
     endpoint: "/api/jobber-job-closed",
     icon: 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z',
-    steps: [["Job closed","bolt"],["Jobber auth","lock"],["Fetch job","search","Jobber"],["Create Jobber invoice","doc","Jobber"],["QBO auth","lock"],["Ensure customer + project","user","QBO"],["Create QBO invoice","doc","QBO"]],
+    steps: [["Job closed","bolt"],["Jobber auth","lock"],["Fetch job","search","Jobber"],["Apply quote deposits","dollar"],["Create Jobber invoice","doc","Jobber"],["QBO auth","lock"],["Ensure customer + project","user","QBO"],["Create QBO invoice","doc","QBO"],["Apply deposit in QBO","dollar","QBO"]],
   },
   {
     key: "arcsite-signed",
@@ -55,11 +55,11 @@ export const WORKFLOWS = [
   {
     key: "jobber-payment",
     name: "Jobber Payment → QBO Invoice",
-    desc: "When a payment is recorded in Jobber, find the QuickBooks customer (and its projects) and apply the payment to the matching open invoice. Ambiguous matches are sent to Slack for review instead of auto-applying.",
+    desc: "When a payment is recorded in Jobber, find the QuickBooks customer (and its projects) and apply the payment to the matching open invoice, flagging in Slack whether it settled the invoice or was partial. Deposits paid against a quote are held \u2014 no invoice exists yet \u2014 and get applied later by the Job Closed workflow. Ambiguous matches go to Slack for review instead of auto-applying.",
     trigger: "Jobber webhook · PAYMENT_CREATE",
     endpoint: "/api/jobber-payment",
     icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M9 12h12l-3-3m0 6l3-3',
-    steps: [["Jobber PAYMENT_CREATE","bolt"],["Fetch Jobber payment","globe"],["QBO auth","lock"],["Find QBO customer(s)","search"],["Open invoices","doc"],["Match decision","filter"],["Apply payment in QBO","dollar"],["Notify Slack","chat"]],
+    steps: [["Jobber PAYMENT_CREATE","bolt"],["Fetch Jobber payment","globe"],["QBO auth","lock"],["Find QBO customer(s)","search"],["Open invoices","doc"],["Match decision","filter"],["Deposit? hold","dollar"],["Apply payment in QBO","dollar"],["Notify Slack","chat"]],
   },
   {
     key: "ghl-master-sheet",
