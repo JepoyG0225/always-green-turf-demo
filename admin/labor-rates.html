@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+  <title>Labor Rates | Always Green Turf — Internal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./admin.css" />
+  <style>
+    .cat-head td { background:var(--chip,#eef1ef); font-weight:800; font-size:.74rem; letter-spacing:.6px; text-transform:uppercase; color:var(--muted); padding:8px 14px; }
+    td.cost { font-weight:700; white-space:nowrap; }
+    td.unit { color:var(--muted); font-size:.82rem; }
+    .arc-yes { display:inline-flex; align-items:center; gap:5px; font-size:.72rem; font-weight:700; color:var(--ok,#16a34a); }
+    .arc-no  { font-size:.72rem; color:var(--subtle); }
+    .row-actions { display:flex; gap:6px; justify-content:flex-end; }
+    .icon-btn { background:none; border:1px solid var(--border); border-radius:8px; padding:5px 8px; cursor:pointer; color:var(--muted); font-size:.74rem; font-weight:600; }
+    .icon-btn:hover { border-color:var(--g4,#5a9); color:var(--text); }
+    .icon-btn.del:hover { border-color:var(--danger,#dc2626); color:var(--danger,#dc2626); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 14px; }
+    .form-grid .full { grid-column:1 / -1; }
+    .fld label { display:block; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:var(--subtle); margin-bottom:5px; }
+    .fld input, .fld textarea, .fld select { width:100%; padding:9px 11px; border:1px solid var(--border); border-radius:9px; font:inherit; font-size:.9rem; background:var(--card,#fff); color:var(--text); }
+    .fld textarea { resize:vertical; min-height:52px; }
+    .search-box { padding:8px 12px; border:1px solid var(--border); border-radius:9px; font:inherit; font-size:.88rem; width:220px; }
+    .warn-box { background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; border-radius:12px; padding:14px 16px; font-size:.88rem; line-height:1.5; margin-bottom:16px; }
+    .warn-box code { background:#0000000d; padding:1px 5px; border-radius:5px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sb-brand" style="justify-content:center; padding-bottom:22px;"><img src="../logo.webp" alt="Always Green Turf" style="height:40px;" /></div>
+      <div class="sb-section-label">Time Off</div>
+      <nav class="sb-nav">
+        <a href="/admin/dashboard.html" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Time Off Requests</a>
+      </nav>
+      <div class="sb-section-label">Appointment Dispatch</div>
+      <nav class="sb-nav">
+        <a href="/admin/" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h12"/></svg>Dispatch Logs</a>
+        <a href="/admin/reps" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M16 3.13a4 4 0 010 7.75M8 11a4 4 0 100-8 4 4 0 000 8z"/></svg>Sales Reps</a>
+      </nav>
+      <div class="sb-section-label">Workflows</div>
+      <nav class="sb-nav">
+        <a href="/admin/workflows" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Workflows</a>
+        <a href="/admin/runs" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Executions</a>
+      </nav>
+      <div class="sb-section-label">Warranty</div>
+      <nav class="sb-nav">
+        <a href="/admin/claims" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Warranty Claims</a>
+      </nav>
+      <div class="sb-section-label">Field Ops</div>
+      <nav class="sb-nav">
+        <a href="/admin/job-completions" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>Job Completions</a>
+        <a href="/admin/labor-rates" class="sb-link active"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m-6 4h6m-6 4h4M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>Labor Rates</a>
+      </nav>
+      <div class="sb-section-label">Help</div>
+      <nav class="sb-nav">
+        <a href="/admin/docs" class="sb-link"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>Documentation</a>
+      </nav>
+      <div class="sb-footer">
+        <div class="sb-user"><div class="sb-avatar" id="userAvatar">J</div><div class="sb-user-info"><div class="sb-user-name" id="userEmail">…</div><div class="subtle">Admin</div></div></div>
+        <button id="signOutBtn" class="sb-signout" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="mobile-bar"><img src="../logo.webp" alt="Always Green Turf" /><span class="tag">⚡ AGT Admin</span></div>
+      <nav class="mobile-tabs">
+        <a href="/admin/dashboard.html">Time Off</a><a href="/admin/">Dispatch</a>
+        <a href="/admin/reps">Reps</a><a href="/admin/workflows">Workflows</a>
+        <a href="/admin/runs">Executions</a><a href="/admin/claims">Warranty</a><a href="/admin/job-completions">Jobs</a><a href="/admin/labor-rates" class="active">Labor</a><a href="/admin/docs">Docs</a>
+      </nav>
+      <div class="page-head">
+        <div>
+          <h1>Labor Rates</h1>
+          <p>Agreed subcontractor labor cost per unit, keyed to the ArcSite takeoff. These drive the pre-filled subcontractor bill on the vendor-payment workflow.</p>
+        </div>
+        <div class="head-actions">
+          <input type="search" id="search" class="search-box" placeholder="Search item or category…" />
+          <span class="subtle" id="count" style="margin:0 4px;"></span>
+          <button class="btn secondary" id="matchBtn" type="button" title="Re-match rows to ArcSite products">Match ArcSite</button>
+          <button class="btn" id="addBtn" type="button">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg>
+            Add rate
+          </button>
+        </div>
+      </div>
+      <div id="setupWarn" class="warn-box" style="display:none;"></div>
+      <div id="stats" class="stats"></div>
+      <div id="content"></div>
+    </main>
+  </div>
+
+  <!-- Add/edit modal -->
+  <div id="editModal" class="modal-overlay hidden" aria-modal="true" role="dialog">
+    <div class="modal-card" style="max-width:560px;">
+      <button class="modal-close" type="button" data-close aria-label="Close" style="font-size:20px; line-height:1; font-weight:500;">&times;</button>
+      <div class="modal-head">
+        <div><h2 id="mTitle" style="font-size:1.15rem; font-weight:800; color:var(--text);">Add rate</h2></div>
+      </div>
+      <div class="modal-body">
+        <form id="rateForm" class="form-grid">
+          <div class="fld"><label>Category</label><input name="category" list="catList" autocomplete="off" /></div>
+          <div class="fld"><label>Unit</label><input name="unit" list="unitList" placeholder="SF, LF, Each…" autocomplete="off" /></div>
+          <div class="fld full"><label>Item *</label><input name="item" required autocomplete="off" /></div>
+          <div class="fld full"><label>Description</label><input name="description" autocomplete="off" /></div>
+          <div class="fld"><label>Cost (per unit) *</label><input name="cost" type="number" step="0.01" min="0" required /></div>
+          <div class="fld"><label>ArcSite product ID</label><input name="arcsite_product_id" autocomplete="off" placeholder="auto-matched" /></div>
+          <div class="fld full"><label>Notes</label><textarea name="notes"></textarea></div>
+          <datalist id="catList"></datalist>
+          <datalist id="unitList"><option>SF</option><option>LF</option><option>Each</option><option>Per Ton</option><option>Per Ft</option><option>SQFT</option></datalist>
+          <div class="full" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <button type="button" class="danger" id="delBtn" style="display:none;">Delete</button>
+            <div style="display:flex; gap:8px; margin-left:auto;">
+              <button type="button" class="btn secondary" data-close>Cancel</button>
+              <button type="submit" class="btn" id="saveBtn">Save</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase, requireSession, signOut } from "./config.js";
+    const byId = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const money = (n) => "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const content = byId("content"), stats = byId("stats");
+    byId("signOutBtn").addEventListener("click", signOut);
+
+    const session = await requireSession(); if (!session) throw new Error("no session");
+    byId("userEmail").textContent = session.user.email;
+    byId("userAvatar").textContent = (session.user.email || "?").charAt(0).toUpperCase();
+    const authHeader = async () => { const { data } = await supabase.auth.getSession(); return { Authorization: `Bearer ${data?.session?.access_token || ""}`, "Content-Type": "application/json" }; };
+
+    let RATES = [], FILTER = "";
+    async function load() {
+      content.innerHTML = `<div class="empty"><div class="spinner"></div>Loading labor rates…</div>`;
+      const { data, error } = await supabase.from("labor_rates").select("*").order("sort_order", { ascending: true });
+      if (error) {
+        // table missing → guide the operator to run the schema once.
+        if (/relation|does not exist|schema cache/i.test(error.message)) {
+          byId("setupWarn").style.display = "block";
+          byId("setupWarn").innerHTML = `<strong>One-time setup needed.</strong> The <code>labor_rates</code> table doesn't exist yet. Run <code>admin/schema-labor.sql</code> in the Supabase SQL editor, then reload this page.`;
+          content.innerHTML = ""; stats.innerHTML = ""; return;
+        }
+        content.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>Could not load: ${esc(error.message)}</div>`; return;
+      }
+      byId("setupWarn").style.display = "none";
+      RATES = data || [];
+      render();
+    }
+
+    function render() {
+      const q = FILTER.toLowerCase();
+      const rows = RATES.filter((r) => !q || `${r.category} ${r.item} ${r.description || ""}`.toLowerCase().includes(q));
+      byId("count").textContent = `${rows.length} of ${RATES.length}`;
+
+      const catSet = [...new Set(RATES.map((r) => r.category).filter(Boolean))].sort();
+      byId("catList").innerHTML = catSet.map((c) => `<option>${esc(c)}</option>`).join("");
+      const matched = RATES.filter((r) => r.arcsite_product_id).length;
+      stats.innerHTML = `
+        <div class="stat"><div class="stat-label">Line items</div><div class="stat-value">${RATES.length}</div><div class="stat-sub">${catSet.length} categories</div></div>
+        <div class="stat"><div class="stat-label">Matched to ArcSite</div><div class="stat-value" style="color:var(--ok);">${matched}</div><div class="stat-sub">${RATES.length - matched} unmatched</div></div>`;
+
+      if (!rows.length) { content.innerHTML = `<div class="empty"><div class="empty-icon">📋</div>No rates${FILTER ? " match your search" : " yet"}.</div>`; return; }
+
+      // group by category, in first-seen order
+      const groups = []; const seen = new Map();
+      rows.forEach((r) => { const k = r.category || "Uncategorized"; if (!seen.has(k)) { seen.set(k, []); groups.push(k); } seen.get(k).push(r); });
+      const body = groups.map((g) => {
+        const items = seen.get(g).map((r) => `<tr class="clickable" data-id="${esc(r.id)}">
+          <td style="font-weight:600;">${esc(r.item)}</td>
+          <td class="muted" style="font-size:.82rem;">${esc(r.description || "—")}</td>
+          <td class="unit">${esc(r.unit || "—")}</td>
+          <td class="cost">${money(r.cost)}</td>
+          <td>${r.arcsite_product_id ? `<span class="arc-yes"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>linked</span>` : `<span class="arc-no">—</span>`}</td>
+          <td class="muted" style="font-size:.78rem;">${esc(r.notes || "")}</td>
+        </tr>`).join("");
+        return `<tr class="cat-head"><td colspan="6">${esc(g)}</td></tr>${items}`;
+      }).join("");
+
+      content.innerHTML = `<div class="table-wrap"><table>
+        <thead><tr><th>Item</th><th>Description</th><th>Unit</th><th>Cost</th><th>ArcSite</th><th>Notes</th></tr></thead>
+        <tbody>${body}</tbody></table></div>`;
+      content.querySelectorAll("tr.clickable").forEach((tr) => tr.addEventListener("click", () => openEdit(RATES.find((r) => r.id === tr.dataset.id))));
+    }
+
+    byId("search").addEventListener("input", (e) => { FILTER = e.target.value; render(); });
+
+    // ── Add / edit modal ──
+    const modal = byId("editModal"), form = byId("rateForm");
+    let editingId = null;
+    function closeModal() { modal.classList.add("hidden"); document.body.classList.remove("modal-open"); }
+    modal.addEventListener("click", (e) => { if (e.target === modal || e.target.closest("[data-close]")) closeModal(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.classList.contains("hidden")) closeModal(); });
+
+    function openEdit(r) {
+      editingId = r ? r.id : null;
+      byId("mTitle").textContent = r ? "Edit rate" : "Add rate";
+      byId("delBtn").style.display = r ? "inline-flex" : "none";
+      form.reset();
+      for (const k of ["category", "item", "description", "unit", "cost", "arcsite_product_id", "notes"]) form.elements[k].value = r ? (r[k] ?? "") : "";
+      modal.classList.remove("hidden"); document.body.classList.add("modal-open");
+    }
+    byId("addBtn").addEventListener("click", () => openEdit(null));
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const row = Object.fromEntries(new FormData(form).entries());
+      row.cost = Number(row.cost) || 0;
+      byId("saveBtn").disabled = true;
+      try {
+        const res = await fetch("/api/labor-rates", { method: "POST", headers: await authHeader(),
+          body: JSON.stringify(editingId ? { action: "update", id: editingId, row } : { action: "create", row }) });
+        const out = await res.json(); if (!res.ok) throw new Error(out.error || `HTTP ${res.status}`);
+        closeModal(); await load();
+      } catch (err) { alert("Save failed: " + err.message); } finally { byId("saveBtn").disabled = false; }
+    });
+
+    byId("delBtn").addEventListener("click", async () => {
+      if (!editingId || !confirm("Delete this labor rate?")) return;
+      try {
+        const res = await fetch("/api/labor-rates", { method: "POST", headers: await authHeader(), body: JSON.stringify({ action: "delete", id: editingId }) });
+        const out = await res.json(); if (!res.ok) throw new Error(out.error || `HTTP ${res.status}`);
+        closeModal(); await load();
+      } catch (err) { alert("Delete failed: " + err.message); }
+    });
+
+    byId("matchBtn").addEventListener("click", async () => {
+      byId("matchBtn").disabled = true; byId("matchBtn").textContent = "Matching…";
+      try {
+        const res = await fetch("/api/labor-rates", { method: "POST", headers: await authHeader(), body: JSON.stringify({ action: "match-arcsite" }) });
+        const out = await res.json(); if (!res.ok) throw new Error(out.error || `HTTP ${res.status}`);
+        alert(`Matched ${out.updated} more item(s) to ArcSite products (catalog: ${out.catalogSize}).`);
+        await load();
+      } catch (err) { alert("Match failed: " + err.message); } finally { byId("matchBtn").disabled = false; byId("matchBtn").textContent = "Match ArcSite"; }
+    });
+
+    load();
+  </script>
+</body>
+</html>
