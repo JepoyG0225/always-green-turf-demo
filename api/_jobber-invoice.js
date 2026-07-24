@@ -62,4 +62,4 @@ async function run({ invoiceId, dryRun }) {
   } catch (e) { await log.finish("error", String(e.message || e)); throw e; }
 }
 
-module.exports = { run };
+module.exports = { run, toQboLine };
