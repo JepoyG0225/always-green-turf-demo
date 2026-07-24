@@ -34,7 +34,7 @@ module.exports = async function handler(req, res) {
   try {
     const c = await upsertGhlContact({
       firstName, lastName, phone,
-      tags: ["callback-request", "website"],
+      tags: ["requestcallback", "callback-request", "website"],
       source: "Website — Call Me to Schedule",
     });
     contactId = c.id; isNewContact = c.new;
