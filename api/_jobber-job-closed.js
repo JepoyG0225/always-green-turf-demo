@@ -1,9 +1,12 @@
 // Jobber JOB_CLOSED → create the Jobber invoice for that job, then mirror it
 // into QBO as an invoice on the customer's project.
 //
-// Replaces the old INVOICE_CREATE-triggered QBO invoice flow: closing a job in
-// Jobber doesn't auto-invoice, so we create the invoice here and then post it
-// to QuickBooks in the same run.
+// Notes on faithfulness:
+//  - Jobber applies the processing fee as a TAX RATE (not a line item), and
+//    discounts as an invoice-level discountAmount. Both are mirrored into QBO as
+//    explicit lines so the QBO total matches the Jobber total exactly.
+//  - The tax rate mirrors the originating quote: if the quote carried tax
+//    (processing fee), we use the Processing Fee rate, else the No-Fee rate.
 const newRun = require("./_runlog");
 const jobber = require("./_jobber");
 const qbo = require("./_qbo");
@@ -11,23 +14,48 @@ const { isPublished } = require("./_workflow-config");
 const { ensureCustomerProject, customerFields, jobberGql } = require("./_jobber-job");
 const { toQboLine } = require("./_jobber-invoice");
 
-// Marking the invoice as sent emails the customer — off by default so the
-// invoice is created as a draft for review. Set JOBBER_INVOICE_MARK_SENT=true
-// to have Jobber send it automatically.
+// Marking sent emails the customer — off by default (invoice stays a draft).
 const MARK_SENT = process.env.JOBBER_INVOICE_MARK_SENT === "true";
+const INVOICE_NET = Number(process.env.JOBBER_INVOICE_NET || 0); // 0 = due on receipt
+const TAX_RATE_FEE = process.env.JOBBER_TAX_RATE_PROCESSING_FEE || "Z2lkOi8vSm9iYmVyL1RheFJhdGUvOTY5MDM3";
+const TAX_RATE_NONE = process.env.JOBBER_TAX_RATE_NO_FEE || "Z2lkOi8vSm9iYmVyL1RheFJhdGUvOTg1Nzgx";
+const DISCOUNT_ITEM = process.env.QBO_DISCOUNT_ITEM || "13";
+const FEE_ITEM = process.env.QBO_FEE_ITEM || "96";
 const num = (v, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
+const money = (n) => Number(num(n, 0).toFixed(2));
 
 const JOB_QUERY = `query($id:EncodedId!){ job(id:$id){ id jobNumber title jobStatus total invoicedTotal uninvoicedTotal
   client{ id name firstName lastName companyName emails{ address } }
   property{ address{ street1 street2 city province postalCode country } }
+  quote{ id quoteNumber taxDetails{ totalTaxAmount } }
+  lineItems{ nodes{ id name description quantity unitPrice taxable } }
   invoices(first:5){ nodes{ id invoiceNumber } } } }`;
 
 const INVOICE_CREATE = `mutation($input:InvoiceCreateInput!){ invoiceCreate(input:$input){
   invoice{ id invoiceNumber invoiceStatus
     client{ id name firstName lastName companyName emails{ address } }
     lineItems{ nodes{ name description quantity unitPrice totalPrice } }
-    amounts{ total } }
+    amounts{ subtotal discountAmount taxAmount total } }
   userErrors{ message path } } }`;
+
+// Jobber invoice → QBO lines, including the invoice-level discount and the
+// processing-fee tax, so the QBO total equals the Jobber total.
+function buildQboLines(inv) {
+  const lines = ((inv.lineItems && inv.lineItems.nodes) || []).map(toQboLine);
+  const a = inv.amounts || {};
+  const discount = money(a.discountAmount);
+  const tax = money(a.taxAmount);
+  if (discount > 0) {
+    lines.push({ DetailType: "SalesItemLineDetail", Description: "Discount", Amount: -discount,
+      SalesItemLineDetail: { Qty: 1, UnitPrice: -discount, ItemRef: { value: DISCOUNT_ITEM } } });
+  }
+  if (tax > 0) {
+    lines.push({ DetailType: "SalesItemLineDetail", Description: "Processing Fee", Amount: tax,
+      SalesItemLineDetail: { Qty: 1, UnitPrice: tax, ItemRef: { value: FEE_ITEM } } });
+  }
+  const computed = money(lines.reduce((s, l) => s + num(l.Amount), 0));
+  return { lines, computed, jobberTotal: money(a.total) };
+}
 
 async function run({ jobId, dryRun }) {
   const log = newRun("jobber-job-closed", { jobId, dryRun });
@@ -43,41 +71,62 @@ async function run({ jobId, dryRun }) {
     });
     const { name } = customerFields(job.client, job.property);
     const uninvoiced = num(job.uninvoicedTotal, 0);
-    const existingInvoices = (job.invoices && job.invoices.nodes) || [];
+    const existing = ((job.invoices && job.invoices.nodes) || []).map((i) => i.invoiceNumber);
 
-    // Guard: nothing left to bill (already invoiced, or a re-fired JOB_CLOSED).
+    // Guard: already billed (or a re-fired JOB_CLOSED) — never double-invoice.
     if (uninvoiced <= 0) {
-      log.info("Nothing to invoice", { uninvoicedTotal: uninvoiced, existingInvoices: existingInvoices.map((i) => i.invoiceNumber) });
+      log.info("Nothing to invoice", { uninvoicedTotal: uninvoiced, existingInvoices: existing });
       await log.finish("skipped", `Job #${job.jobNumber} has nothing uninvoiced — no invoice created`);
-      return { ok: true, skipped: "nothing-to-invoice", jobNumber: job.jobNumber };
+      return { ok: true, skipped: "nothing-to-invoice", jobNumber: job.jobNumber, existingInvoices: existing };
     }
+
+    // Mirror the quote's processing-fee decision onto the invoice's tax rate.
+    const quoteTax = num(job.quote && job.quote.taxDetails && job.quote.taxDetails.totalTaxAmount, 0);
+    const taxRateId = quoteTax > 0 ? TAX_RATE_FEE : TAX_RATE_NONE;
+    const jobLines = (job.lineItems && job.lineItems.nodes) || [];
+    const lineItems = jobLines.map((li) => ({
+      name: li.name || "Item",
+      ...(li.description ? { description: li.description } : {}),
+      quantity: num(li.quantity, 1),
+      unitPrice: num(li.unitPrice, 0),
+      taxable: li.taxable !== false,
+      jobLineItemId: li.id, // links the invoice line back to the job line
+    }));
+    if (!lineItems.length) throw new Error(`Job #${job.jobNumber} has no line items to invoice`);
 
     if (dryRun) {
-      await log.finish("dry_run", `DRY RUN — would invoice job #${job.jobNumber} (${name}, uninvoiced ${uninvoiced}) then create the QBO invoice`);
-      return { ok: true, dryRun: true, jobNumber: job.jobNumber, clientName: name, uninvoicedTotal: uninvoiced, existingInvoices: existingInvoices.map((i) => i.invoiceNumber), markSent: MARK_SENT };
+      await log.finish("dry_run", `DRY RUN — would invoice job #${job.jobNumber} (${name}, ${lineItems.length} lines, uninvoiced ${uninvoiced}) with ${quoteTax > 0 ? "Processing Fee" : "No Processing Fee"} rate, then post to QBO`);
+      return { ok: true, dryRun: true, jobNumber: job.jobNumber, clientName: name, uninvoicedTotal: uninvoiced, lineCount: lineItems.length, quoteTaxAmount: quoteTax, taxRate: quoteTax > 0 ? "Processing Fee" : "No Processing Fee", invoiceNet: INVOICE_NET, markSent: MARK_SENT, existingInvoices: existing };
     }
 
-    // 1) Create the invoice in Jobber for this job.
-    const inv = await log.step("Create Jobber invoice", { jobId, markSent: MARK_SENT }, async () => {
-      const input = { jobId, ...(MARK_SENT ? { markSent: true } : {}) };
+    // 1) Create the invoice in Jobber.
+    const inv = await log.step("Create Jobber invoice", { jobId, lines: lineItems.length, taxRateId, invoiceNet: INVOICE_NET, markSent: MARK_SENT }, async () => {
+      const input = {
+        clientId: job.client.id,
+        jobId,
+        lineItems,
+        dueDetails: { invoiceNet: INVOICE_NET },
+        tax: { taxCalculationMethod: "EXCLUSIVE", taxRateId },
+        ...(MARK_SENT ? { markSent: true } : {}),
+      };
       const d = await jobberGql(at, INVOICE_CREATE, { input });
       if (d.invoiceCreate?.userErrors?.length) throw new Error(`invoiceCreate: ${JSON.stringify(d.invoiceCreate.userErrors)}`);
       if (!d.invoiceCreate?.invoice) throw new Error("invoiceCreate returned no invoice");
       return d.invoiceCreate.invoice;
     });
 
-    // 2) Mirror it into QBO on the customer's project.
-    const lines = ((inv.lineItems && inv.lineItems.nodes) || []).map(toQboLine);
-    if (!lines.length) throw new Error(`Jobber invoice #${inv.invoiceNumber} has no line items to post to QBO`);
+    // 2) Mirror into QBO (discount + processing fee become explicit lines).
+    const { lines, computed, jobberTotal } = buildQboLines(inv);
+    if (computed !== jobberTotal) log.info("Total mismatch — check mapping", { computed, jobberTotal });
     const qat = await log.step("QBO auth", {}, () => qbo.accessToken());
     const rlm = await qbo.realm();
     const { project } = await ensureCustomerProject(log, qat, rlm, inv.client || job.client, job.property);
-    const qboInv = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length, jobberInvoice: inv.invoiceNumber }, async () =>
+    const qboInv = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length, computed, jobberTotal, jobberInvoice: inv.invoiceNumber }, async () =>
       (await qbo.apiPost(qat, rlm, "invoice", { CustomerRef: { value: project.Id }, Line: lines })).Invoice);
 
-    await log.finish("success", `Job #${job.jobNumber} → Jobber invoice #${inv.invoiceNumber} + QBO invoice #${qboInv.DocNumber} for ${name}`);
-    return { ok: true, jobNumber: job.jobNumber, jobberInvoice: inv.invoiceNumber, qboInvoice: qboInv.DocNumber, clientName: name };
+    await log.finish("success", `Job #${job.jobNumber} → Jobber invoice #${inv.invoiceNumber} ($${jobberTotal}) + QBO invoice #${qboInv.DocNumber} for ${name}`);
+    return { ok: true, jobNumber: job.jobNumber, jobberInvoice: inv.invoiceNumber, qboInvoice: qboInv.DocNumber, total: jobberTotal, clientName: name };
   } catch (e) { await log.finish("error", String(e.message || e)); throw e; }
 }
 
-module.exports = { run };
+module.exports = { run, buildQboLines };
