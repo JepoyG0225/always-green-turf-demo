@@ -139,7 +139,7 @@ module.exports = async function handler(req, res) {
         if (p && p.id && !p.archived) { await arcsite("POST", `/projects/${p.id}/archive`).catch(() => {}); archived.push(p.id); }
       }
       const ba = client.billingAddress || {};
-      const created = await arcsite("POST", "/projects", {
+      const body = {
         name: projectName, owner,
         customer: {
           name: clean(client.name),
@@ -147,13 +147,23 @@ module.exports = async function handler(req, res) {
           email: clean((client.emails && client.emails[0] && client.emails[0].address) || email),
           address: { street: clean(ba.street), city: clean(ba.city), state: "AZ", zip_code: clean(ba.postalCode) },
         },
-      });
-      return { archived, createdId: created && created.id };
+      };
+      // If the rep isn't a valid ArcSite user, ArcSite rejects the owner —
+      // fall back to the shared account so the project still gets created.
+      let created, usedOwner = owner, fellBack = false;
+      try {
+        created = await arcsite("POST", "/projects", body);
+      } catch (e) {
+        if (owner === ARC_GENERIC_OWNER) throw e;
+        usedOwner = ARC_GENERIC_OWNER; fellBack = true;
+        created = await arcsite("POST", "/projects", { ...body, owner: ARC_GENERIC_OWNER });
+      }
+      return { archived, createdId: created && created.id, owner: usedOwner, ownerFallback: fellBack, ownerFallbackFrom: fellBack ? owner : undefined };
     });
     plan.arcsite.result = arc;
 
-    await run.finish("success", `${user ? `Reassigned to ${user.name}` : "No Jobber user match (Jobber reassign skipped)"}; ArcSite archived ${arc.archived.length}, created ${projectName} (owner ${owner})`);
-    res.status(200).json({ ok: true, reassignedTo: user ? user.name : null, owner, assessmentId, arcsite: arc });
+    await run.finish("success", `${user ? `Reassigned to ${user.name}` : "No Jobber user match (Jobber reassign skipped)"}; ArcSite archived ${arc.archived.length}, created ${projectName} (owner ${arc.owner}${arc.ownerFallback ? ` — fell back from ${arc.ownerFallbackFrom}, not an ArcSite user` : ""})`);
+    res.status(200).json({ ok: true, reassignedTo: user ? user.name : null, owner: arc.owner, ownerFallback: !!arc.ownerFallback, assessmentId, arcsite: arc });
   } catch (e) {
     await run.finish("error", String(e.message || e));
     res.status(500).json({ ok: false, error: String(e.message || e) });
