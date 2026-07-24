@@ -34,7 +34,9 @@ async function ensureCustomerProject(log, qat, rlm, client, property) {
   const { name, extra } = customerFields(client, property);
   if (!name) throw new Error("client has no name");
   const customer = await log.step("Create QBO customer", { name }, () => qbo.findOrCreateCustomer(qat, rlm, name, extra));
-  const project = await log.step("Create QBO project", { name, parent: customer.Id }, () => qbo.findOrCreateCustomer(qat, rlm, name, { Job: true, ParentRef: { value: customer.Id } }));
+  // IsProject (not the legacy Job flag) — otherwise it's a plain sub-customer and
+  // never appears in QBO's Projects view, unlike the ones created by hand.
+  const project = await log.step("Create QBO project", { name, parent: customer.Id }, () => qbo.findOrCreateCustomer(qat, rlm, name, { IsProject: true, ParentRef: { value: customer.Id } }));
   return { customer, project, name };
 }
 
