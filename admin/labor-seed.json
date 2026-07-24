@@ -1,0 +1,551 @@
+[
+ {
+  "category": "BBQ",
+  "item": "Masonry Cutout",
+  "description": "BBQ Cutout",
+  "unit": "Each",
+  "cost": 150.0,
+  "notes": null,
+  "sort_order": 1
+ },
+ {
+  "category": "BBQ",
+  "item": "BBQ Block",
+  "description": "Labor only (3x1) includes labor for travertine top",
+  "unit": "LF",
+  "cost": 73.0,
+  "notes": "this is full legnth(perimeter) at 3' high",
+  "sort_order": 2
+ },
+ {
+  "category": "BBQ",
+  "item": "Stack Stone Labor",
+  "description": "Labor only (3x1)",
+  "unit": "LF",
+  "cost": 36.0,
+  "notes": null,
+  "sort_order": 3
+ },
+ {
+  "category": "BBQ",
+  "item": "Stucco Labor",
+  "description": "Labor only (3x1)",
+  "unit": "LF",
+  "cost": 11.5,
+  "notes": null,
+  "sort_order": 4
+ },
+ {
+  "category": "Rock & Base",
+  "item": "Rock",
+  "description": "Rock Install",
+  "unit": "Per Ton",
+  "cost": 45.0,
+  "notes": "Formula needed in Bundle",
+  "sort_order": 5
+ },
+ {
+  "category": "Rock & Base",
+  "item": "Extra 1/4-",
+  "description": "Additional ton",
+  "unit": "Per Ton",
+  "cost": 30.0,
+  "notes": "Formula needed in Bundle",
+  "sort_order": 6
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "Valve",
+  "description": "Valve",
+  "unit": "Each",
+  "cost": 75.0,
+  "notes": null,
+  "sort_order": 7
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "Backfill",
+  "description": "Backflow",
+  "unit": "Each",
+  "cost": 200.0,
+  "notes": null,
+  "sort_order": 8
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "Timer Box",
+  "description": "Irrigation timer box",
+  "unit": "Each",
+  "cost": 50.0,
+  "notes": null,
+  "sort_order": 9
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "PVC Pipe",
+  "description": "4 inch PVC per head",
+  "unit": "Each",
+  "cost": 20.0,
+  "notes": null,
+  "sort_order": 10
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "Poly Pipe",
+  "description": "PVC irrigation line",
+  "unit": "LF",
+  "cost": 4.0,
+  "notes": null,
+  "sort_order": 11
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "Poly Pipe",
+  "description": "Poly irrigation line",
+  "unit": "LF",
+  "cost": 3.0,
+  "notes": null,
+  "sort_order": 12
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "Trench drain",
+  "description": null,
+  "unit": "LF",
+  "cost": 5.0,
+  "notes": null,
+  "sort_order": 13
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "Box drain",
+  "description": null,
+  "unit": "LF",
+  "cost": 5.0,
+  "notes": null,
+  "sort_order": 14
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "French Drain",
+  "description": null,
+  "unit": "LF",
+  "cost": 6.0,
+  "notes": null,
+  "sort_order": 15
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "Footings",
+  "description": null,
+  "unit": "Each",
+  "cost": 45.0,
+  "notes": null,
+  "sort_order": 16
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "Lighting",
+  "description": null,
+  "unit": "Each",
+  "cost": 35.0,
+  "notes": null,
+  "sort_order": 17
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "Conduit Electrical Sleve",
+  "description": null,
+  "unit": "LF",
+  "cost": 4.0,
+  "notes": null,
+  "sort_order": 18
+ },
+ {
+  "category": "Drainage & Utilities",
+  "item": "Conduite PVC Water",
+  "description": null,
+  "unit": "LF",
+  "cost": 4.0,
+  "notes": null,
+  "sort_order": 19
+ },
+ {
+  "category": "Demolition",
+  "item": "Standard Demo",
+  "description": "Rock/Sod/Turf demo up to 2 inches",
+  "unit": "SF",
+  "cost": 0.75,
+  "notes": null,
+  "sort_order": 20
+ },
+ {
+  "category": "Demolition",
+  "item": "Border Demo",
+  "description": "Border demolition",
+  "unit": "LF",
+  "cost": 1.5,
+  "notes": null,
+  "sort_order": 21
+ },
+ {
+  "category": "Demolition",
+  "item": "Heavy Demo",
+  "description": "4\" Organic Material Rock, Dirt, Green",
+  "unit": "LF",
+  "cost": 1.5,
+  "notes": null,
+  "sort_order": 22
+ },
+ {
+  "category": "Demolition",
+  "item": "Heavy Demo",
+  "description": "6\" Organic Material Rock, Dirt, Green",
+  "unit": "LF",
+  "cost": 3.0,
+  "notes": null,
+  "sort_order": 23
+ },
+ {
+  "category": "Demolition",
+  "item": "Heavy Demo",
+  "description": "Concrete Pad",
+  "unit": "Sqft",
+  "cost": 3.5,
+  "notes": null,
+  "sort_order": 24
+ },
+ {
+  "category": "Demolition",
+  "item": "Heavy Demo",
+  "description": "Block Wall",
+  "unit": "LF",
+  "cost": 3.5,
+  "notes": null,
+  "sort_order": 25
+ },
+ {
+  "category": "Turf",
+  "item": "Turf Installation",
+  "description": "Standard turf install",
+  "unit": "SF",
+  "cost": 1.25,
+  "notes": null,
+  "sort_order": 26
+ },
+ {
+  "category": "Turf",
+  "item": "Nylon Upgrade",
+  "description": "Upgrade option",
+  "unit": "SF",
+  "cost": 2.0,
+  "notes": null,
+  "sort_order": 27
+ },
+ {
+  "category": "Turf",
+  "item": "TruePutt Upgrade",
+  "description": "Upgrade option",
+  "unit": "SF",
+  "cost": 3.0,
+  "notes": null,
+  "sort_order": 28
+ },
+ {
+  "category": "Pavers & Stone",
+  "item": "Pavers",
+  "description": "Concrete pavers",
+  "unit": "SF",
+  "cost": 2.5,
+  "notes": null,
+  "sort_order": 29
+ },
+ {
+  "category": "Pavers & Stone",
+  "item": "Paver Border",
+  "description": "Paver edging",
+  "unit": "LF",
+  "cost": 3.0,
+  "notes": null,
+  "sort_order": 30
+ },
+ {
+  "category": "Pavers & Stone",
+  "item": "Travertine",
+  "description": "Travertine stone",
+  "unit": "SF",
+  "cost": 3.0,
+  "notes": null,
+  "sort_order": 31
+ },
+ {
+  "category": "Pavers & Stone",
+  "item": "Travertine Border",
+  "description": "Travertine edging",
+  "unit": "LF",
+  "cost": 3.0,
+  "notes": null,
+  "sort_order": 32
+ },
+ {
+  "category": "Pavers & Stone",
+  "item": "Porcelain Pavers",
+  "description": "Porcelain pavers",
+  "unit": "SF",
+  "cost": 6.0,
+  "notes": "6 or 5 need to confirm",
+  "sort_order": 33
+ },
+ {
+  "category": "Steps & Coping",
+  "item": "Steps",
+  "description": "Standard step (24x24)",
+  "unit": "Each",
+  "cost": 25.0,
+  "notes": "extra labor per step",
+  "sort_order": 34
+ },
+ {
+  "category": "Steps & Coping",
+  "item": "Custom Step Add-On",
+  "description": "Stairs",
+  "unit": "Each",
+  "cost": 150.0,
+  "notes": "this is for Stairs",
+  "sort_order": 35
+ },
+ {
+  "category": "Steps & Coping",
+  "item": "Coping Curved",
+  "description": "Curved coping",
+  "unit": "LF",
+  "cost": 12.0,
+  "notes": null,
+  "sort_order": 36
+ },
+ {
+  "category": "Steps & Coping",
+  "item": "Coping Face Tile",
+  "description": "Face tile coping",
+  "unit": "LF",
+  "cost": 8.0,
+  "notes": null,
+  "sort_order": 37
+ },
+ {
+  "category": "Plants",
+  "item": "5 Gallon Plant",
+  "description": "Plant material",
+  "unit": "Each",
+  "cost": 15.0,
+  "notes": null,
+  "sort_order": 38
+ },
+ {
+  "category": "Plants",
+  "item": "10 Gallon Plant",
+  "description": "Plant material",
+  "unit": "Each",
+  "cost": 25.0,
+  "notes": null,
+  "sort_order": 39
+ },
+ {
+  "category": "Plants",
+  "item": "15 Gallon Plant",
+  "description": "Plant material",
+  "unit": "Each",
+  "cost": 35.0,
+  "notes": null,
+  "sort_order": 40
+ },
+ {
+  "category": "Plants",
+  "item": "24 Gallon Plant",
+  "description": "Plant material",
+  "unit": "Each",
+  "cost": 75.0,
+  "notes": null,
+  "sort_order": 41
+ },
+ {
+  "category": "Plants",
+  "item": "30 Gallon Plant",
+  "description": "Plant material",
+  "unit": "Each",
+  "cost": 150.0,
+  "notes": null,
+  "sort_order": 42
+ },
+ {
+  "category": "Bush Removal",
+  "item": "Small Bush",
+  "description": "Removal",
+  "unit": "Each",
+  "cost": 20.0,
+  "notes": null,
+  "sort_order": 43
+ },
+ {
+  "category": "Bush Removal",
+  "item": "Medium Bush",
+  "description": "Removal",
+  "unit": "Each",
+  "cost": 50.0,
+  "notes": null,
+  "sort_order": 44
+ },
+ {
+  "category": "Bush Removal",
+  "item": "Large Bush",
+  "description": "Removal",
+  "unit": "Each",
+  "cost": 70.0,
+  "notes": null,
+  "sort_order": 45
+ },
+ {
+  "category": "Bush Removal",
+  "item": "Extra Large Bush",
+  "description": "Removal",
+  "unit": "Each",
+  "cost": 120.0,
+  "notes": null,
+  "sort_order": 46
+ },
+ {
+  "category": "Stump Removal",
+  "item": "Small less than 6\"",
+  "description": "Removal",
+  "unit": "Each",
+  "cost": 100.0,
+  "notes": null,
+  "sort_order": 47
+ },
+ {
+  "category": "Stump Removal",
+  "item": "Medium 6\"-8\"",
+  "description": "Removal",
+  "unit": "Each",
+  "cost": 200.0,
+  "notes": null,
+  "sort_order": 48
+ },
+ {
+  "category": "Stump Removal",
+  "item": "Large 8\"-12\"",
+  "description": "Removal",
+  "unit": "Each",
+  "cost": 350.0,
+  "notes": null,
+  "sort_order": 49
+ },
+ {
+  "category": "Tree Removal",
+  "item": "Small Under 10'",
+  "description": null,
+  "unit": "Each",
+  "cost": 350.0,
+  "notes": null,
+  "sort_order": 50
+ },
+ {
+  "category": "Tree Removal",
+  "item": "Medium 10-15'",
+  "description": null,
+  "unit": "Each",
+  "cost": 500.0,
+  "notes": null,
+  "sort_order": 51
+ },
+ {
+  "category": "Tree Removal",
+  "item": "Large 15-25'",
+  "description": null,
+  "unit": "Each",
+  "cost": 1000.0,
+  "notes": null,
+  "sort_order": 52
+ },
+ {
+  "category": "Palm Tree Removal",
+  "item": "Any size",
+  "description": "Removal",
+  "unit": "Per Ft",
+  "cost": 30.0,
+  "notes": null,
+  "sort_order": 53
+ },
+ {
+  "category": "Miscellaneous",
+  "item": "Raise Gate",
+  "description": "Gate adjustment",
+  "unit": "Each",
+  "cost": 100.0,
+  "notes": null,
+  "sort_order": 54
+ },
+ {
+  "category": "Pool Fence/Fencing Removal",
+  "item": "Pool Fence/Fencing Removal",
+  "description": null,
+  "unit": "LF",
+  "cost": 4.0,
+  "notes": null,
+  "sort_order": 55
+ },
+ {
+  "category": "Fire Pit Kit",
+  "item": "Fire Pit Kit",
+  "description": null,
+  "unit": "Each",
+  "cost": 150.0,
+  "notes": null,
+  "sort_order": 56
+ },
+ {
+  "category": "Mesa Wall",
+  "item": "Mesa Wall",
+  "description": null,
+  "unit": "LF",
+  "cost": 8.0,
+  "notes": null,
+  "sort_order": 57
+ },
+ {
+  "category": "Block wall",
+  "item": "Block wall",
+  "description": null,
+  "unit": "LF",
+  "cost": 8.0,
+  "notes": null,
+  "sort_order": 58
+ },
+ {
+  "category": "Fence Wall",
+  "item": "Fence Wall",
+  "description": null,
+  "unit": "LF",
+  "cost": 8.0,
+  "notes": null,
+  "sort_order": 59
+ },
+ {
+  "category": "Stucco for block wall",
+  "item": "Stucco for block wall",
+  "description": null,
+  "unit": "SQFT",
+  "cost": 3.85,
+  "notes": null,
+  "sort_order": 60
+ },
+ {
+  "category": "Stack stone for Block wall",
+  "item": "Stack stone for Block wall",
+  "description": null,
+  "unit": "SQFT",
+  "cost": 12.0,
+  "notes": null,
+  "sort_order": 61
+ }
+]

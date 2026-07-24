@@ -166,7 +166,18 @@
         <div class="stat"><div class="stat-label">Line items</div><div class="stat-value">${RATES.length}</div><div class="stat-sub">${catSet.length} categories</div></div>
         <div class="stat"><div class="stat-label">Matched to ArcSite</div><div class="stat-value" style="color:var(--ok);">${matched}</div><div class="stat-sub">${RATES.length - matched} unmatched</div></div>`;
 
-      if (!rows.length) { content.innerHTML = `<div class="empty"><div class="empty-icon">📋</div>No rates${FILTER ? " match your search" : " yet"}.</div>`; return; }
+      if (!rows.length) {
+        if (!RATES.length && !FILTER) {
+          content.innerHTML = `<div class="empty"><div class="empty-icon">📋</div>
+            <div style="font-weight:700;color:var(--text);margin-bottom:6px;">No labor rates yet</div>
+            <div style="margin-bottom:14px;">Load the Cosmo labor price sheet (61 items) to get started — it auto-matches each item to your ArcSite products.</div>
+            <button class="btn" id="seedBtn" type="button">Load price sheet</button></div>`;
+          byId("seedBtn").addEventListener("click", seedFromSheet);
+        } else {
+          content.innerHTML = `<div class="empty"><div class="empty-icon">📋</div>No rates match your search.</div>`;
+        }
+        return;
+      }
 
       // group by category, in first-seen order
       const groups = []; const seen = new Map();
@@ -190,6 +201,18 @@
     }
 
     byId("search").addEventListener("input", (e) => { FILTER = e.target.value; render(); });
+
+    // One-time load of the price sheet, then ArcSite matching happens server-side.
+    async function seedFromSheet() {
+      const btn = byId("seedBtn"); btn.disabled = true; btn.textContent = "Loading…";
+      try {
+        const rows = await (await fetch("./labor-seed.json")).json();
+        const res = await fetch("/api/labor-rates", { method: "POST", headers: await authHeader(), body: JSON.stringify({ action: "seed", rows }) });
+        const out = await res.json(); if (!res.ok) throw new Error(out.error || `HTTP ${res.status}`);
+        alert(`Loaded ${out.inserted} labor rates. Matched ${out.arcsiteMatched} to ArcSite products (catalog: ${out.catalogSize}).`);
+        await load();
+      } catch (err) { alert("Load failed: " + err.message); btn.disabled = false; btn.textContent = "Load price sheet"; }
+    }
 
     // ── Add / edit modal ──
     const modal = byId("editModal"), form = byId("rateForm");
