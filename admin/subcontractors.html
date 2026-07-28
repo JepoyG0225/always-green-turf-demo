@@ -75,6 +75,10 @@
         </div>
         <div class="head-actions">
           <span class="subtle" id="count" style="margin:0 4px;"></span>
+          <button class="btn secondary" id="importBtn" type="button" title="Pull vendors billed to Contractors-COGS from QuickBooks">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+            Import from QuickBooks
+          </button>
           <button class="btn" id="addBtn" type="button">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg>
             Add subcontractor
@@ -140,7 +144,11 @@
       byId("setupWarn").style.display = "none";
       SUBS = data || [];
       byId("count").textContent = `${SUBS.length} sub${SUBS.length === 1 ? "" : "s"}`;
-      if (!SUBS.length) { content.innerHTML = `<div class="empty"><div class="empty-icon">👷</div>No subcontractors yet. Add one and map it to its QuickBooks vendor.</div>`; return; }
+      if (!SUBS.length) { content.innerHTML = `<div class="empty"><div class="empty-icon">👷</div>
+        <div style="font-weight:700;color:var(--text);margin-bottom:6px;">No subcontractors yet</div>
+        <div style="margin-bottom:14px;">Import the installers you already pay in QuickBooks — anyone billed to Contractors&nbsp;–&nbsp;COGS — with their vendor mapping filled in automatically.</div>
+        <button class="btn" id="emptyImportBtn" type="button">Import from QuickBooks</button></div>`;
+        byId("emptyImportBtn").addEventListener("click", importFromQBO); return; }
       const rows = SUBS.map((s) => `<tr class="clickable" data-id="${esc(s.id)}">
         <td style="font-weight:700;">${esc(s.name)}</td>
         <td class="muted" style="font-size:.84rem;">${esc(s.email || "—")}</td>
@@ -174,6 +182,22 @@
       modal.classList.remove("hidden"); document.body.classList.add("modal-open");
     }
     byId("addBtn").addEventListener("click", () => openEdit(null));
+
+    // Import subcontractors from QBO (vendors billed to Contractors-COGS).
+    async function importFromQBO() {
+      const btn = byId("importBtn"); const eb = byId("emptyImportBtn");
+      [btn, eb].forEach((b) => b && (b.disabled = true));
+      if (btn) btn.textContent = "Importing…";
+      try {
+        const res = await fetch("/api/subcontractors", { method: "POST", headers: await authHeader(), body: JSON.stringify({ action: "import-from-qbo" }) });
+        const out = await res.json(); if (!res.ok) throw new Error(out.error || `HTTP ${res.status}`);
+        const lines = (out.subs || []).map((s) => `${s.imported ? "＋" : "•"} ${s.name} — ${s.bills} bills, $${s.total.toLocaleString()}`).join("\n");
+        alert(`Found ${out.found} subcontractor(s) in QuickBooks. Imported ${out.imported} new${out.skippedExisting ? `, ${out.skippedExisting} already present` : ""}.\n\n${lines}`);
+        await load();
+      } catch (err) { alert("Import failed: " + err.message); }
+      finally { [btn, eb].forEach((b) => b && (b.disabled = false)); if (btn) btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg> Import from QuickBooks'; }
+    }
+    byId("importBtn").addEventListener("click", importFromQBO);
 
     // Debounced QBO vendor search
     let searchT = null;

@@ -43,6 +43,53 @@ module.exports = async function handler(req, res) {
   const action = String(body.action || "").trim();
 
   try {
+    // Import real subcontractors from QBO: any vendor with a bill coded to
+    // Contractors - COGS (acct 9) is, by definition, a sub we pay. Vendor id +
+    // email come straight from QBO, so no manual mapping is needed. Idempotent:
+    // only inserts vendors not already in the table.
+    if (action === "import-from-qbo") {
+      const at = await qbo.accessToken();
+      const rlm = await qbo.realm();
+      const COGS = process.env.QBO_CONTRACTORS_COGS || "9";
+      // 1) scan bills, aggregate vendors that hit the Contractors-COGS account
+      const vend = new Map();
+      for (let pos = 1; pos < 5000; pos += 100) {
+        const bills = (await qbo.query(at, rlm, `SELECT * FROM Bill STARTPOSITION ${pos} MAXRESULTS 100`)).Bill || [];
+        if (!bills.length) break;
+        for (const bl of bills) {
+          const hit = (bl.Line || []).some((l) => (l.AccountBasedExpenseLineDetail && l.AccountBasedExpenseLineDetail.AccountRef && l.AccountBasedExpenseLineDetail.AccountRef.value) === COGS);
+          if (!hit) continue;
+          const v = bl.VendorRef || {}; if (!v.value) continue;
+          const e = vend.get(v.value) || { id: v.value, name: v.name, count: 0, total: 0 };
+          e.count++; e.total += Number(bl.TotalAmt || 0);
+          vend.set(v.value, e);
+        }
+        if (bills.length < 100) break;
+      }
+      if (!vend.size) { res.status(200).json({ ok: true, found: 0, imported: 0, message: "No vendors billed to Contractors-COGS found" }); return; }
+      // 2) enrich with email/phone from the Vendor records
+      const ids = [...vend.keys()];
+      const vdetail = (await qbo.query(at, rlm, `SELECT Id, DisplayName, PrimaryEmailAddr, PrimaryPhone FROM Vendor WHERE Id IN (${ids.map((i) => `'${i}'`).join(",")})`)).Vendor || [];
+      const byId = new Map(vdetail.map((v) => [v.Id, v]));
+      // 3) skip any already in the table
+      const existing = await (await fetch(`${SUPA}/rest/v1/subcontractors?select=qbo_vendor_id`, { headers: H })).json().catch(() => []);
+      const have = new Set((existing || []).map((s) => s.qbo_vendor_id).filter(Boolean));
+      const toInsert = [...vend.values()].filter((v) => !have.has(v.id)).map((v) => {
+        const d = byId.get(v.id) || {};
+        return { name: d.DisplayName || v.name, qbo_vendor_id: v.id, qbo_vendor_name: d.DisplayName || v.name,
+          email: (d.PrimaryEmailAddr && d.PrimaryEmailAddr.Address) || null,
+          phone: (d.PrimaryPhone && d.PrimaryPhone.FreeFormNumber) || null, active: true };
+      });
+      let imported = 0;
+      if (toInsert.length) {
+        const r = await fetch(`${SUPA}/rest/v1/subcontractors`, { method: "POST", headers: { ...H, Prefer: "return=minimal" }, body: JSON.stringify(toInsert) });
+        if (!r.ok) throw new Error(`insert ${r.status}: ${(await r.text()).slice(0, 200)}`);
+        imported = toInsert.length;
+      }
+      res.status(200).json({ ok: true, found: vend.size, imported, skippedExisting: vend.size - toInsert.length,
+        subs: [...vend.values()].sort((a, b) => b.total - a.total).map((v) => ({ name: v.name, vendorId: v.id, bills: v.count, total: Math.round(v.total), imported: !have.has(v.id) })) });
+      return;
+    }
     if (action === "search-vendors") {
       const at = await qbo.accessToken();
       const rlm = await qbo.realm();
