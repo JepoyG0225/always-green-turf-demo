@@ -78,6 +78,15 @@ async function findOrCreateCustomer(at, rlm, displayName, extra) {
   return (await apiPost(at, rlm, "customer", { DisplayName: dn, ...(extra || {}) })).Customer;
 }
 
+// Find vendors by (fuzzy) display name — for mapping a subcontractor to its
+// QBO vendor in the admin UI.
+async function findVendors(at, rlm, name) {
+  const dn = String(name || "").trim();
+  if (!dn) return [];
+  const r = await query(at, rlm, `SELECT Id, DisplayName, PrimaryEmailAddr FROM Vendor WHERE DisplayName LIKE '%${esc(dn)}%' ORDERBY DisplayName`);
+  return r.Vendor || [];
+}
+
 async function createPayment(at, rlm, { customerId, amount, invoiceId }) {
   const body = { CustomerRef: { value: String(customerId) }, TotalAmt: amount, Line: [{ Amount: amount, LinkedTxn: [{ TxnId: String(invoiceId), TxnType: "Invoice" }] }] };
   const r = await fetch(`${BASE}/v3/company/${rlm}/payment?minorversion=70`, {
@@ -89,4 +98,4 @@ async function createPayment(at, rlm, { customerId, amount, invoiceId }) {
   return d.Payment;
 }
 
-module.exports = { accessToken, realm, findCustomers, openInvoices, createPayment, apiPost, findOrCreateCustomer, query, ENV };
+module.exports = { accessToken, realm, findCustomers, findVendors, openInvoices, createPayment, apiPost, findOrCreateCustomer, query, ENV };
