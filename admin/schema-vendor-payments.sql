@@ -44,6 +44,10 @@ create table if not exists sub_takeoffs (
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
+-- Delivery tracking (added later — safe to re-run):
+alter table sub_takeoffs add column if not exists sent_to text;
+alter table sub_takeoffs add column if not exists sent_at timestamptz;
+
 create index if not exists sub_takeoffs_status_idx on sub_takeoffs (status, created_at desc);
 create index if not exists sub_takeoffs_token_idx on sub_takeoffs (token);
 

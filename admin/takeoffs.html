@@ -182,7 +182,10 @@
         const res = await fetch("/api/sub-takeoffs", { method:"POST", headers: await authHeader(), body: JSON.stringify({ action:"generate", jobId, subcontractorId: byId("genSub").value || undefined }) });
         const d = await res.json(); if (!res.ok) throw new Error(d.error||`HTTP ${res.status}`);
         const who = d.detectedSub ? subName(d.detectedSub.id) || d.detectedSub.name : (d.crew&&d.crew.length?`crew ${d.crew.join(", ")} (unmapped)`:"none");
+        const dv = d.delivery || {};
+        const deliveryMsg = dv.sent ? `<span style="color:var(--ok,#16a34a);">✉ Emailed to ${esc(dv.to)}</span>` : `<span style="color:#b26a00;">Not emailed — ${esc(dv.reason||"send manually")}. Use the link below.</span>`;
         byId("genResult").innerHTML = `<div class="link-row"><span>Job #${esc(d.jobNumber)} · ${esc(d.clientName)} · ${d.matchedLines}/${d.billableLines} priced · sub: ${esc(who)}</span></div>
+          <div class="link-row" style="background:none;padding:6px 0;">${deliveryMsg}</div>
           <div class="link-row"><input value="${esc(d.link)}" readonly onclick="this.select()"><button class="btn secondary" id="copyLink" type="button">Copy</button></div>`;
         byId("copyLink").addEventListener("click", ()=>{ navigator.clipboard.writeText(d.link); byId("copyLink").textContent="Copied"; });
         byId("genJob").value=""; await load();
@@ -208,6 +211,7 @@
       byId("mBody").innerHTML = `
         <dl class="kv">
           <dt>Status</dt><dd><span class="st ${STATUS[r.status]||""}">${esc(r.status)}${r.qbo_bill_doc?` · QBO #${esc(r.qbo_bill_doc)}`:""}</span></dd>
+          <dt>Sent to sub</dt><dd>${r.sent_to?`${esc(r.sent_to)} <span class="muted">· ${fmtPhx(r.sent_at)}</span>`:'<span class="muted">not sent yet</span>'}</dd>
           <dt>Submitted</dt><dd>${r.submitted_at?fmtPhx(r.submitted_at):"—"}</dd>
           <dt>Total to bill</dt><dd style="font-weight:800;">${money(r.total_amount)}</dd>
         </dl>
@@ -216,12 +220,23 @@
         ${photos.length?`<div class="sec-lbl">Completed-work photos (${photos.length})</div><div class="photos">${photos.map((p)=>`<a href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.url)}" loading="lazy"></a>`).join("")}</div>`:""}
         <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:22px; flex-wrap:wrap;">
           ${r.token&&r.status!=="billed"?`<button class="btn secondary" id="copyFormLink" type="button">Copy form link</button>`:""}
+          ${(r.status==="sent"||r.status==="submitted")?`<button class="btn secondary" id="sendBtn" type="button">${r.sent_to?"Resend to sub":"Email to sub"}</button>`:""}
           ${canApprove?`<button class="btn secondary" id="rejectBtn" type="button">Reject</button>
             <button class="btn secondary" id="dryBtn" type="button">Preview bill</button>
             <button class="btn" id="approveBtn" type="button">Approve → create QBO bill</button>`:""}
         </div>
         <div id="approveMsg" style="margin-top:10px; font-size:.85rem;"></div>`;
       if (r.token && r.status!=="billed") byId("copyFormLink")?.addEventListener("click",()=>navigator.clipboard.writeText(`${location.origin}/sub-takeoff?token=${r.token}`));
+      byId("sendBtn")?.addEventListener("click", async () => {
+        const msg = byId("approveMsg"); msg.style.color="var(--muted)"; msg.textContent="Sending…";
+        try {
+          const res = await fetch("/api/sub-takeoffs", { method:"POST", headers: await authHeader(), body: JSON.stringify({ action:"send", id:r.id }) });
+          const d = await res.json(); if(!res.ok) throw new Error(d.error||`HTTP ${res.status}`);
+          if (d.delivery && d.delivery.sent) { msg.style.color="var(--ok,#16a34a)"; msg.innerHTML = `✉ Emailed to ${esc(d.delivery.to)}.`; }
+          else { msg.style.color="#b26a00"; msg.innerHTML = `Couldn't email — ${esc(d.delivery&&d.delivery.reason||"no email")}. Copy the form link and send manually.`; }
+          await load();
+        } catch(e){ msg.style.color="var(--danger)"; msg.textContent=e.message; }
+      });
       if (canApprove) {
         byId("rejectBtn").addEventListener("click",()=>act(r,"reject"));
         byId("dryBtn").addEventListener("click",()=>act(r,"approve",true));
