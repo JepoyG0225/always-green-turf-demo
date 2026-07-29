@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Job Takeoff | Always Green Turf</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root{ --g1:#0f3d2e; --g2:#1b5e3f; --g3:#2e7d52; --g4:#4a9d6f; --g6:#eaf5ee; --gold:#c9a24a; --ink:#14241c; --mut:#5d7268; --line:#dde8e1; --bg:#f5f9f6; --danger:#c0392b; }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family:Poppins,system-ui,sans-serif; background:var(--bg); color:var(--ink); }
+    .wrap{ max-width:720px; margin:0 auto; padding:18px 16px 60px; }
+    .brand{ display:flex; align-items:center; gap:10px; padding:8px 0 16px; }
+    .brand img{ height:36px; }
+    .card{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:14px; box-shadow:0 1px 3px #0000000a; }
+    h1{ font-size:1.3rem; font-weight:800; margin:0 0 2px; }
+    .sub{ color:var(--mut); font-size:.9rem; }
+    .hd{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+    .badge{ background:var(--g6); color:var(--g2); font-weight:700; font-size:.78rem; padding:5px 11px; border-radius:999px; white-space:nowrap; }
+    .sec-lbl{ font-size:.72rem; letter-spacing:1px; text-transform:uppercase; color:var(--mut); font-weight:700; margin:6px 0 10px; }
+    .line{ border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:10px; transition:border-color .15s, background .15s; }
+    .line.on{ border-color:var(--g4); background:#fbfefc; }
+    .line.off{ opacity:.6; }
+    .line-top{ display:flex; align-items:center; gap:12px; }
+    .chk{ width:22px; height:22px; accent-color:var(--g3); flex:none; }
+    .line-name{ font-weight:700; font-size:.95rem; flex:1; }
+    .line-meta{ color:var(--mut); font-size:.82rem; white-space:nowrap; }
+    .cost{ font-weight:800; font-size:1rem; white-space:nowrap; }
+    .cost.zero{ color:var(--danger); }
+    .line-actions{ margin-top:10px; display:none; }
+    .line.on .line-actions{ display:block; }
+    .adjust-toggle{ font-size:.8rem; color:var(--g2); font-weight:600; background:none; border:none; cursor:pointer; padding:4px 0; text-decoration:underline; }
+    .adjust{ display:none; margin-top:8px; padding:10px; background:var(--g6); border-radius:9px; }
+    .adjust.open{ display:block; }
+    label{ display:block; font-size:.74rem; font-weight:700; color:var(--mut); margin:8px 0 4px; }
+    input,textarea{ width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:8px; font:inherit; font-size:.9rem; }
+    textarea{ min-height:44px; resize:vertical; }
+    .req{ color:var(--danger); }
+    .file-btn{ display:inline-flex; align-items:center; gap:7px; padding:9px 14px; border:1.5px dashed var(--g4); color:var(--g2); border-radius:10px; font-size:.85rem; font-weight:600; cursor:pointer; background:#fff; }
+    input[type=file]{ display:none; }
+    .thumbs{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .thumb{ position:relative; width:74px; height:74px; border-radius:9px; overflow:hidden; border:1px solid var(--line); }
+    .thumb img{ width:100%; height:100%; object-fit:cover; }
+    .thumb button{ position:absolute; top:2px; right:2px; width:20px; height:20px; border-radius:50%; border:none; background:#000a; color:#fff; cursor:pointer; font-size:13px; line-height:1; }
+    .total-bar{ position:sticky; bottom:0; background:#fff; border-top:1px solid var(--line); margin:0 -16px -60px; padding:14px 16px calc(14px + env(safe-area-inset-bottom)); display:flex; align-items:center; justify-content:space-between; gap:14px; box-shadow:0 -2px 12px #0000000f; }
+    .total-bar .t{ font-size:.8rem; color:var(--mut); }
+    .total-bar .v{ font-size:1.35rem; font-weight:800; }
+    .btn{ background:var(--g2); color:#fff; border:none; border-radius:12px; padding:13px 22px; font:inherit; font-weight:700; font-size:1rem; cursor:pointer; }
+    .btn:disabled{ opacity:.55; }
+    .note{ font-size:.82rem; color:var(--mut); line-height:1.5; }
+    .center{ text-align:center; padding:50px 20px; }
+    .spinner{ width:30px; height:30px; border:3px solid var(--line); border-top-color:var(--g3); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 14px; }
+    @keyframes spin{ to{ transform:rotate(360deg); } }
+    .ok-icon{ width:64px; height:64px; border-radius:50%; background:var(--g6); color:var(--g2); display:grid; place-items:center; margin:0 auto 16px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand"><img src="/logo.webp" alt="Always Green Turf" /></div>
+    <div id="app"><div class="center"><div class="spinner"></div>Loading your job…</div></div>
+  </div>
+
+  <script>
+    const $ = (s, r=document) => r.querySelector(s);
+    const app = $("#app");
+    const params = new URLSearchParams(location.search);
+    const token = params.get("token") || "";
+    const money = (n) => "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:0,maximumFractionDigits:2});
+    const esc = (s) => String(s??"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    let TAKEOFF = null, COMPLETION = []; // completion photos [{dataUrl}]
+
+    // Compress an image file to a JPEG data URL (max ~1600px, quality .8).
+    function compress(file){
+      return new Promise((resolve,reject)=>{
+        const img = new Image();
+        const fr = new FileReader();
+        fr.onload = () => { img.onload = () => {
+          const max=1600; let {width:w,height:h}=img;
+          if(w>max||h>max){ const s=max/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
+          const c=document.createElement("canvas"); c.width=w; c.height=h;
+          c.getContext("2d").drawImage(img,0,0,w,h);
+          resolve(c.toDataURL("image/jpeg",0.8));
+        }; img.onerror=reject; img.src=fr.result; };
+        fr.onerror=reject; fr.readAsDataURL(file);
+      });
+    }
+
+    async function load(){
+      if(!token){ app.innerHTML = `<div class="card center">This link is missing its token. Please use the link we sent you.</div>`; return; }
+      try{
+        const res = await fetch(`/api/sub-takeoff?token=${encodeURIComponent(token)}`);
+        const d = await res.json();
+        if(!res.ok) throw new Error(d.error||"Could not load this job.");
+        TAKEOFF = d.takeoff;
+        if(TAKEOFF.status && TAKEOFF.status!=="sent"){ return renderDone(TAKEOFF.status==="submitted"?"already":"closed"); }
+        render();
+      }catch(e){ app.innerHTML = `<div class="card center">${esc(e.message)}</div>`; }
+    }
+
+    function render(){
+      const t = TAKEOFF;
+      const rows = t.line_items.map((l,i)=>lineRow(l,i)).join("");
+      app.innerHTML = `
+        <div class="card">
+          <div class="hd">
+            <div><h1>Job #${esc(t.job_number)} — Takeoff</h1><div class="sub">${esc(t.client_name||"")}</div></div>
+            ${t.subcontractor?`<span class="badge">${esc(t.subcontractor)}</span>`:""}
+          </div>
+          <p class="note" style="margin:12px 0 0;">Confirm the work you performed. Uncheck anything you didn't do. To change a price, tap <b>Adjust price</b> and add a reason. Prices at <span class="req">$0</span> need your amount.</p>
+        </div>
+        <div class="card">
+          <div class="sec-lbl">Line items</div>
+          <div id="lines">${rows}</div>
+        </div>
+        <div class="card">
+          <div class="sec-lbl">Photos of completed work <span class="req">*</span></div>
+          <label class="file-btn"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.66-.9l.82-1.2A2 2 0 0110.07 4h3.86a2 2 0 011.66.9l.82 1.2a2 2 0 001.66.9H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg> Add photos<input type="file" accept="image/*" multiple id="completionInput"></label>
+          <div class="thumbs" id="completionThumbs"></div>
+        </div>
+        <div class="total-bar">
+          <div><div class="t">Total to bill</div><div class="v" id="total">$0</div></div>
+          <button class="btn" id="submitBtn">Submit takeoff</button>
+        </div>`;
+      $("#completionInput").addEventListener("change", onCompletion);
+      $("#lines").addEventListener("change", onLineChange);
+      $("#lines").addEventListener("click", onLineClick);
+      $("#lines").addEventListener("input", recompute);
+      $("#submitBtn").addEventListener("click", submit);
+      recompute();
+    }
+
+    function lineRow(l,i){
+      const zero = !(l.agreed_cost>0);
+      return `<div class="line ${l.confirmed?"on":"off"}" data-i="${i}">
+        <div class="line-top">
+          <input type="checkbox" class="chk" data-k="confirmed" ${l.confirmed?"checked":""}>
+          <div class="line-name">${esc(l.name)}</div>
+          <div class="line-meta">${esc(l.qty)}${l.unit?" "+esc(l.unit):""}</div>
+          <div class="cost ${zero?"zero":""}" data-cost>${money(l.line_total)}</div>
+        </div>
+        <div class="line-actions">
+          <button type="button" class="adjust-toggle">${zero?"Enter your price":"Adjust price"}</button>
+          <div class="adjust ${zero?"open":""}">
+            <label>Your price ${l.unit?`(per ${esc(l.unit)})`:""}</label>
+            <input type="number" step="0.01" min="0" data-k="override_cost" placeholder="${l.agreed_cost||0}" value="${l.override_cost??""}">
+            <label>Reason for change <span class="req">*</span></label>
+            <textarea data-k="override_comment" placeholder="Why is this different from the agreed price?">${esc(l.override_comment||"")}</textarea>
+            <label>Backup photo (optional)</label>
+            <label class="file-btn" style="padding:7px 12px;">Attach photo<input type="file" accept="image/*" data-k="override_image_file"></label>
+            <div class="thumbs" data-ovr-thumb></div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function onLineClick(e){
+      const tog = e.target.closest(".adjust-toggle");
+      if(tog){ tog.nextElementSibling.classList.toggle("open"); }
+    }
+    async function onLineChange(e){
+      const line = e.target.closest(".line"); if(!line) return;
+      const i = +line.dataset.i; const k = e.target.dataset.k;
+      if(k==="confirmed"){ line.classList.toggle("on",e.target.checked); line.classList.toggle("off",!e.target.checked); TAKEOFF.line_items[i].confirmed = e.target.checked; recompute(); }
+      if(k==="override_image_file" && e.target.files[0]){
+        const url = await compress(e.target.files[0]);
+        TAKEOFF.line_items[i].override_image = url;
+        line.querySelector("[data-ovr-thumb]").innerHTML = `<div class="thumb"><img src="${url}"></div>`;
+      }
+    }
+    function recompute(){
+      let total=0;
+      $("#lines").querySelectorAll(".line").forEach((line)=>{
+        const i=+line.dataset.i; const l=TAKEOFF.line_items[i];
+        const conf=line.querySelector('[data-k=confirmed]').checked;
+        const ov=line.querySelector('[data-k=override_cost]');
+        l.confirmed=conf;
+        l.override_cost = ov && ov.value!=="" ? Number(ov.value) : null;
+        l.override_comment = (line.querySelector('[data-k=override_comment]')||{}).value || null;
+        const unit = l.override_cost!=null ? l.override_cost : Number(l.agreed_cost||0);
+        const lt = +(unit*Number(l.qty||1)).toFixed(2);
+        line.querySelector("[data-cost]").textContent = money(lt);
+        line.querySelector("[data-cost]").classList.toggle("zero", !(unit>0));
+        if(conf) total += lt;
+      });
+      $("#total").textContent = money(total);
+    }
+
+    async function onCompletion(e){
+      for(const f of e.target.files){ const url=await compress(f); COMPLETION.push(url); }
+      e.target.value="";
+      $("#completionThumbs").innerHTML = COMPLETION.map((u,i)=>`<div class="thumb"><img src="${u}"><button data-rm="${i}">×</button></div>`).join("");
+    }
+    document.addEventListener("click",(e)=>{ const rm=e.target.closest("[data-rm]"); if(rm){ COMPLETION.splice(+rm.dataset.rm,1); $("#completionThumbs").innerHTML = COMPLETION.map((u,i)=>`<div class="thumb"><img src="${u}"><button data-rm="${i}">×</button></div>`).join(""); } });
+
+    async function submit(){
+      recompute();
+      // validation
+      for(const l of TAKEOFF.line_items){
+        if(!l.confirmed) continue;
+        const eff = l.override_cost!=null ? l.override_cost : Number(l.agreed_cost||0);
+        if(!(eff>0)){ alert(`"${l.name}" is checked but has no price. Enter your price or uncheck it.`); return; }
+        if(l.override_cost!=null && Number(l.override_cost)!==Number(l.agreed_cost) && !(l.override_comment||"").trim()){ alert(`"${l.name}": add a reason for the price change.`); return; }
+      }
+      if(!COMPLETION.length){ alert("Please add at least one photo of the completed work."); return; }
+      const btn=$("#submitBtn"); btn.disabled=true; btn.textContent="Submitting…";
+      try{
+        const lines = TAKEOFF.line_items.map((l)=>({ confirmed:l.confirmed, override_cost:l.override_cost, override_comment:l.override_comment, override_image:l.override_image||null }));
+        const res = await fetch("/api/sub-takeoff",{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ token, lines, completion_photos:COMPLETION }) });
+        const d = await res.json(); if(!res.ok) throw new Error(d.error||"Submit failed");
+        renderDone("ok", d);
+      }catch(e){ alert(e.message); btn.disabled=false; btn.textContent="Submit takeoff"; }
+    }
+
+    function renderDone(kind, d){
+      const map = {
+        ok:{ t:"Takeoff submitted", s:`Thanks! Your bill for $${(d&&d.total||0).toLocaleString()} was sent to Always Green Turf for approval.` },
+        already:{ t:"Already submitted", s:"This takeoff has already been submitted. Contact Always Green Turf if you need to make a change." },
+        closed:{ t:"This takeoff is closed", s:"No further changes can be made. Contact Always Green Turf with any questions." },
+      };
+      const m = map[kind]||map.closed;
+      app.innerHTML = `<div class="card center">
+        <div class="ok-icon"><svg width="30" height="30" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <h1>${m.t}</h1><p class="sub" style="margin-top:6px;">${m.s}</p></div>`;
+    }
+
+    load();
+  </script>
+</body>
+</html>
