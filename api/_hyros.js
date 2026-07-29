@@ -33,14 +33,26 @@ async function trackLead({ email, firstName, lastName, phone, ip, tags, source }
     ...(source ? { source } : {}),
     ...(Array.isArray(tags) && tags.length ? { tags } : {}),
   };
-  try {
-    const r = await fetch(ENDPOINT, { method: "POST", headers: { "API-Key": HYROS_KEY, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) });
-    const d = await r.json().catch(() => ({}));
-    if (!r.ok || d.result !== "OK") return { ok: false, error: `HYROS ${r.status}: ${JSON.stringify(d).slice(0, 140)}` };
-    return { ok: true, requestId: d.request_id };
-  } catch (e) {
-    return { ok: false, error: String(e.message || e) };
+  // HYROS's gateway returns intermittent 502/504s; retry once so a brief blip
+  // doesn't drop a lead. Each attempt is time-bounded so a HYROS outage can't
+  // stall the lead form — the lead is already saved to GHL either way.
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const TIMEOUT = Number(process.env.HYROS_TIMEOUT_MS || 3000);
+  let last = "unknown";
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), TIMEOUT);
+    try {
+      const r = await fetch(ENDPOINT, { method: "POST", signal: ctrl.signal, headers: { "API-Key": HYROS_KEY, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.result === "OK") return { ok: true, requestId: d.request_id, attempts: attempt + 1 };
+      last = `HYROS ${r.status}`;
+      if (r.status < 500) return { ok: false, error: last }; // 4xx = don't retry
+    } catch (e) { last = e.name === "AbortError" ? `timeout after ${TIMEOUT}ms` : String(e.message || e); }
+    finally { clearTimeout(t); }
+    if (attempt < 1) await sleep(300);
   }
+  return { ok: false, error: last, retried: true };
 }
 
 module.exports = { trackLead, clientIp, splitName };
