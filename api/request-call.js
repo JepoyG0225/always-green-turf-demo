@@ -4,6 +4,7 @@
 
 const SLACK_CHANNEL = process.env.SLACK_CHANNEL_ID || "C0BAZDCT5K4"; // "direct-booking-appt"
 const upsertGhlContact = require("./_ghl-contact");
+const { trackLead, clientIp } = require("./_hyros");
 
 async function readBody(req) {
   if (req.body && typeof req.body === "object") return req.body;
@@ -39,6 +40,10 @@ module.exports = async function handler(req, res) {
     });
     contactId = c.id; isNewContact = c.new;
   } catch (e) { contactErr = String(e.message || e); console.error("[callback] GHL upsert failed:", contactErr); }
+
+  // Track the lead in HYROS (server-side, non-blocking).
+  const hy = await trackLead({ firstName, lastName, phone, ip: clientIp(req), tags: ["callback-request", "website"], source: "Website — Call Me to Schedule" });
+  if (hy && hy.error) console.error("[callback] HYROS track failed:", hy.error);
 
   const text =
     `📞 *New Call-Back Request*\n\n` +

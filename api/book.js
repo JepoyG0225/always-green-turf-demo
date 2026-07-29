@@ -4,6 +4,7 @@
 
 const upsertGhlContact = require("./_ghl-contact");
 const { runDispatch } = require("./dispatch");
+const { trackLead, clientIp } = require("./_hyros");
 
 async function readBody(req) {
   if (req.body && typeof req.body === "object") return req.body;
@@ -36,6 +37,10 @@ module.exports = async function handler(req, res) {
     });
     contactId = c.id; isNewContact = c.new;
   } catch (e) { contactErr = String(e.message || e); console.error("[book] GHL upsert failed:", contactErr); }
+
+  // Track the lead in HYROS (server-side, non-blocking).
+  const hy = await trackLead({ firstName, lastName, email, phone, ip: clientIp(req), tags: ["online-booking", "website"], source: "Website — Direct Booking Form" });
+  if (hy && hy.error) console.error("[book] HYROS track failed:", hy.error);
 
   // 2) Run the DispatchAI engine in-process (replaces the GHL workflow webhook):
   //    geocode lead → nearest qualified rep who is free at the chosen slot →

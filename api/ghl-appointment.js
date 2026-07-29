@@ -16,6 +16,7 @@
 const newRun = require("./_runlog");
 const jobber = require("./_jobber");
 const { isPublished } = require("./_workflow-config");
+const { trackLead, splitName } = require("./_hyros");
 
 const JVER = process.env.JOBBER_QUOTE_GRAPHQL_VERSION || "2025-04-16";
 const ARC_TOKEN = process.env.ARCSITE_PROJECTS_TOKEN || "AzFBI6k_NxtkOAo1TGAwmA";
@@ -96,6 +97,12 @@ module.exports = async function handler(req, res) {
     const cal = b.calendar || {};
     const email = clean(b.email);
     if (!email) throw new Error("no email on webhook body");
+
+    // Track the lead in HYROS (non-blocking). Appointment payloads come via GHL,
+    // so there's no visitor IP here — HYROS matches on email/phone instead.
+    { const { firstName, lastName } = splitName(b.full_name);
+      const hy = await trackLead({ email, firstName, lastName, phone: clean(b.phone), tags: ["appointment", "website"], source: clean(b.contact_source) || "GHL Appointment" });
+      if (hy && hy.error) console.error("[ghl-appointment] HYROS track failed:", hy.error); }
 
     // Request title: "{city} - {full_name} - {contact_source} - LD MM/DD/YYYY"
     const requestTitle = await run.step("Build request title", { city: b.city, full_name: b.full_name, source: b.contact_source }, async () => {
