@@ -106,6 +106,12 @@
             <div id="vendorCurrent" class="vendor-current"></div>
             <input type="hidden" name="qbo_vendor_id" /><input type="hidden" name="qbo_vendor_name" />
           </div>
+          <div class="fld full">
+            <label>Jobber crew names <span style="font-weight:500; text-transform:none; letter-spacing:0; color:var(--muted);">— comma-separated; used to auto-detect this sub from a completed job</span></label>
+            <input name="jobber_crew" list="crewList" placeholder="e.g. Veny Godinez, Ever green crew" autocomplete="off" />
+            <datalist id="crewList"></datalist>
+            <div id="crewHint" class="vendor-current"></div>
+          </div>
           <div class="full" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
             <button type="button" class="danger" id="delBtn" style="display:none;">Delete</button>
             <div style="display:flex; gap:8px; margin-left:auto;">
@@ -154,10 +160,11 @@
         <td class="muted" style="font-size:.84rem;">${esc(s.email || "—")}</td>
         <td class="muted" style="font-size:.84rem;">${esc(s.phone || "—")}</td>
         <td>${s.qbo_vendor_id ? `<span class="vendor-yes"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>${esc(s.qbo_vendor_name || s.qbo_vendor_id)}</span>` : `<span class="vendor-no">not mapped</span>`}</td>
+        <td class="muted" style="font-size:.8rem;">${(Array.isArray(s.jobber_crew) && s.jobber_crew.length) ? esc(s.jobber_crew.join(", ")) : '<span class="subtle">—</span>'}</td>
         <td>${s.active ? '<span class="pill success">active</span>' : '<span class="pill">inactive</span>'}</td>
       </tr>`).join("");
       content.innerHTML = `<div class="table-wrap"><table>
-        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>QBO Vendor</th><th>Status</th></tr></thead>
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>QBO Vendor</th><th>Jobber Crew</th><th>Status</th></tr></thead>
         <tbody>${rows}</tbody></table></div>`;
       content.querySelectorAll("tr.clickable").forEach((tr) => tr.addEventListener("click", () => openEdit(SUBS.find((s) => s.id === tr.dataset.id))));
     }
@@ -178,10 +185,23 @@
       byId("delBtn").style.display = s ? "inline-flex" : "none";
       form.reset(); byId("vendorSearch").value = ""; byId("vendorResults").style.display = "none";
       for (const k of ["name", "email", "phone"]) form.elements[k].value = s ? (s[k] ?? "") : "";
+      form.elements.jobber_crew.value = s && Array.isArray(s.jobber_crew) ? s.jobber_crew.join(", ") : "";
       setVendor(s ? s.qbo_vendor_id : "", s ? s.qbo_vendor_name : "");
+      byId("crewHint").innerHTML = CREWS.length ? `Known crews: ${CREWS.map((c) => `${esc(c.name)}${c.mappedTo ? "" : " <span class='subtle'>(unmapped)</span>"}`).join(", ")}` : "";
       modal.classList.remove("hidden"); document.body.classList.add("modal-open");
     }
     byId("addBtn").addEventListener("click", () => openEdit(null));
+
+    // Pull the distinct Jobber crews (for the datalist + hint).
+    let CREWS = [];
+    async function loadCrews() {
+      try {
+        const res = await fetch("/api/subcontractors", { method: "POST", headers: await authHeader(), body: JSON.stringify({ action: "list-crews" }) });
+        const out = await res.json(); if (!res.ok) return;
+        CREWS = out.crews || [];
+        byId("crewList").innerHTML = CREWS.map((c) => `<option value="${esc(c.name)}">${esc(c.name)} — ${c.jobs} job(s)${c.mappedTo ? ` → ${esc(c.mappedTo)}` : ""}</option>`).join("");
+      } catch {}
+    }
 
     // Import subcontractors from QBO (vendors billed to Contractors-COGS).
     async function importFromQBO() {
@@ -239,6 +259,7 @@
     });
 
     load();
+    loadCrews();
   </script>
 </body>
 </html>

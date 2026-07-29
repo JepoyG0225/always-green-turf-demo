@@ -20,11 +20,16 @@ async function verify(req) {
   return who.ok ? who.json() : null;
 }
 const clean = (v) => (v == null ? null : String(v).trim() || null);
+function crewList(v) {
+  if (Array.isArray(v)) return v.map((x) => String(x).trim()).filter(Boolean);
+  if (typeof v === "string") return v.split(",").map((x) => x.trim()).filter(Boolean);
+  return [];
+}
 function sanitize(row) {
   row = row || {};
   return {
     name: clean(row.name), qbo_vendor_id: clean(row.qbo_vendor_id), qbo_vendor_name: clean(row.qbo_vendor_name),
-    email: clean(row.email), phone: clean(row.phone), active: row.active !== false,
+    email: clean(row.email), phone: clean(row.phone), jobber_crew: crewList(row.jobber_crew), active: row.active !== false,
   };
 }
 
@@ -88,6 +93,27 @@ module.exports = async function handler(req, res) {
       }
       res.status(200).json({ ok: true, found: vend.size, imported, skippedExisting: vend.size - toInsert.length,
         subs: [...vend.values()].sort((a, b) => b.total - a.total).map((v) => ({ name: v.name, vendorId: v.id, bills: v.count, total: Math.round(v.total), imported: !have.has(v.id) })) });
+      return;
+    }
+    // Distinct installer crews Jobber recorded on recent closed jobs, with how
+    // many jobs each did and whether it's already mapped to a sub — so the admin
+    // can assign the unmapped ones.
+    if (action === "list-crews") {
+      const jobber = require("./_jobber");
+      const { jobberGql } = require("./_jobber-job");
+      const at = await jobber.accessToken();
+      const d = await jobberGql(at, `query{ jobs(first:20, filter:{ status: archived }){ nodes{ visits(first:2){ nodes{ assignedUsers{ nodes{ name{ full } } } } } } } }`, {});
+      const counts = new Map();
+      for (const j of (d.jobs && d.jobs.nodes) || []) {
+        const names = new Set();
+        for (const v of (j.visits && j.visits.nodes) || []) for (const u of (v.assignedUsers && v.assignedUsers.nodes) || []) if (u.name && u.name.full) names.add(u.name.full.trim());
+        for (const n of names) counts.set(n, (counts.get(n) || 0) + 1);
+      }
+      const subs = await (await fetch(`${SUPA}/rest/v1/subcontractors?select=name,jobber_crew`, { headers: H })).json().catch(() => []);
+      const mapped = new Map();
+      for (const s of subs) for (const c of (Array.isArray(s.jobber_crew) ? s.jobber_crew : [])) mapped.set(String(c).toLowerCase(), s.name);
+      const crews = [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([name, jobs]) => ({ name, jobs, mappedTo: mapped.get(name.toLowerCase()) || null }));
+      res.status(200).json({ ok: true, crews });
       return;
     }
     if (action === "search-vendors") {

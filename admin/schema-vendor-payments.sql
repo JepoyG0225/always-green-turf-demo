@@ -14,10 +14,13 @@ create table if not exists subcontractors (
   qbo_vendor_name text,
   email          text,                 -- where the takeoff form link is sent
   phone          text,
+  jobber_crew    jsonb not null default '[]',  -- Jobber crew names that map to this sub (auto-detect)
   active         boolean not null default true,
   created_at     timestamptz not null default now(),
   updated_at     timestamptz not null default now()
 );
+-- If the table already exists from an earlier run, add the crew column:
+alter table subcontractors add column if not exists jobber_crew jsonb not null default '[]';
 
 create table if not exists sub_takeoffs (
   id                uuid primary key default gen_random_uuid(),

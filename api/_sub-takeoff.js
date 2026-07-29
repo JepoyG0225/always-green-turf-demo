@@ -21,7 +21,36 @@ const EXCLUDE = /(discount|processing fee|markup|deposit|tax)/i;
 const JOB_QUERY = `query($id:EncodedId!){ job(id:$id){ id jobNumber title jobStatus
   client{ id name firstName lastName companyName emails{ address } }
   property{ address{ street1 street2 city province postalCode country } }
+  visits(first:8){ nodes{ assignedUsers{ nodes{ name{ full } } } } }
   lineItems{ nodes{ id name description quantity unitPrice } } } }`;
+
+// The distinct installer crew names Jobber recorded on a job's visits.
+function jobCrewNames(job) {
+  const names = new Set();
+  for (const v of (job.visits && job.visits.nodes) || []) {
+    for (const u of (v.assignedUsers && v.assignedUsers.nodes) || []) {
+      const n = u.name && u.name.full; if (n) names.add(n.trim());
+    }
+  }
+  return [...names];
+}
+
+// Resolve the subcontractor for a job from its crew, using each sub's mapped
+// jobber_crew names. Returns { sub, crewNames, matchedCrew } (sub may be null).
+async function resolveSubFromCrew(job) {
+  const crewNames = jobCrewNames(job);
+  if (!crewNames.length) return { sub: null, crewNames, matchedCrew: null };
+  const r = await fetch(`${SUPA}/rest/v1/subcontractors?select=id,name,jobber_crew,active`, { headers: H });
+  const raw = await r.json().catch(() => []);
+  const subs = Array.isArray(raw) ? raw : []; // column may not exist yet → treat as none mapped
+  const lc = crewNames.map((n) => n.toLowerCase());
+  for (const s of subs) {
+    const crews = Array.isArray(s.jobber_crew) ? s.jobber_crew : [];
+    const hit = crews.find((c) => lc.includes(String(c).toLowerCase()));
+    if (hit) return { sub: s, crewNames, matchedCrew: hit };
+  }
+  return { sub: null, crewNames, matchedCrew: null };
+}
 
 // The agreed labor rate card, indexed for name matching.
 async function laborRates() {
@@ -86,15 +115,24 @@ async function generate({ jobId, subcontractorId, dryRun }) {
   const total = money(lines.reduce((s, l) => s + l.line_total, 0));
   const matched = lines.filter((l) => l.matched).length;
 
+  // Auto-detect the subcontractor from the job's crew unless one was given.
+  let subId = subcontractorId || null, detected = null;
+  if (!subId) {
+    const res = await resolveSubFromCrew(job);
+    detected = { crewNames: res.crewNames, matchedCrew: res.matchedCrew, sub: res.sub ? { id: res.sub.id, name: res.sub.name } : null };
+    if (res.sub) subId = res.sub.id;
+  }
+
   const record = {
     job_id: jobId, job_number: job.jobNumber, client_name: clientName,
-    subcontractor_id: subcontractorId || null,
+    subcontractor_id: subId,
     line_items: lines, total_amount: total, status: "sent",
   };
 
   if (dryRun) {
     return { ok: true, dryRun: true, clientName, jobNumber: job.jobNumber,
-      jobLineCount: jobLines.length, billableLines: lines.length, matchedLines: matched, total, lines };
+      jobLineCount: jobLines.length, billableLines: lines.length, matchedLines: matched, total, lines,
+      crew: detected ? detected.crewNames : null, detectedSub: detected ? detected.sub : null, matchedCrew: detected ? detected.matchedCrew : null };
   }
 
   record.token = token();
@@ -102,7 +140,10 @@ async function generate({ jobId, subcontractorId, dryRun }) {
   const out = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(`create takeoff ${r.status}: ${JSON.stringify(out).slice(0, 200)}`);
   const row = Array.isArray(out) ? out[0] : out;
-  return { ok: true, id: row.id, token: row.token, jobNumber: job.jobNumber, clientName, matchedLines: matched, billableLines: lines.length, total };
+  return { ok: true, id: row.id, token: row.token, jobNumber: job.jobNumber, clientName,
+    matchedLines: matched, billableLines: lines.length, total,
+    detectedSub: detected ? detected.sub : (subcontractorId ? { id: subcontractorId } : null),
+    crew: detected ? detected.crewNames : null, matchedCrew: detected ? detected.matchedCrew : null };
 }
 
-module.exports = { generate, buildLines, laborRates, matchRate };
+module.exports = { generate, buildLines, laborRates, matchRate, resolveSubFromCrew, jobCrewNames };
