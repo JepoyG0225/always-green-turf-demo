@@ -132,7 +132,16 @@ async function sync({ dryRun }) {
         address1: get("address1"), city: get("city"), state: get("state"), postalCode: get("postalCode"),
         tags, source };
 
-      if (dryRun) { results.push({ row: r + 1, email, phone, name: [firstName, lastName].filter(Boolean).join(" "), would: "upsert" }); continue; }
+      // Guardrail: only sync brand-new leads. If a GHL contact already exists
+      // (by email or phone), skip it — don't upsert over an existing contact.
+      const existing = await upsertGhlContact.findContact({ email, phone }).catch(() => null);
+      if (existing) {
+        results.push({ row: r + 1, email, phone, skipped: "already in GHL", contactId: existing.id });
+        if (!dryRun) stamps.push({ range: `${tab}!${colLetter(syncedCol)}${r + 1}`, values: [[`exists ${stampTime}`]] });
+        continue;
+      }
+
+      if (dryRun) { results.push({ row: r + 1, email, phone, name: [firstName, lastName].filter(Boolean).join(" "), would: "create" }); continue; }
 
       try {
         const c = await upsertGhlContact(lead);
@@ -156,11 +165,14 @@ async function sync({ dryRun }) {
       });
     }
 
-    const synced = results.filter((x) => x.contactId).length;
+    const synced = results.filter((x) => x.contactId && !x.skipped).length;
+    const alreadyExisted = results.filter((x) => x.skipped === "already in GHL").length;
     const failed = results.filter((x) => x.error).length;
     await run.finish(dryRun ? "dry_run" : (failed ? "info" : "success"),
-      dryRun ? `DRY RUN — ${results.length} new row(s) would sync to GHL` : `Synced ${synced} lead(s) to GHL${failed ? `, ${failed} failed` : ""}`);
-    return { ok: true, dryRun: !!dryRun, processed: results.length, synced, failed, results: results.slice(0, 50) };
+      dryRun
+        ? `DRY RUN — ${results.filter((x) => x.would === "create").length} new to create, ${alreadyExisted} already in GHL`
+        : `Created ${synced} new GHL contact(s)${alreadyExisted ? `, skipped ${alreadyExisted} already-existing` : ""}${failed ? `, ${failed} failed` : ""}`);
+    return { ok: true, dryRun: !!dryRun, processed: results.length, synced, alreadyExisted, failed, results: results.slice(0, 50) };
   } catch (e) { await run.finish("error", String(e.message || e)); throw e; }
 }
 
