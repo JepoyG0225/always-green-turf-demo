@@ -89,6 +89,15 @@ export const WORKFLOWS = [
     steps: [["Assignee changed","bolt"],["Get appointments","search","GHL"],["Jobber auth","lock"],["Search client","search","Jobber"],["Match new user","user"],["Reassign assessment","doc","Jobber"],["Archive project","folder","ArcSite"],["Create project","globe","ArcSite"]],
   },
   {
+    key: "sheet-leads",
+    name: "Google Sheet → GHL Leads",
+    desc: "Every 15 minutes, read new rows from the Meta Lead-Ads Google Sheet, upsert each as a GoHighLevel contact (tagged by platform, source = campaign) and track it in HYROS, then stamp a “GHL Synced” column so no lead is imported twice.",
+    trigger: "Cron · every 15 min",
+    endpoint: "/api/sheet-leads",
+    icon: 'M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18',
+    steps: [["Cron tick","bolt"],["Google auth","lock"],["Read sheet","sheet","Sheets"],["Map columns","braces"],["Upsert contact","user","GHL"],["Track in HYROS","globe","HYROS"],["Stamp synced","doc","Sheets"]],
+  },
+  {
     key: "job-complete",
     name: "Job Completed → Slack",
     desc: "When a crew submits the Job Completed form, post the install summary and completed-project photos to the #job-complete Slack channel.",
