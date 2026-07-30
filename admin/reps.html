@@ -203,8 +203,17 @@
       const name = form.name.value.trim(), assigned_id = form.assigned_id.value.trim(), address = form.address.value.trim(), active = form.active.checked;
       if (!name || !assigned_id || !address) { err.textContent = "Name, assigned_id and address are required."; err.classList.add("show"); return; }
       let res;
-      if (editId) res = await supabase.from("sales_rep_data").update({ name, address, active, lat: null, lng: null }).eq("assigned_id", editId);
-      else res = await supabase.from("sales_rep_data").upsert({ name, assigned_id, address, active }, { onConflict: "assigned_id" });
+      if (editId) {
+        res = await supabase.from("sales_rep_data").update({ name, address, active, lat: null, lng: null }).eq("assigned_id", editId);
+      } else {
+        // App-level upsert: sales_rep_data has no unique constraint on assigned_id,
+        // so a DB ON CONFLICT upsert errors ("no unique or exclusion constraint").
+        // Look up first, then update or insert.
+        const { data: existing, error: exErr } = await supabase.from("sales_rep_data").select("assigned_id").eq("assigned_id", assigned_id).limit(1);
+        if (exErr) { err.textContent = "Save failed: " + exErr.message; err.classList.add("show"); return; }
+        if (existing && existing.length) res = await supabase.from("sales_rep_data").update({ name, address, active, lat: null, lng: null }).eq("assigned_id", assigned_id);
+        else res = await supabase.from("sales_rep_data").insert({ name, assigned_id, address, active });
+      }
       if (res.error) { err.textContent = "Save failed: " + res.error.message; err.classList.add("show"); return; }
       closeModal(); load();
     });
