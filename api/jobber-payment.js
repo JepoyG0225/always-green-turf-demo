@@ -113,9 +113,17 @@ module.exports = async function handler(req, res) {
       // ran for it), so there is nothing in QBO to match against. Rebuild that
       // side from Jobber rather than parking the payment for a human: customer +
       // project + the invoice's line items, then apply the payment to it.
-      const jinv = jobberInvoiceFor(pay, amount);
-      run.info("No customer match", { customer: out.customer, jobberInvoice: jinv ? jinv.invoiceNumber : null });
-      if (!jinv) {
+      //
+      // A deposit against a quote is the one thing we must not rebuild: nothing
+      // is invoiced yet in either system, so there are no line items to mirror
+      // and the client's other invoices have nothing to do with this money.
+      const jinv = deposit ? null : jobberInvoiceFor(pay, amount);
+      run.info("No customer match", { customer: out.customer, quoteDeposit: deposit ? deposit.quoteNumber : null, jobberInvoice: jinv ? jinv.invoiceNumber : null });
+      if (deposit) {
+        out.status = "deposit_held";
+        out.deposit = { quote: deposit.quoteNumber, quoteTotal: deposit.amounts && deposit.amounts.total, unallocated: deposit.depositAmountUnallocated };
+        out.remarks = `Deposit of $${amount} on quote #${deposit.quoteNumber} — ${out.customer} has no QBO record and nothing invoiced in Jobber yet, so there is no invoice to create. Held; the customer, invoice and this deposit are all written to QBO when the job is closed and invoiced.`;
+      } else if (!jinv) {
         out.remarks = `No QBO customer found for ${out.customer}${cl.email ? " <" + cl.email + ">" : ""}, and no single Jobber invoice to rebuild it from. Needs review.`;
       } else if (dryRun) {
         out.status = "dry_run";
