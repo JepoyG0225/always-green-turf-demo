@@ -61,9 +61,13 @@ async function getPayment(at, id) {
     `query($id: EncodedId!) {
        paymentRecord(id: $id) {
          id amount entryDate
+         allocations(first: 20) { nodes { amount ... on InvoicePaymentRecordAllocation { invoice { id invoiceNumber } } } }
          client {
            id firstName lastName companyName email
+           emails { address }
+           billingAddress { street city province postalCode country }
            quotes(first: 5) { nodes { id quoteNumber quoteStatus depositAmountUnallocated amounts { total } } }
+           invoices(first: 20) { nodes { id invoiceNumber invoiceStatus amounts { total invoiceBalance } } }
          }
        }
      }`, { id });

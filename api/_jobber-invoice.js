@@ -11,6 +11,14 @@ const DISCOUNT_ITEM = process.env.QBO_DISCOUNT_ITEM || "13";
 const FEE_ITEM = process.env.QBO_FEE_ITEM || "96";
 const clean = (v) => (v == null ? "" : String(v).trim());
 const num = (v, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
+const money = (n) => Number(num(n, 0).toFixed(2));
+
+const INVOICE_QUERY = `query($id:EncodedId!){ invoice(id:$id){ id invoiceNumber subject invoiceStatus
+  client{ id name firstName lastName companyName emails{ address } billingAddress{ street city province postalCode country } }
+  billingAddress{ street city province postalCode country }
+  lineItems{ nodes{ name description quantity unitPrice totalPrice } }
+  jobs{ nodes{ id title jobNumber property{ address{ street1 street2 city province postalCode country } } } }
+  amounts{ subtotal discountAmount taxAmount depositAmount paymentsTotal invoiceBalance total } } }`;
 
 // Map a Jobber invoice line item → a QBO SalesItemLine.
 function toQboLine(li) {
@@ -25,6 +33,59 @@ function toQboLine(li) {
   const detail = { Qty: qty, UnitPrice: unit };
   if (itemId) detail.ItemRef = { value: itemId };
   return { DetailType: "SalesItemLineDetail", Description: name, Amount: amount, SalesItemLineDetail: detail };
+}
+
+// Jobber invoice → QBO lines, including the invoice-level discount and the
+// processing-fee tax (Jobber carries both outside the line items), so the QBO
+// total equals the Jobber total.
+function buildQboLines(inv) {
+  const lines = ((inv.lineItems && inv.lineItems.nodes) || []).map(toQboLine);
+  const a = inv.amounts || {};
+  const discount = money(a.discountAmount);
+  const tax = money(a.taxAmount);
+  if (discount > 0) {
+    lines.push({ DetailType: "SalesItemLineDetail", Description: "Discount", Amount: -discount,
+      SalesItemLineDetail: { Qty: 1, UnitPrice: -discount, ItemRef: { value: DISCOUNT_ITEM } } });
+  }
+  if (tax > 0) {
+    lines.push({ DetailType: "SalesItemLineDetail", Description: "Processing Fee", Amount: tax,
+      SalesItemLineDetail: { Qty: 1, UnitPrice: tax, ItemRef: { value: FEE_ITEM } } });
+  }
+  const computed = money(lines.reduce((s, l) => s + num(l.Amount), 0));
+  return { lines, computed, jobberTotal: money(a.total) };
+}
+
+// Mirror an existing Jobber invoice into QBO: find-or-create the customer and
+// project, then create the invoice from its line items. Used by the payment
+// workflow to rebuild the QBO side for a client that only ever existed in
+// Jobber. Re-firing is safe: the memo carries the Jobber invoice number, so an
+// invoice already mirrored is returned instead of copied again.
+async function mirrorToQbo(log, { at, qat, rlm, invoiceId }) {
+  const inv = await log.step("Fetch Jobber invoice", { invoiceId }, async () => {
+    const d = await jobberGql(at, INVOICE_QUERY, { id: invoiceId });
+    if (!d.invoice) throw new Error("invoice not found in Jobber");
+    return d.invoice;
+  });
+  const property = inv.jobs && inv.jobs.nodes && inv.jobs.nodes[0] && inv.jobs.nodes[0].property;
+  const { name } = customerFields(inv.client, property);
+  if (!name) throw new Error("invoice has no client name");
+
+  const { lines, computed, jobberTotal } = buildQboLines(inv);
+  if (!lines.length) throw new Error(`Jobber invoice #${inv.invoiceNumber} has no line items`);
+  if (!DEFAULT_ITEM && lines.some((l) => !l.SalesItemLineDetail.ItemRef)) throw new Error("QBO_DEFAULT_ITEM not set — general invoice lines need a QBO item");
+
+  const { customer, project } = await ensureCustomerProject(log, qat, rlm, inv.client, property);
+  const memo = `Jobber invoice #${inv.invoiceNumber}`;
+  const existing = ((await qbo.query(qat, rlm, `SELECT * FROM Invoice WHERE CustomerRef = '${project.Id}'`)).Invoice || [])
+    .find((i) => String(i.PrivateNote || "").includes(memo));
+  if (existing) {
+    log.info("Jobber invoice already mirrored", { qboInvoice: existing.DocNumber, balance: Number(existing.Balance) });
+    return { inv, name, customer, project, qboInv: existing, existed: true, jobberTotal, computed };
+  }
+  if (computed !== jobberTotal) log.info("Total mismatch — check mapping", { computed, jobberTotal });
+  const qboInv = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length, computed, jobberTotal, jobberInvoice: inv.invoiceNumber }, async () =>
+    (await qbo.apiPost(qat, rlm, "invoice", { CustomerRef: { value: project.Id }, Line: lines, PrivateNote: memo })).Invoice);
+  return { inv, name, customer, project, qboInv, existed: false, jobberTotal, computed };
 }
 
 async function run({ invoiceId, dryRun }) {
@@ -62,4 +123,4 @@ async function run({ invoiceId, dryRun }) {
   } catch (e) { await log.finish("error", String(e.message || e)); throw e; }
 }
 
-module.exports = { run, toQboLine };
+module.exports = { run, toQboLine, buildQboLines, mirrorToQbo, INVOICE_QUERY };

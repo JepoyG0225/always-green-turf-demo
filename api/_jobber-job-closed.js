@@ -12,15 +12,13 @@ const jobber = require("./_jobber");
 const qbo = require("./_qbo");
 const { isPublished } = require("./_workflow-config");
 const { ensureCustomerProject, customerFields, jobberGql } = require("./_jobber-job");
-const { toQboLine } = require("./_jobber-invoice");
+const { buildQboLines } = require("./_jobber-invoice");
 
 // Marking sent emails the customer — off by default (invoice stays a draft).
 const MARK_SENT = process.env.JOBBER_INVOICE_MARK_SENT === "true";
 const INVOICE_NET = Number(process.env.JOBBER_INVOICE_NET || 0); // 0 = due on receipt
 const TAX_RATE_FEE = process.env.JOBBER_TAX_RATE_PROCESSING_FEE || "Z2lkOi8vSm9iYmVyL1RheFJhdGUvOTY5MDM3";
 const TAX_RATE_NONE = process.env.JOBBER_TAX_RATE_NO_FEE || "Z2lkOi8vSm9iYmVyL1RheFJhdGUvOTg1Nzgx";
-const DISCOUNT_ITEM = process.env.QBO_DISCOUNT_ITEM || "13";
-const FEE_ITEM = process.env.QBO_FEE_ITEM || "96";
 const num = (v, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
 const money = (n) => Number(num(n, 0).toFixed(2));
 
@@ -38,25 +36,6 @@ const INVOICE_CREATE = `mutation($input:InvoiceCreateInput!){ invoiceCreate(inpu
     lineItems{ nodes{ name description quantity unitPrice totalPrice } }
     amounts{ subtotal discountAmount taxAmount depositAmount paymentsTotal invoiceBalance total } }
   userErrors{ message path } } }`;
-
-// Jobber invoice → QBO lines, including the invoice-level discount and the
-// processing-fee tax, so the QBO total equals the Jobber total.
-function buildQboLines(inv) {
-  const lines = ((inv.lineItems && inv.lineItems.nodes) || []).map(toQboLine);
-  const a = inv.amounts || {};
-  const discount = money(a.discountAmount);
-  const tax = money(a.taxAmount);
-  if (discount > 0) {
-    lines.push({ DetailType: "SalesItemLineDetail", Description: "Discount", Amount: -discount,
-      SalesItemLineDetail: { Qty: 1, UnitPrice: -discount, ItemRef: { value: DISCOUNT_ITEM } } });
-  }
-  if (tax > 0) {
-    lines.push({ DetailType: "SalesItemLineDetail", Description: "Processing Fee", Amount: tax,
-      SalesItemLineDetail: { Qty: 1, UnitPrice: tax, ItemRef: { value: FEE_ITEM } } });
-  }
-  const computed = money(lines.reduce((s, l) => s + num(l.Amount), 0));
-  return { lines, computed, jobberTotal: money(a.total) };
-}
 
 async function run({ jobId, dryRun }) {
   const log = newRun("jobber-job-closed", { jobId, dryRun });
@@ -132,7 +111,9 @@ async function run({ jobId, dryRun }) {
     const rlm = await qbo.realm();
     const { project } = await ensureCustomerProject(log, qat, rlm, inv.client || job.client, job.property);
     const qboInv = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length, computed, jobberTotal, jobberInvoice: inv.invoiceNumber }, async () =>
-      (await qbo.apiPost(qat, rlm, "invoice", { CustomerRef: { value: project.Id }, Line: lines })).Invoice);
+      // The memo names the Jobber invoice, so a later run can tell this one is
+      // already mirrored instead of copying it again.
+      (await qbo.apiPost(qat, rlm, "invoice", { CustomerRef: { value: project.Id }, Line: lines, PrivateNote: `Jobber invoice #${inv.invoiceNumber}` })).Invoice);
 
     // 3) Mirror any deposit Jobber allocated, so both invoices show the same balance.
     const applied = money((inv.amounts || {}).depositAmount);
@@ -150,4 +131,4 @@ async function run({ jobId, dryRun }) {
   } catch (e) { await log.finish("error", String(e.message || e)); throw e; }
 }
 
-module.exports = { run, buildQboLines };
+module.exports = { run };

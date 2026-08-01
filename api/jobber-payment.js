@@ -3,6 +3,9 @@
 // Match key: customer + amount + open balance (Jobber and QBO are separate systems).
 //   - exactly one open QBO invoice whose balance == the payment amount → apply
 //   - only one open invoice at all (and amount <= its balance)          → apply
+//   - no QBO customer at all → the client only ever existed in Jobber, so build
+//     the missing QBO side from Jobber (customer + project + invoice from the
+//     paid Jobber invoice's line items) and apply the payment to it
 //   - anything ambiguous / no match                                     → NO auto-apply, Slack for review
 //
 // Dry run: POST ?dryRun=1 (or { "dryRun": true, "paymentId": "<jobber id>" }).
@@ -12,6 +15,7 @@ const newRun = require("./_runlog");
 const qbo = require("./_qbo");
 const jobber = require("./_jobber");
 const { isPublished } = require("./_workflow-config");
+const { mirrorToQbo } = require("./_jobber-invoice");
 
 const SLACK_TOKEN = process.env.SLACK_BOT_TOKEN || "";
 const SLACK_CHANNEL = process.env.SLACK_PAYMENTS_CHANNEL || "C096A9CR62Y"; // #workflow-testing
@@ -21,6 +25,21 @@ async function readRaw(req) {
   catch { return ""; }
 }
 const cents = (n) => Math.round(Number(n) * 100);
+
+// Which Jobber invoice a payment belongs to: the allocation Jobber recorded
+// itself, else the client's single invoice / the one whose total or balance is
+// the amount paid. Anything less certain returns null — nothing gets rebuilt on
+// a guess.
+function jobberInvoiceFor(pay, amount) {
+  const allocated = (((pay.allocations || {}).nodes) || []).map((a) => a.invoice).filter(Boolean);
+  if (allocated.length) return allocated.length === 1 ? allocated[0] : null; // split across invoices — a human decides
+  const invs = ((((pay.client || {}).invoices || {}).nodes) || []);
+  const amt = cents(amount);
+  const exact = invs.filter((i) => cents((i.amounts || {}).total) === amt || cents((i.amounts || {}).invoiceBalance) === amt);
+  if (exact.length === 1) return exact[0];
+  if (invs.length === 1) return invs[0];
+  return null;
+}
 
 async function notifySlack(text) {
   if (!SLACK_TOKEN) return;
@@ -65,8 +84,9 @@ module.exports = async function handler(req, res) {
   const out = { status: "review", applied: false, dryRun, paymentId };
   try {
     // 1) Jobber payment → amount + client
+    let jat;
     const pay = await run.step("Fetch Jobber payment", { paymentId }, async () => {
-      const jat = await jobber.accessToken();
+      jat = await jobber.accessToken();
       const p = await jobber.getPayment(jat, paymentId);
       if (!p) throw new Error("payment not found in Jobber");
       return p;
@@ -89,8 +109,37 @@ module.exports = async function handler(req, res) {
     const rlm = await qbo.realm();
     const custs = await run.step("Find QBO customer(s)", { email: cl.email, name, company: cl.companyName }, () => qbo.findCustomers(at, rlm, { email: cl.email, name, company: cl.companyName }));
     if (!custs.length) {
-      out.remarks = `No QBO customer found for ${out.customer}${cl.email ? " <" + cl.email + ">" : ""}. Needs review.`;
-      run.info("No customer match", { customer: out.customer });
+      // The client only ever existed in Jobber (the job/invoice workflows never
+      // ran for it), so there is nothing in QBO to match against. Rebuild that
+      // side from Jobber rather than parking the payment for a human: customer +
+      // project + the invoice's line items, then apply the payment to it.
+      const jinv = jobberInvoiceFor(pay, amount);
+      run.info("No customer match", { customer: out.customer, jobberInvoice: jinv ? jinv.invoiceNumber : null });
+      if (!jinv) {
+        out.remarks = `No QBO customer found for ${out.customer}${cl.email ? " <" + cl.email + ">" : ""}, and no single Jobber invoice to rebuild it from. Needs review.`;
+      } else if (dryRun) {
+        out.status = "dry_run";
+        out.match = { jobberInvoice: jinv.invoiceNumber };
+        out.remarks = `DRY RUN — would create QBO customer "${out.customer}" + project, mirror Jobber invoice #${jinv.invoiceNumber}, and apply $${amount} to it.`;
+      } else {
+        const m = await mirrorToQbo(run, { at: jat, qat: at, rlm, invoiceId: jinv.id });
+        // A re-fired webhook finds the invoice already mirrored and settled —
+        // paying it a second time would leave the customer in credit.
+        if (m.existed && cents(m.qboInv.Balance) <= 0) {
+          out.status = "already_applied";
+          out.match = { invoice: m.qboInv.DocNumber, jobberInvoice: m.inv.invoiceNumber };
+          out.remarks = `QBO invoice #${m.qboInv.DocNumber} (Jobber #${m.inv.invoiceNumber}) is already settled — payment not applied again.`;
+        } else {
+          const p = await run.step("Apply payment in QBO", { customerRef: m.project.Id, amount, invoiceId: m.qboInv.Id }, () =>
+            qbo.createPayment(at, rlm, { customerId: m.project.Id, amount, invoiceId: m.qboInv.Id }));
+          const remaining = Number((Number(m.qboInv.Balance != null ? m.qboInv.Balance : m.jobberTotal) - amount).toFixed(2));
+          out.status = "backfilled"; out.applied = true;
+          out.paymentType = remaining > 0 ? "partial" : "full";
+          out.match = { invoice: m.qboInv.DocNumber, qboInvoiceId: m.qboInv.Id, qboCustomerId: m.customer.Id, qboProjectId: m.project.Id, jobberInvoice: m.inv.invoiceNumber, qboPaymentId: p.Id, invoiceTotal: m.jobberTotal, remaining, invoiceExisted: m.existed };
+          out.remarks = `${m.existed ? "Reused the already-mirrored" : "Created QBO customer + project and mirrored Jobber"} invoice #${m.inv.invoiceNumber} as QBO invoice #${m.qboInv.DocNumber} ($${m.jobberTotal}), then applied $${amount}` +
+            (remaining > 0 ? `; $${remaining} still outstanding.` : ", paid in full.") + ` QBO payment #${p.Id}.`;
+        }
+      }
     } else {
       const invs = await run.step("Open invoices (customer + projects)", { customerIds: custs.map((c) => c.Id) }, () => qbo.openInvoices(at, rlm, custs.map((c) => c.Id)));
       const decision = await run.step("Match decision", { amount, openInvoices: invs.map((i) => ({ inv: i.DocNumber, balance: Number(i.Balance) })) }, async () => {
@@ -136,6 +185,8 @@ module.exports = async function handler(req, res) {
     let icon = "👀", title = "Payment needs review";
     if (out.status === "deposit_held") { icon = "🏦"; title = "Deposit received"; }
     else if (out.status === "applied") { icon = out.paymentType === "partial" ? "💵" : "✅"; title = out.paymentType === "partial" ? "Partial payment applied" : "Payment applied — invoice paid in full"; }
+    else if (out.status === "backfilled") { icon = "🆕"; title = `Customer + invoice created in QBO — payment applied${out.paymentType === "partial" ? " (partial)" : ""}`; }
+    else if (out.status === "already_applied") { icon = "↩️"; title = "Payment already applied"; }
     else if (out.status === "dry_run") { icon = "🧪"; title = "Payment (dry run)"; }
     else if (out.status === "error") { icon = "⚠️"; title = "Payment failed"; }
 
@@ -151,6 +202,9 @@ module.exports = async function handler(req, res) {
     } else if (out.status === "applied") {
       lines.push(`*Invoice:* #${out.match.invoice}${out.paymentType === "partial" ? ` — $${out.match.remaining} still outstanding` : " — settled"}`);
       lines.push(`*Matched by:* ${out.match.reason}`);
+    } else if (out.status === "backfilled") {
+      lines.push(`*Invoice:* QBO #${out.match.invoice} (Jobber #${out.match.jobberInvoice}, $${out.match.invoiceTotal})${out.paymentType === "partial" ? ` — $${out.match.remaining} still outstanding` : " — settled"}`);
+      lines.push(`*Created:* customer + project${out.match.invoiceExisted ? "" : " + invoice"} from Jobber — this client had no QBO record.`);
     } else {
       lines.push(`*Result:* ${out.remarks || out.status}`);
     }
@@ -159,7 +213,10 @@ module.exports = async function handler(req, res) {
     return { sent: !!SLACK_TOKEN };
   });
 
-  const finalStatus = out.status === "error" ? "error" : out.status === "applied" ? "success" : out.status === "deposit_held" ? "info" : out.status;
+  const finalStatus = out.status === "error" ? "error"
+    : out.status === "applied" || out.status === "backfilled" ? "success"
+    : out.status === "deposit_held" || out.status === "already_applied" ? "info"
+    : out.status;
   await run.finish(finalStatus, out.remarks || out.status);
   res.status(out.status === "error" ? 500 : 200).json(out);
 };
