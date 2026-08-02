@@ -17,7 +17,7 @@ const TOKEN = process.env.GHL_API_TOKEN || "";
 const LOC = process.env.GHL_LOCATION_ID || "dpp7zOnwhkHGWhn5lGRd";
 const SLACK_TOKEN = process.env.SLACK_BOT_TOKEN || "";
 const SLACK_CHANNEL = process.env.SLACK_REFERRAL_CHANNEL || "C096A9CR62Y"; // #workflow-testing
-const PIPELINE_NAME = process.env.GHL_REFERRAL_PIPELINE || "Call Center";
+const PIPELINE_NAME = process.env.GHL_REFERRAL_PIPELINE || "New Call Center Pipeline";
 const STAGE_NAME = process.env.GHL_REFERRAL_STAGE || "Sales Rep Referral";
 const H = { Authorization: `Bearer ${TOKEN}`, Version: "2021-07-28", Accept: "application/json" };
 
@@ -103,6 +103,31 @@ async function addNote(contactId, body) {
 }
 
 module.exports = async function handler(req, res) {
+  // TEMPORARY diagnostic: which GHL endpoints this deployment's token can
+  // reach. The token itself is never returned — only a short hash, so we can
+  // tell whether the env var actually changed between deploys.
+  if (req.query && req.query.probe === "1") {
+    const fp = require("crypto").createHash("sha256").update(TOKEN).digest("hex").slice(0, 12);
+    const probes = {
+      "contacts (contacts.readonly)": `https://services.leadconnectorhq.com/contacts/?locationId=${LOC}&limit=1`,
+      "pipelines (opportunities.readonly)": `https://services.leadconnectorhq.com/opportunities/pipelines?locationId=${LOC}`,
+      "opp search (opportunities.readonly)": `https://services.leadconnectorhq.com/opportunities/search?location_id=${LOC}&limit=1`,
+      "location (locations.readonly)": `https://services.leadconnectorhq.com/locations/${LOC}`,
+      "calendars (calendars.readonly)": `https://services.leadconnectorhq.com/calendars/?locationId=${LOC}`,
+      "users (users.readonly)": `https://services.leadconnectorhq.com/users/?locationId=${LOC}`,
+    };
+    const out = { tokenSha256_12: fp, tokenLength: TOKEN.length, locationId: LOC, results: {} };
+    for (const [label, url] of Object.entries(probes)) {
+      try {
+        const r = await fetch(url, { headers: H });
+        const t = (await r.text()).slice(0, 180);
+        out.results[label] = { status: r.status, body: t };
+      } catch (e) { out.results[label] = { error: String(e.message || e) }; }
+    }
+    res.status(200).json(out);
+    return;
+  }
+
   const dryRun = (req.query && req.query.dryRun === "1");
   if (dryRun) {
     // ?contact=<email|phone> reports the tags GHL actually stored — tags are
