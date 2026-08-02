@@ -15,6 +15,8 @@ const upsertGhlContact = require("./_ghl-contact");
 
 const TOKEN = process.env.GHL_API_TOKEN || "";
 const LOC = process.env.GHL_LOCATION_ID || "dpp7zOnwhkHGWhn5lGRd";
+const SLACK_TOKEN = process.env.SLACK_BOT_TOKEN || "";
+const SLACK_CHANNEL = process.env.SLACK_REFERRAL_CHANNEL || "C096A9CR62Y"; // #workflow-testing
 const PIPELINE_NAME = process.env.GHL_REFERRAL_PIPELINE || "Call Center";
 const STAGE_NAME = process.env.GHL_REFERRAL_STAGE || "Sales Rep Referral";
 const H = { Authorization: `Bearer ${TOKEN}`, Version: "2021-07-28", Accept: "application/json" };
@@ -75,6 +77,20 @@ async function createOpportunity({ name, contactId, pipelineId, stageId }) {
   const d = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(`GHL opportunity ${r.status}: ${d.message || JSON.stringify(d).slice(0, 200)}`);
   return (d.opportunity && d.opportunity.id) || d.id || null;
+}
+
+// Never let a Slack outage cost us the lead — notification is best effort.
+async function notifySlack(text) {
+  if (!SLACK_TOKEN) return { sent: false, error: "SLACK_BOT_TOKEN not set" };
+  try {
+    const r = await fetch("https://slack.com/api/chat.postMessage", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${SLACK_TOKEN}`, "Content-Type": "application/json; charset=utf-8" },
+      body: JSON.stringify({ channel: SLACK_CHANNEL, text }),
+    });
+    const d = await r.json().catch(() => ({}));
+    return { sent: !!d.ok, error: d.ok ? null : d.error || `HTTP ${r.status}` };
+  } catch (e) { return { sent: false, error: String(e.message || e) }; }
 }
 
 async function addNote(contactId, body) {
@@ -161,11 +177,24 @@ module.exports = async function handler(req, res) {
       ].filter(Boolean).join("\n"));
     } catch (e) { noteError = String(e.message || e); console.error("[salesrep-referral] note failed:", noteError); }
 
-    console.log("[salesrep-referral] " + JSON.stringify({ ts: new Date().toISOString(), contactId: contact.id, opportunityId, salesRep, repTag, service, opportunityError, noteError }));
+    const slack = await notifySlack([
+      `🌱 *New Sales Rep Referral*`,
+      `*Customer:* ${firstName} ${lastName} <${email}> · ${phone}`,
+      `*Referred by:* ${salesRep}  \`${repTag}\``,
+      `*Service:* ${service}`,
+      `*Property:* ${propertyType} · ${areaSize}`,
+      `*Address:* ${[street, b.city, b.state, b.postalCode].filter(Boolean).join(", ")}`,
+      `*GHL contact:* <https://app.gohighlevel.com/v2/location/${LOC}/contacts/detail/${contact.id}|${contact.new ? "created" : "updated"}>`,
+      opportunityId
+        ? `*Pipeline:* ${stage.pipelineName} → ${stage.stageName}`
+        : `⚠️ *Pipeline:* not added — ${opportunityError}`,
+    ].join("\n"));
+
+    console.log("[salesrep-referral] " + JSON.stringify({ ts: new Date().toISOString(), contactId: contact.id, opportunityId, salesRep, repTag, service, opportunityError, noteError, slack }));
     res.status(200).json({
       ok: true, contactId: contact.id, contactNew: contact.new, tag: repTag,
       opportunityId, pipeline: stage && stage.pipelineName, stage: stage && stage.stageName,
-      opportunityError, noteError,
+      opportunityError, noteError, slack,
     });
   } catch (e) {
     const msg = String(e.message || e);
