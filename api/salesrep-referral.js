@@ -122,8 +122,9 @@ module.exports = async function handler(req, res) {
   if (!PROPERTY_TYPES.includes(propertyType)) { res.status(400).json({ error: `Unknown property type "${propertyType}".` }); return; }
 
   try {
-    const stage = await resolveStage();
-
+    // Contact first, always. The opportunity needs an extra GHL scope, and a
+    // referral that lands as a tagged contact is recoverable — one that 500s
+    // back at the rep is lost.
     const contact = await upsertGhlContact({
       firstName, lastName, email, phone,
       address1: street,
@@ -135,12 +136,16 @@ module.exports = async function handler(req, res) {
     });
     if (!contact.id) throw new Error("GHL upsert returned no contact id");
 
-    const opportunityId = await createOpportunity({
-      name: `${firstName} ${lastName} — Sales Rep Referral (${salesRep})`,
-      contactId: contact.id,
-      pipelineId: stage.pipelineId,
-      stageId: stage.stageId,
-    });
+    let opportunityId = null, opportunityError = null, stage = null;
+    try {
+      stage = await resolveStage();
+      opportunityId = await createOpportunity({
+        name: `${firstName} ${lastName} — Sales Rep Referral (${salesRep})`,
+        contactId: contact.id,
+        pipelineId: stage.pipelineId,
+        stageId: stage.stageId,
+      });
+    } catch (e) { opportunityError = String(e.message || e); console.error("[salesrep-referral] opportunity failed:", opportunityError); }
 
     // Details GHL has no first-class field for. Never fatal.
     let noteError = null;
@@ -156,8 +161,12 @@ module.exports = async function handler(req, res) {
       ].filter(Boolean).join("\n"));
     } catch (e) { noteError = String(e.message || e); console.error("[salesrep-referral] note failed:", noteError); }
 
-    console.log("[salesrep-referral] " + JSON.stringify({ ts: new Date().toISOString(), contactId: contact.id, opportunityId, salesRep, repTag, service, noteError }));
-    res.status(200).json({ ok: true, contactId: contact.id, contactNew: contact.new, opportunityId, tag: repTag, pipeline: stage.pipelineName, stage: stage.stageName, noteError });
+    console.log("[salesrep-referral] " + JSON.stringify({ ts: new Date().toISOString(), contactId: contact.id, opportunityId, salesRep, repTag, service, opportunityError, noteError }));
+    res.status(200).json({
+      ok: true, contactId: contact.id, contactNew: contact.new, tag: repTag,
+      opportunityId, pipeline: stage && stage.pipelineName, stage: stage && stage.stageName,
+      opportunityError, noteError,
+    });
   } catch (e) {
     const msg = String(e.message || e);
     console.error("[salesrep-referral] failed:", msg);

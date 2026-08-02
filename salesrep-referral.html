@@ -148,7 +148,7 @@
               <button type="button" class="svc" aria-pressed="false" data-value="Turf and Pavers">Turf and Pavers</button>
               <button type="button" class="svc" aria-pressed="false" data-value="Turf, Gravel, Rock, Pavers, Travertine">Turf, Gravel, Rock, Pavers, Travertine</button>
               <button type="button" class="svc" aria-pressed="false" data-value="Turf / Pergolas / Putting Green">Turf / Pergolas / Putting Green</button>
-              <button type="button" class="svc sm:col-span-2" aria-pressed="false" data-value="Irrigation / Paver Border">Irrigation / Paver Border</button>
+              <button type="button" class="svc" aria-pressed="false" data-value="Irrigation / Paver Border">Irrigation / Paver Border</button>
             </div>
             <input type="hidden" id="service" name="service" required>
           </div>
@@ -175,6 +175,7 @@
       </svg>
       <h2 class="mt-5 text-2xl font-extrabold text-turf">Referral submitted</h2>
       <p id="successMsg" class="mt-2 text-gray-600 text-sm">The call center team has it and will reach out to the customer.</p>
+      <p id="successWarn" class="hidden mt-4 mx-auto max-w-md rounded-xl bg-amber-50 text-amber-800 text-xs px-4 py-3"></p>
       <button type="button" id="againBtn" class="btn-submit mt-7">Submit another referral</button>
     </section>
 
@@ -207,6 +208,22 @@
       }
       input.addEventListener('input', function () { var v = format(input.value); input.value = v; input.setSelectionRange(v.length, v.length); });
       input.addEventListener('blur', function () { input.value = format(input.value); });
+    })();
+
+    // ---------- Area field: keep it numeric and append the unit as you type ----------
+    (function () {
+      var input = byId('areaSize'), SUFFIX = ' sqft';
+      function fmt(v) {
+        var d = String(v).replace(/\D/g, '');
+        return d ? Number(d).toLocaleString('en-US') + SUFFIX : '';
+      }
+      input.addEventListener('input', function () {
+        input.value = fmt(input.value);
+        // Park the caret before the suffix so typing continues on the number.
+        var pos = Math.max(0, input.value.length - SUFFIX.length);
+        input.setSelectionRange(pos, pos);
+      });
+      input.addEventListener('blur', function () { input.value = fmt(input.value); });
     })();
 
     // ---------- Google Places ----------
@@ -288,6 +305,13 @@
         byId('successCard').classList.remove('hidden');
         byId('successMsg').textContent = payload.firstName + ' ' + payload.lastName +
           ' was added for ' + payload.salesRep + '. The call center team will reach out.';
+        // The contact is saved either way; say so plainly if the pipeline step
+        // didn't take, rather than reporting a clean success.
+        var warn = byId('successWarn');
+        if (data.opportunityError) {
+          warn.textContent = 'Saved to the CRM and tagged, but it could not be added to the Call Center pipeline automatically. Please let the office know.';
+          warn.classList.remove('hidden');
+        } else { warn.classList.add('hidden'); }
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (err) {
         console.error(err);
