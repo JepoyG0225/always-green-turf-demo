@@ -22,12 +22,12 @@ const H = { Authorization: `Bearer ${TOKEN}`, Version: "2021-07-28", Accept: "ap
 // The rep list and its tags live here, not in the page: the tag is what the
 // GHL automations key off, so the browser must not be able to choose it.
 const REPS = {
-  "Aaron Heimes": "salesrepreferralah",
-  "Aaron Karkhoff": "salesrepreferralak",
-  "Ammon Duffin": "salesrepreferralammon",
-  "James Haney": "salesrepreferraljames",
-  "Jason Koening": "salesrepreferraljason",
-  "Karina Chandler": "salesrepreferralkarina",
+  "Aaron Heimes": "#salesrepreferralah",
+  "Aaron Karkhoff": "#salesrepreferralak",
+  "Ammon Duffin": "#salesrepreferralammon",
+  "James Haney": "#salesrepreferraljames",
+  "Jason Koening": "#salesrepreferraljason",
+  "Karina Chandler": "#salesrepreferralkarina",
 };
 
 const SERVICES = [
