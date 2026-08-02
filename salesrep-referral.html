@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sales Rep Referral | Always Green Turf AZ</title>
+  <meta name="description" content="Submit a customer referral to the Always Green Turf AZ call center team." />
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" href="/logo.webp" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { pop: ['Poppins','ui-sans-serif','system-ui'] },
+        colors: { leaf:'#8cbf3f', moss:'#2d743a', mint:'#eaf4d0', stem:'#bdd431', turf:'#222629' },
+        boxShadow: { soft:'0 10px 30px rgba(0,0,0,.08)', card:'0 24px 70px rgba(34,38,41,.12)' }
+      } }
+    }
+  </script>
+
+  <style>
+    body { font-family:'Poppins',ui-sans-serif,system-ui; color-scheme:light; }
+    /* Keep the base colour inside the shorthand — otherwise it resets to
+       transparent and the page falls through to the browser's dark canvas. */
+    .page-bg {
+      background:
+        radial-gradient(900px 420px at 12% -10%, rgba(140,191,63,.16), transparent 60%),
+        radial-gradient(760px 380px at 100% 0%, rgba(45,116,58,.14), transparent 55%),
+        #f6f8f4;
+    }
+    .field {
+      width:100%; border-radius:.9rem; border:1px solid #e5e7eb; background:#fff;
+      padding:.75rem .95rem; font-size:.95rem; color:#111827; transition:border-color .18s, box-shadow .18s;
+    }
+    .field::placeholder { color:#9ca3af; }
+    .field:focus { outline:none; border-color:#8cbf3f; box-shadow:0 0 0 4px rgba(140,191,63,.18); }
+    select.field { appearance:none; background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+      background-repeat:no-repeat; background-position:right .8rem center; background-size:1.1rem; padding-right:2.4rem; }
+    .lbl { display:block; font-size:.82rem; font-weight:600; color:#374151; margin-bottom:.4rem; }
+
+    /* Service picker — buttons, not a dropdown */
+    .svc {
+      position:relative; text-align:left; border:1.5px solid #e5e7eb; background:#fff; border-radius:1rem;
+      padding:.9rem 1rem; font-size:.9rem; font-weight:600; color:#374151; cursor:pointer;
+      transition:border-color .18s, background .18s, transform .18s, box-shadow .18s;
+    }
+    .svc:hover { border-color:#8cbf3f; transform:translateY(-2px); box-shadow:0 12px 26px rgba(34,38,41,.09); }
+    .svc:focus-visible { outline:none; border-color:#8cbf3f; box-shadow:0 0 0 4px rgba(140,191,63,.2); }
+    .svc[aria-pressed="true"] { border-color:#2d743a; background:#eaf4d0; color:#20522a; }
+    .svc[aria-pressed="true"]::after {
+      content:'✓'; position:absolute; top:.55rem; right:.7rem; width:1.25rem; height:1.25rem; border-radius:9999px;
+      background:#2d743a; color:#fff; font-size:.72rem; line-height:1.25rem; text-align:center; font-weight:700;
+    }
+
+    .btn-submit {
+      background:#222629; color:#fff; font-weight:700; border-radius:9999px; padding:.95rem 2rem;
+      transition:background .2s, transform .18s, box-shadow .2s;
+    }
+    .btn-submit:hover:not(:disabled) { background:#2d743a; transform:translateY(-2px); box-shadow:0 16px 34px rgba(45,116,58,.28); }
+    .btn-submit:disabled { opacity:.6; cursor:not-allowed; }
+
+    .check-anim { width:76px; height:76px; display:block; margin:0 auto; }
+    .check-anim .ck-circle { stroke-dasharray:166; stroke-dashoffset:166; fill:none; animation:ck-draw .6s cubic-bezier(.65,0,.45,1) forwards; }
+    .check-anim .ck-mark { stroke-dasharray:48; stroke-dashoffset:48; fill:none; animation:ck-draw .35s .55s cubic-bezier(.65,0,.45,1) forwards; }
+    @keyframes ck-draw { to { stroke-dashoffset:0; } }
+    .pac-container { z-index:99999 !important; }
+  </style>
+</head>
+<body class="page-bg min-h-screen">
+
+  <header class="bg-turf">
+    <div class="mx-auto max-w-3xl px-5 py-5 flex items-center gap-3">
+      <img src="/logo.webp" alt="Always Green Turf AZ" class="h-9 w-auto" />
+      <span class="text-white/50 text-xs font-semibold tracking-[.18em] uppercase">Sales Rep Referral</span>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-3xl px-5 py-10 sm:py-14">
+
+    <div class="text-center">
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-turf tracking-tight">Refer a customer</h1>
+      <p class="mt-3 text-gray-600 text-sm sm:text-base max-w-xl mx-auto">
+        Send us the homeowner's details and our call center team takes it from there — usually within one business day.
+      </p>
+    </div>
+
+    <section id="formCard" class="mt-8 sm:mt-10 bg-white rounded-3xl shadow-card p-6 sm:p-9">
+      <form id="referralForm" novalidate>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+
+          <div>
+            <label class="lbl" for="firstName">First name</label>
+            <input class="field" id="firstName" name="firstName" type="text" autocomplete="given-name" placeholder="Jane" required>
+          </div>
+          <div>
+            <label class="lbl" for="lastName">Last name</label>
+            <input class="field" id="lastName" name="lastName" type="text" autocomplete="family-name" placeholder="Doe" required>
+          </div>
+
+          <div>
+            <label class="lbl" for="phone">Phone</label>
+            <input class="field" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 123-4567" required>
+          </div>
+          <div>
+            <label class="lbl" for="email">Email</label>
+            <input class="field" id="email" name="email" type="email" autocomplete="email" placeholder="jane@example.com" required>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="lbl" for="address">Street address</label>
+            <input class="field" id="address" name="street" type="text" autocomplete="off" placeholder="Start typing the address…" required>
+            <input type="hidden" id="addrCity"><input type="hidden" id="addrState"><input type="hidden" id="addrZip">
+          </div>
+
+          <div>
+            <label class="lbl" for="salesRep">Sales rep</label>
+            <select class="field" id="salesRep" name="salesRep" required>
+              <option value="" disabled selected>Select the referring rep…</option>
+              <option>Aaron Heimes</option>
+              <option>Aaron Karkhoff</option>
+              <option>Ammon Duffin</option>
+              <option>James Haney</option>
+              <option>Jason Koening</option>
+              <option>Karina Chandler</option>
+            </select>
+          </div>
+          <div>
+            <label class="lbl" for="propertyType">Property type</label>
+            <select class="field" id="propertyType" name="propertyType" required>
+              <option value="" disabled selected>Select…</option>
+              <option>Residential</option>
+              <option>HOA Property</option>
+              <option>Commercial</option>
+            </select>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="lbl" for="areaSize">Approx. area (sq ft)</label>
+            <input class="field" id="areaSize" name="areaSize" type="text" inputmode="numeric" placeholder="Example: 250 sqft" required>
+          </div>
+
+          <div class="sm:col-span-2">
+            <span class="lbl">Choose a service</span>
+            <div id="serviceOptions" class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="group" aria-label="Choose a service">
+              <button type="button" class="svc" aria-pressed="false" data-value="Turf Only">Turf Only</button>
+              <button type="button" class="svc" aria-pressed="false" data-value="Turf and Pavers">Turf and Pavers</button>
+              <button type="button" class="svc" aria-pressed="false" data-value="Turf, Gravel, Rock, Pavers, Travertine">Turf, Gravel, Rock, Pavers, Travertine</button>
+              <button type="button" class="svc" aria-pressed="false" data-value="Turf / Pergolas / Putting Green">Turf / Pergolas / Putting Green</button>
+              <button type="button" class="svc sm:col-span-2" aria-pressed="false" data-value="Irrigation / Paver Border">Irrigation / Paver Border</button>
+            </div>
+            <input type="hidden" id="service" name="service" required>
+          </div>
+        </div>
+
+        <!-- Honeypot + referrer passthrough -->
+        <input style="position:absolute;left:-9999px" type="text" name="company" id="company" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <input type="hidden" id="referrer" name="referrer" value="">
+
+        <div id="formStatus" class="hidden rounded-xl px-4 py-3 text-sm mt-5" aria-live="polite"></div>
+
+        <div class="mt-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <p class="text-xs text-gray-500 order-2 sm:order-1">The customer will be contacted by our call center team.</p>
+          <button type="submit" id="submitBtn" class="btn-submit order-1 sm:order-2 w-full sm:w-auto">Submit referral</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Success -->
+    <section id="successCard" class="hidden mt-8 sm:mt-10 bg-white rounded-3xl shadow-card p-9 text-center">
+      <svg class="check-anim" viewBox="0 0 52 52" aria-hidden="true">
+        <circle class="ck-circle" cx="26" cy="26" r="24" stroke="#8cbf3f" stroke-width="3"/>
+        <path class="ck-mark" d="M14 27l8 8 16-16" stroke="#2d743a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h2 class="mt-5 text-2xl font-extrabold text-turf">Referral submitted</h2>
+      <p id="successMsg" class="mt-2 text-gray-600 text-sm">The call center team has it and will reach out to the customer.</p>
+      <button type="button" id="againBtn" class="btn-submit mt-7">Submit another referral</button>
+    </section>
+
+    <p class="mt-8 text-center text-xs text-gray-400">Always Green Turf AZ — internal referral form</p>
+  </main>
+
+  <script>
+    var byId = function (id) { return document.getElementById(id); };
+
+    // ---------- Service buttons (single select, backed by a hidden input) ----------
+    (function () {
+      var wrap = byId('serviceOptions'), hidden = byId('service');
+      wrap.addEventListener('click', function (e) {
+        var btn = e.target.closest('.svc'); if (!btn) return;
+        Array.prototype.forEach.call(wrap.querySelectorAll('.svc'), function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
+        hidden.value = btn.dataset.value;
+        setStatus('', null);
+      });
+    })();
+
+    // ---------- US phone mask ----------
+    (function () {
+      var input = byId('phone');
+      function format(d) {
+        d = d.replace(/\D/g, ''); if (d.startsWith('1') && d.length > 10) d = d.slice(1); d = d.slice(0, 10);
+        if (d.length > 6) return '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6);
+        if (d.length > 3) return '(' + d.slice(0, 3) + ') ' + d.slice(3);
+        if (d.length > 0) return '(' + d;
+        return '';
+      }
+      input.addEventListener('input', function () { var v = format(input.value); input.value = v; input.setSelectionRange(v.length, v.length); });
+      input.addEventListener('blur', function () { input.value = format(input.value); });
+    })();
+
+    // ---------- Google Places ----------
+    window.__initPlaces = function () {
+      var input = byId('address');
+      if (!input || !window.google || !google.maps || !google.maps.places) return;
+      var ac = new google.maps.places.Autocomplete(input, {
+        fields: ['address_components', 'formatted_address'], types: ['address'], componentRestrictions: { country: ['us'] }
+      });
+      ac.addListener('place_changed', function () {
+        var comps = (ac.getPlace() || {}).address_components || [];
+        var get = function (t) { var c = comps.find(function (x) { return x.types.indexOf(t) > -1; }); return c ? c.long_name : ''; };
+        byId('addrCity').value = get('locality') || get('sublocality');
+        byId('addrState').value = get('administrative_area_level_1');
+        byId('addrZip').value = get('postal_code');
+      });
+    };
+
+    // ---------- Referrer passthrough (?referrer= / ?refferer=) ----------
+    (function () {
+      var p = new URLSearchParams(window.location.search);
+      var v = p.get('referrer') || p.get('refferer');
+      if (v) byId('referrer').value = decodeURIComponent(v.replace(/\+/g, ' '));
+      // A rep can link straight to their own form: ?rep=Karina%20Chandler
+      var rep = p.get('rep');
+      if (rep) {
+        var sel = byId('salesRep'), want = decodeURIComponent(rep.replace(/\+/g, ' ')).trim().toLowerCase();
+        Array.prototype.forEach.call(sel.options, function (o) { if (o.value.trim().toLowerCase() === want) sel.value = o.value; });
+      }
+    })();
+
+    // ---------- Submit ----------
+    function setStatus(msg, ok) {
+      var el = byId('formStatus');
+      if (!msg) { el.className = 'hidden rounded-xl px-4 py-3 text-sm mt-5'; el.textContent = ''; return; }
+      el.className = 'rounded-xl px-4 py-3 text-sm mt-5 ' + (ok ? 'bg-mint text-moss' : 'bg-red-50 text-red-700');
+      el.textContent = msg;
+    }
+
+    byId('referralForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var btn = byId('submitBtn');
+
+      var payload = {
+        firstName: byId('firstName').value.trim(),
+        lastName: byId('lastName').value.trim(),
+        phone: byId('phone').value.trim(),
+        email: byId('email').value.trim(),
+        street: byId('address').value.trim(),
+        city: byId('addrCity').value,
+        state: byId('addrState').value,
+        postalCode: byId('addrZip').value,
+        salesRep: byId('salesRep').value,
+        propertyType: byId('propertyType').value,
+        areaSize: byId('areaSize').value.trim(),
+        service: byId('service').value,
+        referrer: byId('referrer').value.trim(),
+        company: byId('company').value
+      };
+
+      var required = [['firstName','First name'],['lastName','Last name'],['phone','Phone'],['email','Email'],
+                      ['street','Street address'],['salesRep','Sales rep'],['propertyType','Property type'],
+                      ['areaSize','Approx. area'],['service','a service']];
+      for (var i = 0; i < required.length; i++) {
+        if (!payload[required[i][0]]) { setStatus('Please fill in ' + required[i][1] + '.', false); return; }
+      }
+      if (payload.phone.replace(/\D/g, '').length !== 10) { setStatus('Please enter a valid 10-digit phone number.', false); return; }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(payload.email)) { setStatus('Please enter a valid email address.', false); return; }
+
+      btn.disabled = true; btn.textContent = 'Submitting…'; setStatus('', null);
+      try {
+        var res = await fetch('/api/salesrep-referral', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+        });
+        var data = await res.json().catch(function () { return {}; });
+        if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+
+        byId('formCard').classList.add('hidden');
+        byId('successCard').classList.remove('hidden');
+        byId('successMsg').textContent = payload.firstName + ' ' + payload.lastName +
+          ' was added for ' + payload.salesRep + '. The call center team will reach out.';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (err) {
+        console.error(err);
+        setStatus(String(err.message || err) + ' — please try again, or call the office if it keeps failing.', false);
+      } finally {
+        btn.disabled = false; btn.textContent = 'Submit referral';
+      }
+    });
+
+    byId('againBtn').addEventListener('click', function () {
+      byId('referralForm').reset();
+      byId('service').value = '';
+      Array.prototype.forEach.call(document.querySelectorAll('.svc'), function (b) { b.setAttribute('aria-pressed', 'false'); });
+      ['addrCity','addrState','addrZip'].forEach(function (id) { byId(id).value = ''; });
+      byId('successCard').classList.add('hidden');
+      byId('formCard').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDai9rZOX3X2Ch99XQGPmvuEHgeEAFHMk&libraries=places&callback=__initPlaces" async defer></script>
+</body>
+</html>
