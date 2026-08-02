@@ -105,8 +105,22 @@ async function addNote(contactId, body) {
 module.exports = async function handler(req, res) {
   const dryRun = (req.query && req.query.dryRun === "1");
   if (dryRun) {
-    try { res.status(200).json({ ok: true, dryRun: true, ...(await resolveStage()), reps: REPS }); }
-    catch (e) { res.status(500).json({ ok: false, dryRun: true, error: String(e.message || e) }); }
+    // ?contact=<email|phone> reports the tags GHL actually stored — tags are
+    // normalised on write, so what we send isn't necessarily what's there.
+    const lookup = (req.query && req.query.contact) || "";
+    try {
+      const out = { ok: true, dryRun: true, reps: REPS };
+      if (lookup) {
+        const c = await upsertGhlContact.findContact({ email: lookup, phone: lookup });
+        out.contact = c ? { id: c.id, email: c.email, phone: c.phone, tags: c.tags } : null;
+      }
+      Object.assign(out, await resolveStage());
+      res.status(200).json(out);
+    } catch (e) {
+      let contact = null;
+      if (lookup) { try { const c = await upsertGhlContact.findContact({ email: lookup, phone: lookup }); contact = c ? { id: c.id, email: c.email, tags: c.tags } : null; } catch {} }
+      res.status(500).json({ ok: false, dryRun: true, error: String(e.message || e), contact });
+    }
     return;
   }
   if (req.method !== "POST") { res.status(405).json({ error: "method not allowed" }); return; }
