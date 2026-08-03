@@ -37,7 +37,12 @@ function buildLineItems(arc) {
   let subtotal = 0;
   const lineItems = raw.map((li) => {
     const qty = num(li.quantity, 1);
-    const total = num(li.price ?? li.total, 0);
+    // `total` is the line amount and is what ArcSite's own subtotal is built
+    // from. `price` agrees with it on ordinary items, but on tiered/price-part
+    // items (Paver Delivery, Base Delivery, some paver borders) it is the tier
+    // rate rather than the line amount — reading it first overcharged those
+    // lines. Custom items carry no `price` at all, hence the fallback.
+    const total = num(li.total ?? li.price, 0);
     subtotal += total;
     return { name: String(li.name || "Unnamed Item"), quantity: qty, unitPrice: Number((qty > 0 ? total / qty : total).toFixed(2)), saveToProductsAndServices: false };
   });
