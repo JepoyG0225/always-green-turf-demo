@@ -41,6 +41,33 @@ function jobberInvoiceFor(pay, amount) {
   return null;
 }
 
+// A deposit arrives at signing, but the QBO customer and project are only ever
+// created by the Jobber "job created" webhook. If nobody has converted the
+// approved quote into a job yet, do it here so the QBO side exists and the
+// deposit has somewhere to land when the job is closed and invoiced.
+async function ensureJobForDeposit(run, jat, deposit, dryRun) {
+  const existing = ((deposit.jobs && deposit.jobs.nodes) || [])[0];
+  if (existing) {
+    run.info("Quote already has a job", { quote: deposit.quoteNumber, job: existing.jobNumber });
+    return { job: { id: existing.id, jobNumber: existing.jobNumber, created: false } };
+  }
+  if (dryRun) return { jobError: `DRY RUN — would create a job from quote #${deposit.quoteNumber}.` };
+  try {
+    const job = await run.step("Create Jobber job from quote", { quote: deposit.quoteNumber, quoteId: deposit.id }, () =>
+      jobber.createJobFromQuote(jat, deposit));
+    // Jobber's JOB_CREATE webhook will fire too, but run it here so the QBO
+    // customer + project exist by the time this payment is reported.
+    const qbo = await run.step("Create QBO customer + project", { jobId: job.id }, () =>
+      require("./_jobber-job").run({ jobId: job.id }));
+    return { job: { id: job.id, jobNumber: job.jobNumber, created: true }, qboCustomer: qbo && qbo.customerId, qboProject: qbo && qbo.projectId };
+  } catch (e) {
+    // The deposit is still safely held on the quote — report and move on.
+    const msg = String(e.message || e);
+    run.info("Could not create the job", { error: msg });
+    return { jobError: `Could not create the job automatically: ${msg}` };
+  }
+}
+
 async function notifySlack(text) {
   if (!SLACK_TOKEN) return;
   await fetch("https://slack.com/api/chat.postMessage", {
@@ -122,7 +149,8 @@ module.exports = async function handler(req, res) {
       if (deposit) {
         out.status = "deposit_held";
         out.deposit = { quote: deposit.quoteNumber, quoteTotal: deposit.amounts && deposit.amounts.total, unallocated: deposit.depositAmountUnallocated };
-        out.remarks = `Deposit of $${amount} on quote #${deposit.quoteNumber} — ${out.customer} has no QBO record and nothing invoiced in Jobber yet, so there is no invoice to create. Held; the customer, invoice and this deposit are all written to QBO when the job is closed and invoiced.`;
+        Object.assign(out, await ensureJobForDeposit(run, jat, deposit, dryRun));
+        out.remarks = `Deposit of $${amount} on quote #${deposit.quoteNumber}${out.job ? ` — job #${out.job.jobNumber} ${out.job.created ? "created" : "already existed"}, so ${out.customer} now has a QBO customer + project. The deposit stays held until the job is closed and invoiced, then it is applied to that invoice.` : ` — held for ${out.customer}. ${out.jobError || "No job yet, so nothing to apply it to."}`}`;
       } else if (!jinv) {
         out.remarks = `No QBO customer found for ${out.customer}${cl.email ? " <" + cl.email + ">" : ""}, and no single Jobber invoice to rebuild it from. Needs review.`;
       } else if (dryRun) {
@@ -158,13 +186,16 @@ module.exports = async function handler(req, res) {
       });
       const target = decision.target;
       if (!target && decision.reason === "no open invoices" && deposit) {
-        // Deposit paid against a quote. Nothing to write yet: the QBO customer
-        // and project only exist once a job is created, and the invoice only
-        // once the job is closed. The Job Closed workflow picks the deposit up
-        // from the quote and applies it to the invoice it creates.
+        // Deposit paid against a quote. There is no invoice yet on either side,
+        // so the money can't be applied — but the job can be started, and the
+        // Job Closed workflow picks the deposit up from the quote and applies it
+        // to the invoice it creates.
         out.status = "deposit_held";
         out.deposit = { quote: deposit.quoteNumber, quoteTotal: deposit.amounts && deposit.amounts.total, unallocated: deposit.depositAmountUnallocated };
-        out.remarks = `Deposit of $${amount} on quote #${deposit.quoteNumber} — no invoice in Jobber or QBO yet, so nothing to apply to. Held; it will be applied when the job is closed and invoiced.`;
+        Object.assign(out, await ensureJobForDeposit(run, jat, deposit, dryRun));
+        out.remarks = `Deposit of $${amount} on quote #${deposit.quoteNumber} — nothing invoiced yet, so it is held on the quote` +
+          (out.job ? `; job #${out.job.jobNumber} ${out.job.created ? "created from the quote" : "already exists"}.` : `. ${out.jobError || ""}`) +
+          " It is applied when the job is closed and invoiced.";
       } else if (!target) {
         out.remarks = decision.reason === "no open invoices"
           ? `${out.customer} has no open QBO invoices and no matching quote deposit — nothing to apply to. Needs review.`
@@ -205,7 +236,9 @@ module.exports = async function handler(req, res) {
     ];
     if (out.status === "deposit_held") {
       lines.push(`*Quote:* #${out.deposit.quote}${out.deposit.quoteTotal != null ? ` ($${out.deposit.quoteTotal})` : ""}`);
-      lines.push("*Status:* No invoice yet in Jobber or QBO — deposit held on the quote.");
+      if (out.job) lines.push(`*Job:* #${out.job.jobNumber} ${out.job.created ? "created from the quote" : "already existed"}${out.qboProject ? ` — QBO customer + project ready` : ""}`);
+      else if (out.jobError) lines.push(`*Job:* ⚠️ ${out.jobError}`);
+      lines.push("*Status:* Nothing invoiced yet — deposit held on the quote.");
       lines.push("_It will be applied automatically when the job is closed and invoiced._");
     } else if (out.status === "applied") {
       lines.push(`*Invoice:* #${out.match.invoice}${out.paymentType === "partial" ? ` — $${out.match.remaining} still outstanding` : " — settled"}`);
