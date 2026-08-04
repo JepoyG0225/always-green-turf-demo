@@ -72,8 +72,12 @@ async function findOrCreateCustomer(at, rlm, displayName, extra) {
   if (!dn) throw new Error("customer displayName required");
   const existing = (await query(at, rlm, `SELECT * FROM Customer WHERE DisplayName = '${esc(dn)}'`)).Customer || [];
   if (existing.length) {
+    // A project shares its parent's DisplayName, so this query returns both.
+    // Pick the one being asked for: the sub-customer under that parent, or the
+    // top-level record — never a project when the parent was wanted, which
+    // would nest the next project under it.
     if (extra && extra.ParentRef) { const sub = existing.find((c) => c.ParentRef && c.ParentRef.value === extra.ParentRef.value); if (sub) return sub; }
-    else return existing[0];
+    else { const top = existing.find((c) => !c.ParentRef); if (top) return top; }
   }
   return (await apiPost(at, rlm, "customer", { DisplayName: dn, ...(extra || {}) })).Customer;
 }
