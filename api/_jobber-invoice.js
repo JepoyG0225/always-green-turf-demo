@@ -80,12 +80,13 @@ async function mirrorToQbo(log, { at, qat, rlm, invoiceId }) {
     .find((i) => String(i.PrivateNote || "").includes(memo));
   if (existing) {
     log.info("Jobber invoice already mirrored", { qboInvoice: existing.DocNumber, balance: Number(existing.Balance) });
-    return { inv, name, customer, project, qboInv: existing, existed: true, jobberTotal, computed };
+    return { inv, name, customer, project, qboInv: existing, qboNumber: existing.DocNumber || null, existed: true, jobberTotal, computed };
   }
   if (computed !== jobberTotal) log.info("Total mismatch — check mapping", { computed, jobberTotal });
-  const qboInv = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length, computed, jobberTotal, jobberInvoice: inv.invoiceNumber }, async () =>
-    (await qbo.apiPost(qat, rlm, "invoice", { CustomerRef: { value: project.Id }, Line: lines, PrivateNote: memo })).Invoice);
-  return { inv, name, customer, project, qboInv, existed: false, jobberTotal, computed };
+  const made = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length, computed, jobberTotal, jobberInvoice: inv.invoiceNumber }, () =>
+    qbo.createInvoice(qat, rlm, { customerId: project.Id, lines, docNumber: inv.invoiceNumber, memo }));
+  if (made.requested && !made.matched) log.info("QBO numbered the invoice itself", { requested: made.requested, qbo: made.docNumber, duplicate: made.duplicate });
+  return { inv, name, customer, project, qboInv: made.invoice, qboNumber: made.docNumber, existed: false, jobberTotal, computed };
 }
 
 async function run({ invoiceId, dryRun }) {
@@ -115,11 +116,12 @@ async function run({ invoiceId, dryRun }) {
     const qat = await log.step("QBO auth", {}, () => qbo.accessToken());
     const rlm = await qbo.realm();
     const { project } = await ensureCustomerProject(log, qat, rlm, inv.client, property); // create-on-the-fly
-    const qboInv = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length }, async () => {
-      return (await qbo.apiPost(qat, rlm, "invoice", { CustomerRef: { value: project.Id }, Line: lines })).Invoice;
-    });
-    await log.finish("success", `QBO invoice #${qboInv.DocNumber} for ${name} (Jobber invoice #${inv.invoiceNumber})`);
-    return { ok: true, qboInvoice: qboInv.DocNumber, jobberInvoice: inv.invoiceNumber, clientName: name };
+    const made = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length, jobberInvoice: inv.invoiceNumber }, () =>
+      qbo.createInvoice(qat, rlm, { customerId: project.Id, lines, docNumber: inv.invoiceNumber, memo: `Jobber invoice #${inv.invoiceNumber}` }));
+    if (made.requested && !made.matched) log.info("QBO numbered the invoice itself", { requested: made.requested, qbo: made.docNumber, duplicate: made.duplicate });
+    const qboNumber = made.docNumber || "(unnumbered)";
+    await log.finish("success", `QBO invoice #${qboNumber} for ${name} (Jobber invoice #${inv.invoiceNumber})`);
+    return { ok: true, qboInvoice: qboNumber, qboInvoiceMatchesJobber: made.matched, jobberInvoice: inv.invoiceNumber, clientName: name };
   } catch (e) { await log.finish("error", String(e.message || e)); throw e; }
 }
 

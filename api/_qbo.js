@@ -91,6 +91,41 @@ async function findVendors(at, rlm, name) {
   return r.Vendor || [];
 }
 
+// Create an invoice, asking QBO to use the Jobber invoice number so the two
+// systems carry the same number.
+//
+// Two things can stop that, and neither should cost us the invoice:
+//   - the number is already taken in QBO → 6140, so retry unnumbered
+//   - "Custom transaction numbers" is off in QBO settings → DocNumber is
+//     silently ignored and QBO numbers it itself
+// QBO doesn't return DocNumber on create, so the invoice is read back to find
+// out which of those happened and to log the number it actually carries.
+async function createInvoice(at, rlm, { customerId, lines, docNumber, memo }) {
+  const base = { CustomerRef: { value: String(customerId) }, Line: lines, ...(memo ? { PrivateNote: memo } : {}) };
+  const wanted = docNumber ? String(docNumber).slice(0, 21) : null;
+  let invoice, duplicate = false;
+  if (wanted) {
+    try {
+      invoice = (await apiPost(at, rlm, "invoice", { ...base, DocNumber: wanted })).Invoice;
+    } catch (e) {
+      if (!/6140|Duplicate Document Number/i.test(String(e.message || e))) throw e;
+      duplicate = true;
+      invoice = (await apiPost(at, rlm, "invoice", base)).Invoice;
+    }
+  } else {
+    invoice = (await apiPost(at, rlm, "invoice", base)).Invoice;
+  }
+  let actual = invoice.DocNumber || null;
+  if (!actual) {
+    try { actual = ((await query(at, rlm, `SELECT Id, DocNumber FROM Invoice WHERE Id = '${invoice.Id}'`)).Invoice || [])[0]?.DocNumber || null; }
+    catch { /* numbering is cosmetic — never fail the invoice over it */ }
+  }
+  return {
+    invoice, docNumber: actual, requested: wanted, duplicate,
+    matched: !!(wanted && actual && String(actual) === wanted),
+  };
+}
+
 async function createPayment(at, rlm, { customerId, amount, invoiceId }) {
   const body = { CustomerRef: { value: String(customerId) }, TotalAmt: amount, Line: [{ Amount: amount, LinkedTxn: [{ TxnId: String(invoiceId), TxnType: "Invoice" }] }] };
   const r = await fetch(`${BASE}/v3/company/${rlm}/payment?minorversion=70`, {
@@ -102,4 +137,4 @@ async function createPayment(at, rlm, { customerId, amount, invoiceId }) {
   return d.Payment;
 }
 
-module.exports = { accessToken, realm, findCustomers, findVendors, openInvoices, createPayment, apiPost, findOrCreateCustomer, query, ENV };
+module.exports = { accessToken, realm, findCustomers, findVendors, openInvoices, createInvoice, createPayment, apiPost, findOrCreateCustomer, query, ENV };

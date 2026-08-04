@@ -135,16 +135,16 @@ module.exports = async function handler(req, res) {
         // paying it a second time would leave the customer in credit.
         if (m.existed && cents(m.qboInv.Balance) <= 0) {
           out.status = "already_applied";
-          out.match = { invoice: m.qboInv.DocNumber, jobberInvoice: m.inv.invoiceNumber };
-          out.remarks = `QBO invoice #${m.qboInv.DocNumber} (Jobber #${m.inv.invoiceNumber}) is already settled — payment not applied again.`;
+          out.match = { invoice: (m.qboNumber || m.qboInv.DocNumber), jobberInvoice: m.inv.invoiceNumber };
+          out.remarks = `QBO invoice #${(m.qboNumber || m.qboInv.DocNumber)} (Jobber #${m.inv.invoiceNumber}) is already settled — payment not applied again.`;
         } else {
           const p = await run.step("Apply payment in QBO", { customerRef: m.project.Id, amount, invoiceId: m.qboInv.Id }, () =>
             qbo.createPayment(at, rlm, { customerId: m.project.Id, amount, invoiceId: m.qboInv.Id }));
           const remaining = Number((Number(m.qboInv.Balance != null ? m.qboInv.Balance : m.jobberTotal) - amount).toFixed(2));
           out.status = "backfilled"; out.applied = true;
           out.paymentType = remaining > 0 ? "partial" : "full";
-          out.match = { invoice: m.qboInv.DocNumber, qboInvoiceId: m.qboInv.Id, qboCustomerId: m.customer.Id, qboProjectId: m.project.Id, jobberInvoice: m.inv.invoiceNumber, qboPaymentId: p.Id, invoiceTotal: m.jobberTotal, remaining, invoiceExisted: m.existed };
-          out.remarks = `${m.existed ? "Reused the already-mirrored" : "Created QBO customer + project and mirrored Jobber"} invoice #${m.inv.invoiceNumber} as QBO invoice #${m.qboInv.DocNumber} ($${m.jobberTotal}), then applied $${amount}` +
+          out.match = { invoice: (m.qboNumber || m.qboInv.DocNumber), qboInvoiceId: m.qboInv.Id, qboCustomerId: m.customer.Id, qboProjectId: m.project.Id, jobberInvoice: m.inv.invoiceNumber, qboPaymentId: p.Id, invoiceTotal: m.jobberTotal, remaining, invoiceExisted: m.existed };
+          out.remarks = `${m.existed ? "Reused the already-mirrored" : "Created QBO customer + project and mirrored Jobber"} invoice #${m.inv.invoiceNumber} as QBO invoice #${(m.qboNumber || m.qboInv.DocNumber)} ($${m.jobberTotal}), then applied $${amount}` +
             (remaining > 0 ? `; $${remaining} still outstanding.` : ", paid in full.") + ` QBO payment #${p.Id}.`;
         }
       }

@@ -110,10 +110,14 @@ async function run({ jobId, dryRun }) {
     const qat = await log.step("QBO auth", {}, () => qbo.accessToken());
     const rlm = await qbo.realm();
     const { project } = await ensureCustomerProject(log, qat, rlm, inv.client || job.client, job.property);
-    const qboInv = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length, computed, jobberTotal, jobberInvoice: inv.invoiceNumber }, async () =>
-      // The memo names the Jobber invoice, so a later run can tell this one is
-      // already mirrored instead of copying it again.
-      (await qbo.apiPost(qat, rlm, "invoice", { CustomerRef: { value: project.Id }, Line: lines, PrivateNote: `Jobber invoice #${inv.invoiceNumber}` })).Invoice);
+    // Same number on both sides, and the memo names the Jobber invoice so a
+    // later run can tell this one is already mirrored instead of copying it.
+    const made = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length, computed, jobberTotal, jobberInvoice: inv.invoiceNumber }, () =>
+      qbo.createInvoice(qat, rlm, { customerId: project.Id, lines, docNumber: inv.invoiceNumber, memo: `Jobber invoice #${inv.invoiceNumber}` }));
+    const qboInv = made.invoice;
+    const qboNumber = made.docNumber || "(unnumbered)";
+    if (made.duplicate) log.info("QBO already had that invoice number — QBO numbered it instead", { jobber: inv.invoiceNumber, qbo: made.docNumber });
+    else if (made.requested && !made.matched) log.info("QBO ignored the requested number — enable Custom transaction numbers in QBO to keep them matched", { requested: made.requested, qbo: made.docNumber });
 
     // 3) Mirror any deposit Jobber allocated, so both invoices show the same balance.
     const applied = money((inv.amounts || {}).depositAmount);
@@ -125,9 +129,9 @@ async function run({ jobId, dryRun }) {
 
     const balance = money((inv.amounts || {}).invoiceBalance);
     await log.finish("success",
-      `Job #${job.jobNumber} → Jobber invoice #${inv.invoiceNumber} ($${jobberTotal}) + QBO invoice #${qboInv.DocNumber} for ${name}` +
+      `Job #${job.jobNumber} → Jobber invoice #${inv.invoiceNumber} ($${jobberTotal}) + QBO invoice #${qboNumber} for ${name}` +
       (applied > 0 ? ` — $${applied} deposit applied, $${balance} due` : ""));
-    return { ok: true, jobNumber: job.jobNumber, jobberInvoice: inv.invoiceNumber, qboInvoice: qboInv.DocNumber, total: jobberTotal, depositApplied: applied, balanceDue: balance, qboPaymentId: qboPayment && qboPayment.Id, clientName: name };
+    return { ok: true, jobNumber: job.jobNumber, jobberInvoice: inv.invoiceNumber, qboInvoice: qboNumber, qboInvoiceMatchesJobber: made.matched, total: jobberTotal, depositApplied: applied, balanceDue: balance, qboPaymentId: qboPayment && qboPayment.Id, clientName: name };
   } catch (e) { await log.finish("error", String(e.message || e)); throw e; }
 }
 
