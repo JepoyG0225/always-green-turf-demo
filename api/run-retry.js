@@ -5,6 +5,10 @@
 // failed for a reason since fixed (a bad payload mapping, an expired token, a
 // third-party outage) without waiting for the source system to re-send.
 //
+// Only runs that ended in "error" can be replayed: any other outcome may have
+// already written to QBO or Jobber, and re-running one of those could double
+// up (a payment applied twice, an invoice mirrored twice).
+//
 // The retry is a fresh run: it writes its own workflow_runs row, so the failed
 // original stays in the history rather than being overwritten.
 //
@@ -54,6 +58,14 @@ module.exports = async function handler(req, res) {
   const rows = await r.json().catch(() => []);
   const run = Array.isArray(rows) ? rows[0] : null;
   if (!run) { res.status(404).json({ error: "run not found" }); return; }
+
+  // Errored runs only. A run that finished any other way may have already
+  // written to QBO/Jobber — re-running a payment that applied would apply it
+  // twice — so those are deliberately not replayable from here.
+  if (run.status !== "error") {
+    res.status(400).json({ error: `only failed runs can be re-run (this one is "${run.status}")` });
+    return;
+  }
 
   const plan = RETRY[run.workflow];
   if (!plan) { res.status(400).json({ error: `"${run.workflow}" can't be retried automatically (retryable: ${Object.keys(RETRY).join(", ")})` }); return; }

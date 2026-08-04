@@ -159,7 +159,7 @@
           <div class="run-head">
             <svg class="chev" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
             <div class="run-grow"><div class="run-title">${esc(r.workflow)} <span class="pill ${r.status}">${esc(r.status)}</span></div><div class="run-sub">${esc(r.summary||"")} · ${steps.length} steps${dur!=null?` · ${dur}ms`:""}</div></div>
-            ${RETRYABLE.includes(r.workflow) && r.status !== "success" ? `<button class="btn secondary retry-btn" data-id="${esc(r.id)}" type="button" title="Re-run this workflow with the same trigger payload">Re-run</button>` : ""}
+            ${RETRYABLE.includes(r.workflow) && r.status === "error" ? `<button class="btn secondary retry-btn" data-id="${esc(r.id)}" type="button" title="Re-run this workflow with the same trigger payload">Re-run</button>` : ""}
             <div class="run-when">${fmtPhx(r.created_at)}</div>
           </div>
           <div class="steps">${steps.map(stepHtml).join("")}</div>
