@@ -148,6 +148,9 @@
     const jshow = (v) => v == null ? "—" : esc(typeof v === "string" ? v : JSON.stringify(v, null, 2));
 
     const key = new URLSearchParams(location.search).get("wf");
+    // Kept in step with the RETRY map in api/run-retry.js — anything else has no
+    // trigger payload we can safely replay.
+    const RETRYABLE = ["jobber-job","jobber-job-closed","jobber-invoice","jobber-payment","arcsite-quote"];
     const wf = WORKFLOWS.find((w) => w.key === key);
     const session = await requireSession(); if (!session) throw new Error("no session");
     byId("userEmail").textContent = session.user.email;
@@ -296,12 +299,37 @@
           <div class="run-head">
             <svg class="chev" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
             <div class="run-grow"><div style="font-weight:800;"><span class="pill ${r.status}">${r.status}</span></div><div class="run-sub">${esc(r.summary||"")} · ${steps.length} steps${failed?` · <span style="color:var(--danger);font-weight:700;">${failed} failed</span>`:""}${dur!=null?` · ${dur}ms`:""}</div></div>
+            ${RETRYABLE.includes(r.workflow) && r.status === "error" ? `<button class="btn secondary retry-btn" data-id="${esc(r.id)}" type="button" title="Re-run this workflow with the same trigger payload">Re-run</button>` : ""}
             <div class="run-when">${fmtPhx(r.created_at)}</div>
           </div>
           <div class="steps">${steps.map(stepHtml).join("")}</div>
         </div>`;
       }).join("");
       byId("execList").querySelectorAll(".run-head").forEach((h) => h.addEventListener("click", () => h.parentElement.classList.toggle("open")));
+      byId("execList").querySelectorAll(".retry-btn").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); retry(b); }));
+    }
+
+    // Re-run a failed execution with its original trigger payload. The retry
+    // writes its own run row, so the failure it replaces stays in the history.
+    async function retry(btn) {
+      const id = btn.dataset.id, label = btn.textContent;
+      btn.disabled = true; btn.textContent = "Re-running…";
+      try {
+        const { data } = await supabase.auth.getSession();
+        const res = await fetch("/api/run-retry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${data?.session?.access_token || ""}` },
+          body: JSON.stringify({ id }),
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(out.error || `HTTP ${res.status}`);
+        if (out.ok) { btn.textContent = "✓ Re-ran"; setTimeout(loadExec, 900); }
+        else { throw new Error(out.error || "retry failed"); }
+      } catch (err) {
+        btn.textContent = "Failed"; btn.disabled = false;
+        alert(`Re-run failed:\n\n${err.message || err}`);
+        setTimeout(() => { btn.textContent = label; }, 2500);
+      }
     }
     function stepHtml(s) {
       return `<div class="step">

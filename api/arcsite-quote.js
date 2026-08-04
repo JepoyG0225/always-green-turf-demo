@@ -19,6 +19,54 @@ async function readBody(req) {
 }
 const num = (v, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
 const pct = (n) => `${Math.round(n)}%`;
+const normName = (s) => String(s || "").toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
+
+// Edit distance, capped — used to spot a misspelt customer rather than creating
+// a near-duplicate ("Christie Friendly" when "Christy Friendly" already exists).
+function editDistance(a, b) {
+  const m = a.length, n = b.length;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+
+// Same surname and a first name within a couple of characters is a typo, not a
+// new customer. Anything looser would risk merging two real people.
+function closeMatch(want, nodes) {
+  const w = normName(want).split(" ");
+  if (w.length < 2) return null;
+  const wLast = w[w.length - 1], wFirst = w[0];
+  if (wFirst.length < 4) return null; // too short for a typo to be distinguishable
+  return nodes.find((c) => {
+    const p = normName(c.name).split(" ");
+    if (p.length < 2 || p[0].length < 4) return false;
+    return p[p.length - 1] === wLast && editDistance(p[0], wFirst) <= 2;
+  }) || null;
+}
+
+// ArcSite titles read "Proposal for <name>-<street>,<city>" (or just "-<city>").
+// Everything this business quotes is Arizona, so the state is assumed.
+function propertyFromTitle(title, customerName) {
+  let rest = String(title || "").replace(/^\s*proposal for\s*/i, "");
+  const n = normName(customerName);
+  if (normName(rest).startsWith(n)) rest = rest.slice(customerName.length);
+  // Require the separator: without it the remainder is some other title text,
+  // not an address, and guessing would file the quote at a made-up location.
+  if (!/^\s*[-–—]/.test(rest)) return null;
+  rest = rest.replace(/^\s*[-–—]\s*/, "").trim();
+  if (!rest) return null;
+  const parts = rest.split(",").map((s) => s.trim()).filter(Boolean);
+  const city = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+  const street1 = parts.length > 1 ? parts.slice(0, -1).join(", ") : "";
+  if (!city) return null;
+  return { street1: street1 || undefined, city, province: "AZ", country: "United States" };
+}
 
 async function jobberGql(at, query, variables) {
   const r = await fetch("https://api.getjobber.com/api/graphql", {
@@ -86,12 +134,62 @@ module.exports = async function handler(req, res) {
     // 2) Jobber access token
     const jat = await run.step("Get Jobber Auth", {}, () => jobber.accessToken());
 
-    // 3) Search client in Jobber
-    const client = await run.step("Search Client in Jobber", { customerName }, async () => {
-      const d = await jobberGql(jat, `query($s: String!){ clients(searchTerm: $s){ nodes { id name clientProperties(first:1){ nodes { id } } } } }`, { s: customerName });
-      const nodes = d.clients?.nodes || [];
-      if (!nodes.length) throw new Error(`No Jobber client found for "${customerName}"`);
-      return nodes[0];
+    // 3) Find the Jobber client, creating it when this is genuinely a new
+    //    customer. Two things in the ArcSite data must NOT be created:
+    //    a drawing left with the rep's own name in the customer field, and a
+    //    misspelling of somebody already in Jobber.
+    const client = await run.step("Find or create Jobber client", { customerName, title: data.name }, async () => {
+      const d = await jobberGql(jat, `query($s: String!){ clients(searchTerm: $s, first: 20){ nodes { id name firstName lastName companyName isArchived clientProperties(first:1){ nodes { id } } } } }`, { s: customerName });
+      const nodes = (d.clients?.nodes || []).filter((c) => !c.isArchived);
+
+      const exact = nodes.find((c) => normName(c.name) === normName(customerName));
+      if (exact) return { ...exact, matchedBy: "exact" };
+
+      // A near-miss is either a typo or a different person with the same
+      // surname, and the two are indistinguishable from here. Creating would
+      // duplicate a real client; assuming would quote the wrong one — so stop
+      // and name the suspect rather than guessing.
+      const near = closeMatch(customerName, nodes);
+      if (near) {
+        throw new Error(`"${customerName}" isn't in Jobber but closely matches existing client "${near.name}". Not creating a possible duplicate — fix the name in ArcSite and re-send, or create the client in Jobber first.`);
+      }
+
+      // The customer field sometimes holds the rep who drew the proposal.
+      // Creating that would put an employee in the client list.
+      const repName = String(data.sales_representative || "").trim();
+      if (repName && normName(repName) === normName(customerName)) {
+        throw new Error(`ArcSite customer_name "${customerName}" is the sales rep — the drawing has no customer set. Fix it in ArcSite and re-send.`);
+      }
+      const users = await jobberGql(jat, `query { users(first: 100){ nodes { name { full } } } }`, {});
+      if ((users.users?.nodes || []).some((u) => normName(u.name?.full) === normName(customerName))) {
+        throw new Error(`ArcSite customer_name "${customerName}" matches a Jobber user (staff), not a customer. Fix the drawing in ArcSite and re-send.`);
+      }
+
+      // Same shape the GHL appointment flow uses: create the client, then add
+      // the property separately (ArcSite gives us no customer email or phone —
+      // contact_email on the webhook is the rep's).
+      const parts = String(customerName).trim().split(/\s+/);
+      const firstName = parts[0] || customerName;
+      const lastName = parts.slice(1).join(" ") || "";
+      const address = propertyFromTitle(data.name, customerName);
+      const input = { firstName, lastName, ...(address ? { billingAddress: address } : {}) };
+      const c = await jobberGql(jat,
+        `mutation($input: ClientCreateInput!){ clientCreate(input: $input){ client { id name } userErrors { message path } } }`,
+        { input });
+      if (c.clientCreate?.userErrors?.length) throw new Error(`clientCreate: ${JSON.stringify(c.clientCreate.userErrors)}`);
+      const made = c.clientCreate?.client;
+      if (!made) throw new Error("clientCreate returned no client");
+
+      let props = [];
+      if (address) {
+        const p = await jobberGql(jat,
+          `mutation($clientId: EncodedId!, $address: AddressAttributes!){ propertyCreate(clientId: $clientId, input:{ properties:[{ address: $address }] }){ properties { id } userErrors { message path } } }`,
+          { clientId: made.id, address });
+        if (p.propertyCreate?.userErrors?.length) run.info("Property not created", { errors: p.propertyCreate.userErrors });
+        props = (p.propertyCreate?.properties || []).map((x) => ({ id: x.id }));
+      }
+      run.info("Created Jobber client", { name: made.name, address: address || "none parsed from title" });
+      return { ...made, clientProperties: { nodes: props }, matchedBy: "created" };
     });
     const propertyId = client.clientProperties?.nodes?.[0]?.id || null;
 
@@ -121,7 +219,10 @@ module.exports = async function handler(req, res) {
 
     // 5) Create Jobber quote (assigned to the matched salesperson when found)
     const quote = await run.step("Create Quote in Jobber", { clientId: client.id, propertyId, title, salespersonId, lineItems }, async () => {
-      const attributes = { clientId: client.id, propertyId, title: data.name || title, lineItems };
+      // A brand-new client with no parseable address has no property yet —
+      // send the key only when we have one rather than an explicit null.
+      const attributes = { clientId: client.id, title: data.name || title, lineItems };
+      if (propertyId) attributes.propertyId = propertyId;
       if (salespersonId) attributes.salespersonId = salespersonId;
       const d = await jobberGql(jat,
         `mutation($attributes: QuoteCreateAttributes!){ quoteCreate(attributes:$attributes){ quote { id quoteNumber quoteStatus jobberWebUri salesperson { id name { full } } } userErrors { message path } } }`,
@@ -154,8 +255,8 @@ module.exports = async function handler(req, res) {
 
     // QBO is handled separately now: the Jobber "Job created" webhook creates the
     // QBO customer + project, and "Invoice created" creates the QBO invoice.
-    await run.finish("success", `Quote ${quote.quoteNumber} for ${customerName}`);
-    res.status(200).json({ ok: true, quote: quote.quoteNumber, quoteUri: quote.jobberWebUri });
+    await run.finish("success", `Quote ${quote.quoteNumber} for ${customerName}${client.matchedBy === "created" ? " (new Jobber client created)" : ""}`);
+    res.status(200).json({ ok: true, quote: quote.quoteNumber, quoteUri: quote.jobberWebUri, client: { id: client.id, name: client.name, matchedBy: client.matchedBy } });
   } catch (e) {
     await run.finish("error", String(e.message || e));
     res.status(500).json({ ok: false, error: String(e.message || e) });
