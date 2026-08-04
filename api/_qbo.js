@@ -103,15 +103,23 @@ async function findVendors(at, rlm, name) {
 async function createInvoice(at, rlm, { customerId, lines, docNumber, memo }) {
   const base = { CustomerRef: { value: String(customerId) }, Line: lines, ...(memo ? { PrivateNote: memo } : {}) };
   const wanted = docNumber ? String(docNumber).slice(0, 21) : null;
-  let invoice, duplicate = false;
+  let invoice, duplicate = false, used = null;
   if (wanted) {
-    try {
-      invoice = (await apiPost(at, rlm, "invoice", { ...base, DocNumber: wanted })).Invoice;
-    } catch (e) {
-      if (!/6140|Duplicate Document Number/i.test(String(e.message || e))) throw e;
-      duplicate = true;
-      invoice = (await apiPost(at, rlm, "invoice", base)).Invoice;
+    // Jobber and QBO number in the same range, so a collision is realistic.
+    // Suffix rather than dropping the number: with Custom transaction numbers
+    // on, QBO leaves an omitted DocNumber blank, and a blank invoice number in
+    // the books is worse than "2926-1".
+    for (const candidate of [wanted, `${wanted}-1`, `${wanted}-2`]) {
+      try {
+        invoice = (await apiPost(at, rlm, "invoice", { ...base, DocNumber: candidate })).Invoice;
+        used = candidate;
+        break;
+      } catch (e) {
+        if (!/6140|Duplicate Document Number/i.test(String(e.message || e))) throw e;
+        duplicate = true;
+      }
     }
+    if (!invoice) invoice = (await apiPost(at, rlm, "invoice", base)).Invoice;
   } else {
     invoice = (await apiPost(at, rlm, "invoice", base)).Invoice;
   }
@@ -121,8 +129,8 @@ async function createInvoice(at, rlm, { customerId, lines, docNumber, memo }) {
     catch { /* numbering is cosmetic — never fail the invoice over it */ }
   }
   return {
-    invoice, docNumber: actual, requested: wanted, duplicate,
-    matched: !!(wanted && actual && String(actual) === wanted),
+    invoice, docNumber: actual || used, requested: wanted, duplicate,
+    matched: !!(wanted && (actual || used) && String(actual || used) === wanted),
   };
 }
 
