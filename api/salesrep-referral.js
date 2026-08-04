@@ -22,23 +22,23 @@ const PIPELINE_NAME = process.env.GHL_REFERRAL_PIPELINE || "New Call Center Pipe
 const STAGE_NAME = process.env.GHL_REFERRAL_STAGE || "Sales Rep Referral";
 const H = { Authorization: `Bearer ${TOKEN}`, Version: "2021-07-28", Accept: "application/json" };
 
-// The rep list and its tags live here, not in the page: the tag is what the
-// GHL automations key off, so the browser must not be able to choose it.
+// One tag per lead, picked by rep AND how the lead came about — a self-generated
+// lead must never be tagged as a referral. These live here rather than in the
+// page because the tag is what the GHL automations key off, so the browser must
+// not be able to choose it.
+//
+// The referral tags are left exactly as they were, lowercase, so the automations
+// already keyed to them keep firing.
 const REPS = {
-  "Aaron Heimes": "#salesrepreferralah",
-  "Aaron Karkhoff": "#salesrepreferralak",
-  "Ammon Duffin": "#salesrepreferralammon",
-  "James Haney": "#salesrepreferraljames",
-  "Jason Koening": "#salesrepreferraljason",
-  "Karina Chandler": "#salesrepreferralkarina",
+  "Aaron Heimes":    { "Referral": "#salesrepreferralah",     "Self Gen": "#selfgenAH" },
+  "Aaron Karkhoff":  { "Referral": "#salesrepreferralak",     "Self Gen": "#selfgenAK" },
+  "Ammon Duffin":    { "Referral": "#salesrepreferralammon",  "Self Gen": "#selfgenammon" },
+  "James Haney":     { "Referral": "#salesrepreferraljames",  "Self Gen": "#selfgenjames" },
+  "Jason Koening":   { "Referral": "#salesrepreferraljason",  "Self Gen": "#selfgenjason" },
+  "Karina Chandler": { "Referral": "#salesrepreferralkarina", "Self Gen": "#selfgenKarina" },
 };
 
-// How the lead came about, and the tag that records it. Same reasoning as the
-// rep tags: the browser sends the label, the server decides the tag.
-const LEAD_TYPES = {
-  "Referral": "#referral",
-  "Self Gen": "#selfgen",
-};
+const LEAD_TYPES = ["Referral", "Self Gen"];
 
 const SERVICES = [
   "Turf Only",
@@ -117,7 +117,7 @@ module.exports = async function handler(req, res) {
     // normalised on write, so what we send isn't necessarily what's there.
     const lookup = (req.query && req.query.contact) || "";
     try {
-      const out = { ok: true, dryRun: true, reps: REPS, leadTypes: LEAD_TYPES };
+      const out = { ok: true, dryRun: true, tags: REPS, leadTypes: LEAD_TYPES };
       if (lookup) {
         const c = await upsertGhlContact.findContact({ email: lookup, phone: lookup });
         out.contact = c ? { id: c.id, email: c.email, phone: c.phone, tags: c.tags } : null;
@@ -155,10 +155,10 @@ module.exports = async function handler(req, res) {
 
   // The rep drives the tag, so an unknown one is a hard error rather than an
   // untagged lead nobody is watching.
-  const repTag = REPS[salesRep];
-  if (!repTag) { res.status(400).json({ error: `Unknown sales rep "${salesRep}".` }); return; }
-  const leadTag = LEAD_TYPES[leadType];
-  if (!leadTag) { res.status(400).json({ error: `Unknown lead type "${leadType}".` }); return; }
+  const repTags = REPS[salesRep];
+  if (!repTags) { res.status(400).json({ error: `Unknown sales rep "${salesRep}".` }); return; }
+  if (!LEAD_TYPES.includes(leadType)) { res.status(400).json({ error: `Unknown lead type "${leadType}".` }); return; }
+  const tag = repTags[leadType];
   if (!SERVICES.includes(service)) { res.status(400).json({ error: `Unknown service "${service}".` }); return; }
   if (!PROPERTY_TYPES.includes(propertyType)) { res.status(400).json({ error: `Unknown property type "${propertyType}".` }); return; }
 
@@ -172,7 +172,7 @@ module.exports = async function handler(req, res) {
       city: String(b.city || "").trim(),
       state: String(b.state || "").trim(),
       postalCode: String(b.postalCode || "").trim(),
-      tags: [repTag, leadTag],
+      tags: [tag],
       source: `Sales Rep Referral — ${salesRep}`,
     });
     if (!contact.id) throw new Error("GHL upsert returned no contact id");
@@ -206,8 +206,8 @@ module.exports = async function handler(req, res) {
     const slack = await notifySlack([
       `🌱 *New Sales Rep Referral*`,
       `*Customer:* ${firstName} ${lastName} <${email}> · ${phone}`,
-      `*Referred by:* ${salesRep}  \`${repTag}\``,
-      `*Lead type:* ${leadType}  \`${leadTag}\``,
+      `*Referred by:* ${salesRep}`,
+      `*Lead type:* ${leadType}  \`${tag}\``,
       `*Service:* ${service}`,
       `*Property:* ${propertyType} · ${areaSize}`,
       `*Address:* ${[street, b.city, b.state, b.postalCode].filter(Boolean).join(", ")}`,
@@ -217,9 +217,9 @@ module.exports = async function handler(req, res) {
         : `⚠️ *Pipeline:* not added — ${opportunityError}`,
     ].join("\n"));
 
-    console.log("[salesrep-referral] " + JSON.stringify({ ts: new Date().toISOString(), contactId: contact.id, opportunityId, salesRep, repTag, leadType, leadTag, service, opportunityError, noteError, slack }));
+    console.log("[salesrep-referral] " + JSON.stringify({ ts: new Date().toISOString(), contactId: contact.id, opportunityId, salesRep, leadType, tag, service, opportunityError, noteError, slack }));
     res.status(200).json({
-      ok: true, contactId: contact.id, contactNew: contact.new, tags: [repTag, leadTag], tag: repTag, leadTag,
+      ok: true, contactId: contact.id, contactNew: contact.new, tag,
       opportunityId, pipeline: stage && stage.pipelineName, stage: stage && stage.stageName,
       opportunityError, noteError, slack,
     });
