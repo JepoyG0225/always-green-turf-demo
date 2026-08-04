@@ -27,15 +27,18 @@ const H = { Authorization: `Bearer ${TOKEN}`, Version: "2021-07-28", Accept: "ap
 // page because the tag is what the GHL automations key off, so the browser must
 // not be able to choose it.
 //
-// The referral tags are left exactly as they were, lowercase, so the automations
-// already keyed to them keep firing.
+// Written lowercase because GHL lowercases tags on write regardless: sending it
+// with capitals stores it lowercased anyway (verified against the live API), so
+// keeping the map lowercase means the code, Slack and GHL all read the same.
+// The referral tags keep their existing spelling so the automations already
+// keyed to them keep firing.
 const REPS = {
-  "Aaron Heimes":    { "Referral": "#salesrepreferralah",     "Self Gen": "#selfgenAH" },
-  "Aaron Karkhoff":  { "Referral": "#salesrepreferralak",     "Self Gen": "#selfgenAK" },
+  "Aaron Heimes":    { "Referral": "#salesrepreferralah",     "Self Gen": "#selfgenah" },
+  "Aaron Karkhoff":  { "Referral": "#salesrepreferralak",     "Self Gen": "#selfgenak" },
   "Ammon Duffin":    { "Referral": "#salesrepreferralammon",  "Self Gen": "#selfgenammon" },
   "James Haney":     { "Referral": "#salesrepreferraljames",  "Self Gen": "#selfgenjames" },
   "Jason Koening":   { "Referral": "#salesrepreferraljason",  "Self Gen": "#selfgenjason" },
-  "Karina Chandler": { "Referral": "#salesrepreferralkarina", "Self Gen": "#selfgenKarina" },
+  "Karina Chandler": { "Referral": "#salesrepreferralkarina", "Self Gen": "#selfgenkarina" },
 };
 
 const LEAD_TYPES = ["Referral", "Self Gen"];
