@@ -1,6 +1,7 @@
 // Sales-rep referral form (/salesrep-referral) → GHL contact + opportunity.
 //
-// Creates/updates the contact, tags it for the rep who referred it, then drops
+// Creates/updates the contact, tags it for the rep who referred it and for how
+// the lead came about (referral vs self-gen), then drops
 // an opportunity into the "New Call Center Pipeline" at the "Sales Rep
 // Referral" stage. The pipeline and stage are resolved by NAME at request time,
 // so renaming/rebuilding them in GHL doesn't need a code change (ids would).
@@ -30,6 +31,13 @@ const REPS = {
   "James Haney": "#salesrepreferraljames",
   "Jason Koening": "#salesrepreferraljason",
   "Karina Chandler": "#salesrepreferralkarina",
+};
+
+// How the lead came about, and the tag that records it. Same reasoning as the
+// rep tags: the browser sends the label, the server decides the tag.
+const LEAD_TYPES = {
+  "Referral": "#referral",
+  "Self Gen": "#selfgen",
 };
 
 const SERVICES = [
@@ -109,7 +117,7 @@ module.exports = async function handler(req, res) {
     // normalised on write, so what we send isn't necessarily what's there.
     const lookup = (req.query && req.query.contact) || "";
     try {
-      const out = { ok: true, dryRun: true, reps: REPS };
+      const out = { ok: true, dryRun: true, reps: REPS, leadTypes: LEAD_TYPES };
       if (lookup) {
         const c = await upsertGhlContact.findContact({ email: lookup, phone: lookup });
         out.contact = c ? { id: c.id, email: c.email, phone: c.phone, tags: c.tags } : null;
@@ -135,12 +143,13 @@ module.exports = async function handler(req, res) {
   const phone = String(b.phone || "").trim();
   const street = String(b.street || "").trim();
   const salesRep = String(b.salesRep || "").trim();
+  const leadType = String(b.leadType || "").trim();
   const service = String(b.service || "").trim();
   const propertyType = String(b.propertyType || "").trim();
   const areaSize = String(b.areaSize || "").trim();
   const referrer = String(b.referrer || "").trim();
 
-  const missing = ["firstName", "lastName", "email", "phone", "street", "salesRep", "service", "propertyType", "areaSize"]
+  const missing = ["firstName", "lastName", "email", "phone", "street", "salesRep", "leadType", "service", "propertyType", "areaSize"]
     .filter((k) => !String(b[k] || "").trim());
   if (missing.length) { res.status(400).json({ error: `Missing required field(s): ${missing.join(", ")}` }); return; }
 
@@ -148,6 +157,8 @@ module.exports = async function handler(req, res) {
   // untagged lead nobody is watching.
   const repTag = REPS[salesRep];
   if (!repTag) { res.status(400).json({ error: `Unknown sales rep "${salesRep}".` }); return; }
+  const leadTag = LEAD_TYPES[leadType];
+  if (!leadTag) { res.status(400).json({ error: `Unknown lead type "${leadType}".` }); return; }
   if (!SERVICES.includes(service)) { res.status(400).json({ error: `Unknown service "${service}".` }); return; }
   if (!PROPERTY_TYPES.includes(propertyType)) { res.status(400).json({ error: `Unknown property type "${propertyType}".` }); return; }
 
@@ -161,7 +172,7 @@ module.exports = async function handler(req, res) {
       city: String(b.city || "").trim(),
       state: String(b.state || "").trim(),
       postalCode: String(b.postalCode || "").trim(),
-      tags: [repTag],
+      tags: [repTag, leadTag],
       source: `Sales Rep Referral — ${salesRep}`,
     });
     if (!contact.id) throw new Error("GHL upsert returned no contact id");
@@ -170,7 +181,7 @@ module.exports = async function handler(req, res) {
     try {
       stage = await resolveStage();
       opportunityId = await createOpportunity({
-        name: `${firstName} ${lastName} — Sales Rep Referral (${salesRep})`,
+        name: `${firstName} ${lastName} — ${leadType} (${salesRep})`,
         contactId: contact.id,
         pipelineId: stage.pipelineId,
         stageId: stage.stageId,
@@ -183,6 +194,7 @@ module.exports = async function handler(req, res) {
       await addNote(contact.id, [
         `Sales Rep Referral — submitted via /salesrep-referral`,
         `Referred by: ${salesRep}`,
+        `Lead type: ${leadType}`,
         `Service: ${service}`,
         `Property type: ${propertyType}`,
         `Approx. area: ${areaSize}`,
@@ -195,6 +207,7 @@ module.exports = async function handler(req, res) {
       `🌱 *New Sales Rep Referral*`,
       `*Customer:* ${firstName} ${lastName} <${email}> · ${phone}`,
       `*Referred by:* ${salesRep}  \`${repTag}\``,
+      `*Lead type:* ${leadType}  \`${leadTag}\``,
       `*Service:* ${service}`,
       `*Property:* ${propertyType} · ${areaSize}`,
       `*Address:* ${[street, b.city, b.state, b.postalCode].filter(Boolean).join(", ")}`,
@@ -204,9 +217,9 @@ module.exports = async function handler(req, res) {
         : `⚠️ *Pipeline:* not added — ${opportunityError}`,
     ].join("\n"));
 
-    console.log("[salesrep-referral] " + JSON.stringify({ ts: new Date().toISOString(), contactId: contact.id, opportunityId, salesRep, repTag, service, opportunityError, noteError, slack }));
+    console.log("[salesrep-referral] " + JSON.stringify({ ts: new Date().toISOString(), contactId: contact.id, opportunityId, salesRep, repTag, leadType, leadTag, service, opportunityError, noteError, slack }));
     res.status(200).json({
-      ok: true, contactId: contact.id, contactNew: contact.new, tag: repTag,
+      ok: true, contactId: contact.id, contactNew: contact.new, tags: [repTag, leadTag], tag: repTag, leadTag,
       opportunityId, pipeline: stage && stage.pipelineName, stage: stage && stage.stageName,
       opportunityError, noteError, slack,
     });
@@ -219,3 +232,4 @@ module.exports = async function handler(req, res) {
 
 module.exports.REPS = REPS;
 module.exports.SERVICES = SERVICES;
+module.exports.LEAD_TYPES = LEAD_TYPES;

@@ -426,6 +426,8 @@
 
     /* Service picker — buttons, not a dropdown */
     .svc-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .svc-hint { display:block; margin-top:3px; font-size:.72rem; font-weight:500; color:var(--muted); }
+    .svc[aria-pressed="true"] .svc-hint { color:var(--g3); }
     .svc {
       position:relative; text-align:left; font-family:'Poppins',sans-serif;
       border:1.5px solid var(--border); background:#fff; border-radius:14px;
@@ -685,6 +687,15 @@
           </div>
 
           <div class="rf-f rf-full">
+            <span class="lbl">Lead type</span>
+            <div id="leadTypeOptions" class="svc-grid" role="group" aria-label="Lead type">
+              <button type="button" class="svc" aria-pressed="false" data-value="Referral">Referral<span class="svc-hint">Someone referred this customer to us</span></button>
+              <button type="button" class="svc" aria-pressed="false" data-value="Self Gen">Self Gen<span class="svc-hint">The rep generated this lead themselves</span></button>
+            </div>
+            <input type="hidden" id="leadType" required>
+          </div>
+
+          <div class="rf-f rf-full">
             <label for="areaSize">Approx. area</label>
             <input class="field" id="areaSize" type="text" inputmode="numeric" placeholder="Example: 250 sqft" required>
           </div>
@@ -816,16 +827,17 @@
     el.textContent = msg;
   }
 
-  /* ── Service buttons (single select, backed by a hidden input) ── */
-  (function () {
-    var wrap = byId('serviceOptions'), hidden = byId('service');
+  /* ── Button groups (single select, each backed by a hidden input) ── */
+  [['serviceOptions', 'service'], ['leadTypeOptions', 'leadType']].forEach(function (pair) {
+    var wrap = byId(pair[0]), hidden = byId(pair[1]);
+    if (!wrap || !hidden) return;
     wrap.addEventListener('click', function (e) {
       var btn = e.target.closest('.svc'); if (!btn) return;
       Array.prototype.forEach.call(wrap.querySelectorAll('.svc'), function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
       hidden.value = btn.dataset.value;
       setStatus('', null);
     });
-  })();
+  });
 
   /* ── US phone mask ── */
   (function () {
@@ -900,6 +912,7 @@
       state: byId('addrState').value,
       postalCode: byId('addrZip').value,
       salesRep: byId('salesRep').value,
+      leadType: byId('leadType').value,
       propertyType: byId('propertyType').value,
       areaSize: byId('areaSize').value.trim(),
       service: byId('service').value,
@@ -908,8 +921,8 @@
     };
 
     var required = [['firstName','First name'],['lastName','Last name'],['phone','Phone'],['email','Email'],
-                    ['street','Street address'],['salesRep','Sales rep'],['propertyType','Property type'],
-                    ['areaSize','Approx. area'],['service','a service']];
+                    ['street','Street address'],['salesRep','Sales rep'],['leadType','a lead type'],
+                    ['propertyType','Property type'],['areaSize','Approx. area'],['service','a service']];
     for (var i = 0; i < required.length; i++) {
       if (!payload[required[i][0]]) { setStatus('Please fill in ' + required[i][1] + '.', false); return; }
     }
@@ -946,7 +959,7 @@
 
   byId('againBtn').addEventListener('click', function () {
     byId('referralForm').reset();
-    byId('service').value = '';
+    byId('service').value = ''; byId('leadType').value = '';
     Array.prototype.forEach.call(document.querySelectorAll('.svc'), function (b) { b.setAttribute('aria-pressed', 'false'); });
     ['addrCity','addrState','addrZip'].forEach(function (id) { byId(id).value = ''; });
     byId('successCard').classList.add('rf-hide');
