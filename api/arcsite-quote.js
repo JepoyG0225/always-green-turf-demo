@@ -1,16 +1,13 @@
-// ArcSite "proposal.sent" webhook → Jobber quote + hosted PDF note.
+// ArcSite "proposal.sent" webhook → Jobber quote.
 // (QBO customer/project/invoice are now created from Jobber "Job created" /
 // "Invoice created" webhooks instead of here.) Every step is recorded via _runlog.
 
 const newRun = require("./_runlog");
 const jobber = require("./_jobber");
 const { isPublished } = require("./_workflow-config");
-const { put } = require("@vercel/blob");
 
 const ARCSITE_TOKEN = process.env.ARCSITE_TOKEN || "";
 const JVER = process.env.JOBBER_QUOTE_GRAPHQL_VERSION || "2025-04-16";
-// PDFs are hosted on Vercel Blob and served under our own domain via /quote-pdfs/.
-const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || "https://always-green-turf-demo.vercel.app").replace(/\/$/, "");
 
 async function readBody(req) {
   if (req.body && typeof req.body === "object") return req.body;
@@ -230,28 +227,6 @@ module.exports = async function handler(req, res) {
       if (d.quoteCreate?.userErrors?.length) throw new Error(`quoteCreate: ${JSON.stringify(d.quoteCreate.userErrors)}`);
       return d.quoteCreate.quote;
     });
-
-    // 6) Download the ArcSite PDF and host it on Vercel Blob (served under our domain)
-    let publicPdf = null;
-    if (opt.pdf_url) {
-      const fileName = (opt.pdf_url.split("?")[0].split("/").pop() || "quote.pdf").replace(/[^a-zA-Z0-9._-]/g, "");
-      await run.step("Host PDF on Vercel Blob", { fileName }, async () => {
-        const pr = await fetch(opt.pdf_url); if (!pr.ok) throw new Error(`PDF download ${pr.status}`);
-        const buf = Buffer.from(await pr.arrayBuffer());
-        if (!process.env.BLOB_READ_WRITE_TOKEN) throw new Error("BLOB_READ_WRITE_TOKEN not set — create a Vercel Blob store");
-        const blob = await put(`quote-pdfs/${fileName}`, buf, {
-          access: "public", addRandomSuffix: false, allowOverwrite: true,
-          contentType: "application/pdf", token: process.env.BLOB_READ_WRITE_TOKEN,
-        });
-        return { bytes: buf.length, blobUrl: blob.url };
-      });
-      publicPdf = `${PUBLIC_BASE}/quote-pdfs/${fileName}`;
-      // 7) Attach the PDF link as a quote note
-      await run.step("Attach PDF note to Quote", { quoteId: quote.id, publicPdf }, async () => {
-        const d = await jobberGql(jat, `mutation($id: EncodedId!, $msg: String!){ quoteCreateNote(quoteId: $id, input:{ message: $msg }){ quote { id } } }`, { id: quote.id, msg: `Drawing Proposal PDF:\n${publicPdf}` });
-        return d.quoteCreateNote;
-      });
-    }
 
     // QBO is handled separately now: the Jobber "Job created" webhook creates the
     // QBO customer + project, and "Invoice created" creates the QBO invoice.

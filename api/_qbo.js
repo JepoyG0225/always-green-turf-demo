@@ -100,8 +100,15 @@ async function findVendors(at, rlm, name) {
 //     silently ignored and QBO numbers it itself
 // QBO doesn't return DocNumber on create, so the invoice is read back to find
 // out which of those happened and to log the number it actually carries.
-async function createInvoice(at, rlm, { customerId, lines, docNumber, memo }) {
-  const base = { CustomerRef: { value: String(customerId) }, Line: lines, ...(memo ? { PrivateNote: memo } : {}) };
+async function createInvoice(at, rlm, { customerId, lines, docNumber, memo, txnDate }) {
+  const base = {
+    CustomerRef: { value: String(customerId) }, Line: lines,
+    ...(memo ? { PrivateNote: memo } : {}),
+    // Omitted, QBO stamps the invoice with the day the API call lands. Passing
+    // the date the work was actually finished keeps the revenue in the right
+    // month even when the invoice is created (or re-run) days later.
+    ...(txnDate ? { TxnDate: txnDate } : {}),
+  };
   const wanted = docNumber ? String(docNumber).slice(0, 21) : null;
   let invoice, duplicate = false, used = null;
   if (wanted) {

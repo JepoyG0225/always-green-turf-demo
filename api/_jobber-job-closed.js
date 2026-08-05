@@ -22,6 +22,31 @@ const TAX_RATE_NONE = process.env.JOBBER_TAX_RATE_NO_FEE || "Z2lkOi8vSm9iYmVyL1R
 const num = (v, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
 const money = (n) => Number(num(n, 0).toFixed(2));
 
+// Arizona doesn't observe DST, so the business day is unambiguous — but a job
+// closed at 6pm Phoenix is already "tomorrow" in UTC, and dating the invoice
+// off the raw timestamp would push it into the next day (or next month).
+const TZ = process.env.BUSINESS_TIMEZONE || "America/Phoenix";
+function businessDate(iso) {
+  const d = new Date(iso);
+  if (!iso || isNaN(d.getTime())) return null;
+  // en-CA formats as YYYY-MM-DD, which is what QBO wants.
+  return new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+}
+
+// When the job was marked complete. Asked for separately and tolerantly: if the
+// field isn't in this API version the query throws, and an invoice dated by QBO
+// is far better than no invoice at all.
+async function completedOn(at, jobId, log) {
+  for (const field of ["completedAt", "endAt"]) {
+    try {
+      const d = await jobberGql(at, `query($id:EncodedId!){ job(id:$id){ ${field} } }`, { id: jobId });
+      const raw = d.job && d.job[field];
+      if (raw) return { date: businessDate(raw), source: field, raw };
+    } catch (e) { log.info(`Job.${field} unavailable`, { error: String(e.message || e).slice(0, 120) }); }
+  }
+  return { date: null, source: null, raw: null };
+}
+
 const JOB_QUERY = `query($id:EncodedId!){ job(id:$id){ id jobNumber title jobStatus total invoicedTotal uninvoicedTotal
   client{ id name firstName lastName companyName emails{ address } }
   property{ address{ street1 street2 city province postalCode country } }
@@ -112,8 +137,14 @@ async function run({ jobId, dryRun }) {
     const { project } = await ensureCustomerProject(log, qat, rlm, inv.client || job.client, job.property);
     // Same number on both sides, and the memo names the Jobber invoice so a
     // later run can tell this one is already mirrored instead of copying it.
-    const made = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length, computed, jobberTotal, jobberInvoice: inv.invoiceNumber }, () =>
-      qbo.createInvoice(qat, rlm, { customerId: project.Id, lines, docNumber: inv.invoiceNumber, memo: `Jobber invoice #${inv.invoiceNumber}` }));
+    // Date the invoice the day the job was marked complete, not the day this
+    // ran — a re-run days later must not move the revenue into another month.
+    const completed = await completedOn(at, jobId, log);
+    if (completed.date) log.info("Dating the QBO invoice from job completion", { completedAt: completed.raw, source: completed.source, txnDate: completed.date, timezone: TZ });
+    else log.info("No completion date on the job — QBO will date the invoice today", {});
+
+    const made = await log.step("Create QBO invoice", { customerRef: project.Id, lines: lines.length, computed, jobberTotal, jobberInvoice: inv.invoiceNumber, txnDate: completed.date }, () =>
+      qbo.createInvoice(qat, rlm, { customerId: project.Id, lines, docNumber: inv.invoiceNumber, memo: `Jobber invoice #${inv.invoiceNumber}`, txnDate: completed.date }));
     const qboInv = made.invoice;
     const qboNumber = made.docNumber || "(unnumbered)";
     if (made.duplicate) log.info("QBO already had that invoice number — QBO numbered it instead", { jobber: inv.invoiceNumber, qbo: made.docNumber });
