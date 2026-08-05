@@ -74,18 +74,24 @@ const CHANGE_ORDER = /\bchange\s*-?\s*order(?:\s*#\s*(\d+))?/i;
 // A change order restates the whole scope, not just the addition — the Jodi
 // Pullen example went $5,213.85 → $5,697.13 with a full line-item set — so the
 // quote's lines are REPLACED. Appending would bill the original work twice.
+// Add the new lines BEFORE removing the old ones: Jobber rejects a quote with
+// no line items ("Quote can't be blank"), so deleting first fails outright.
 async function replaceQuoteLineItems(at, quoteId, existingIds, lineItems) {
-  if (existingIds.length) {
-    const d = await jobberGql(at,
-      `mutation($quoteId: EncodedId!, $ids: [EncodedId!]!){ quoteDeleteLineItems(quoteId: $quoteId, lineItemIds: $ids){ quote { id } userErrors { message path } } }`,
-      { quoteId, ids: existingIds });
-    if (d.quoteDeleteLineItems?.userErrors?.length) throw new Error(`quoteDeleteLineItems: ${JSON.stringify(d.quoteDeleteLineItems.userErrors)}`);
-  }
-  const d = await jobberGql(at,
+  const added = await jobberGql(at,
     `mutation($quoteId: EncodedId!, $lineItems: [QuoteCreateLineItemAttributes!]!){ quoteCreateLineItems(quoteId: $quoteId, lineItems: $lineItems){ quote { id quoteNumber amounts { total } } userErrors { message path } } }`,
     { quoteId, lineItems });
-  if (d.quoteCreateLineItems?.userErrors?.length) throw new Error(`quoteCreateLineItems: ${JSON.stringify(d.quoteCreateLineItems.userErrors)}`);
-  return d.quoteCreateLineItems?.quote;
+  if (added.quoteCreateLineItems?.userErrors?.length) throw new Error(`quoteCreateLineItems: ${JSON.stringify(added.quoteCreateLineItems.userErrors)}`);
+
+  if (existingIds.length) {
+    const d = await jobberGql(at,
+      `mutation($quoteId: EncodedId!, $ids: [EncodedId!]!){ quoteDeleteLineItems(quoteId: $quoteId, lineItemIds: $ids){ quote { id quoteNumber amounts { total } } userErrors { message path } } }`,
+      { quoteId, ids: existingIds });
+    // If the old lines can't be removed the quote now holds both sets, which
+    // would bill the original work twice — surface that loudly.
+    if (d.quoteDeleteLineItems?.userErrors?.length) throw new Error(`quoteDeleteLineItems (quote now has BOTH old and new lines — fix by hand): ${JSON.stringify(d.quoteDeleteLineItems.userErrors)}`);
+    return d.quoteDeleteLineItems?.quote;
+  }
+  return added.quoteCreateLineItems?.quote;
 }
 
 async function jobberGql(at, query, variables) {
