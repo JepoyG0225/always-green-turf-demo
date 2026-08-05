@@ -6,8 +6,41 @@ const newRun = require("./_runlog");
 const jobber = require("./_jobber");
 const { isPublished } = require("./_workflow-config");
 
+// Required directly: pdf-parse's index runs a demo block when loaded as a main
+// module, which throws in a serverless bundle.
+const pdfParse = require("pdf-parse/lib/pdf-parse.js");
+
 const ARCSITE_TOKEN = process.env.ARCSITE_TOKEN || "";
 const JVER = process.env.JOBBER_QUOTE_GRAPHQL_VERSION || "2025-04-16";
+// "Gate Code Number", the Text custom field on ALL_QUOTES in Jobber.
+const GATE_FIELD_ID = process.env.JOBBER_GATE_CODE_FIELD_ID || "Z2lkOi8vSm9iYmVyL0N1c3RvbUZpZWxkQ29uZmlndXJhdGlvblRleHQvMzgzMTQ1MA==";
+
+// The gate code is a custom field on the ArcSite drawing, and ArcSite's API
+// doesn't expose those — no /custom_fields endpoint exists, and the drawing,
+// project and proposal payloads don't carry them. It only appears in the
+// rendered proposal PDF, under its label:
+//
+//     Enter Gate Code if Applicable
+//     1234
+//
+// so the value is read from there. The PDF link is signed and expires, which is
+// why this happens now, while the webhook is being handled, rather than later.
+const GATE_LABEL = /enter\s+gate\s+code/i;
+const NO_GATE_CODE = /^(n\/?\.?a\.?|none|no|nil|-{1,2}|—)$/i;
+
+async function gateCodeFromProposal(pdfUrl) {
+  if (!pdfUrl) return { code: null, reason: "no proposal PDF on the webhook" };
+  const r = await fetch(pdfUrl);
+  if (!r.ok) return { code: null, reason: `proposal PDF returned ${r.status}` };
+  const { text } = await pdfParse(Buffer.from(await r.arrayBuffer()));
+  const lines = String(text || "").split("\n").map((l) => l.trim());
+  const at = lines.findIndex((l) => GATE_LABEL.test(l));
+  if (at < 0) return { code: null, reason: "the proposal has no gate code field" };
+  // The value is the next non-empty line; the label sits alone on its own.
+  const value = lines.slice(at + 1, at + 4).find(Boolean) || "";
+  if (!value || NO_GATE_CODE.test(value)) return { code: null, reason: `left blank (“${value}”)` };
+  return { code: value.slice(0, 60), reason: null };
+}
 
 async function readBody(req) {
   if (req.body && typeof req.body === "object") return req.body;
@@ -243,6 +276,14 @@ module.exports = async function handler(req, res) {
     // 4) Build Jobber quote line items (markup/discounts/fee)
     const { lineItems, title } = await run.step("Build Quote Line Items", arc, async () => buildLineItems(arc));
 
+    // 4b) Gate code, read out of the proposal PDF. Never fatal — a quote
+    //     without the code is far better than no quote.
+    const gate = await run.step("Read gate code from proposal", { pdf: !!opt.pdf_url }, async () => {
+      try { return await gateCodeFromProposal(opt.pdf_url); }
+      catch (e) { return { code: null, reason: `could not read the PDF: ${String(e.message || e).slice(0, 120)}` }; }
+    });
+    const gateField = gate.code ? [{ customFieldConfigurationId: GATE_FIELD_ID, valueText: gate.code }] : null;
+
     // 5a) A change order revises the client's latest quote instead of adding
     //     another one. Only the line items and title change — the quote keeps
     //     its number, its deposit and its place in Jobber.
@@ -263,9 +304,11 @@ module.exports = async function handler(req, res) {
         const before = target.amounts?.total;
         const after = await replaceQuoteLineItems(jat, target.id, existingIds, lineItems);
         // Carry the change-order wording onto the quote so it's visible in Jobber.
+        const editAttrs = { title: data.name };
+        if (gateField) editAttrs.customFields = gateField;
         await jobberGql(jat,
           `mutation($quoteId: EncodedId!, $attributes: QuoteEditAttributes!){ quoteEdit(quoteId: $quoteId, attributes: $attributes){ quote { id } userErrors { message path } } }`,
-          { quoteId: target.id, attributes: { title: data.name } });
+          { quoteId: target.id, attributes: editAttrs });
         return {
           revised: true, quoteId: target.id, quoteNumber: target.quoteNumber, status: target.quoteStatus,
           previousTitle: target.title, replacedLines: existingIds.length, newLines: lineItems.length,
@@ -274,7 +317,7 @@ module.exports = async function handler(req, res) {
       });
       if (revised.revised) {
         await run.finish("success", `Change order ${changeOrder[1] ? "#" + changeOrder[1] + " " : ""}applied to quote ${revised.quoteNumber} for ${customerName} — $${revised.totalBefore} → $${revised.totalAfter}`);
-        res.status(200).json({ ok: true, changeOrder: true, quote: revised.quoteNumber, quoteUri: revised.jobberWebUri, totalBefore: revised.totalBefore, totalAfter: revised.totalAfter });
+        res.status(200).json({ ok: true, changeOrder: true, gateCode: gate.code, quote: revised.quoteNumber, quoteUri: revised.jobberWebUri, totalBefore: revised.totalBefore, totalAfter: revised.totalAfter });
         return;
       }
       run.info("Change order with nothing to revise — creating a quote instead", { reason: revised.reason });
@@ -287,6 +330,7 @@ module.exports = async function handler(req, res) {
       const attributes = { clientId: client.id, title: data.name || title, lineItems };
       if (propertyId) attributes.propertyId = propertyId;
       if (salespersonId) attributes.salespersonId = salespersonId;
+      if (gateField) attributes.customFields = gateField;
       const d = await jobberGql(jat,
         `mutation($attributes: QuoteCreateAttributes!){ quoteCreate(attributes:$attributes){ quote { id quoteNumber quoteStatus jobberWebUri salesperson { id name { full } } } userErrors { message path } } }`,
         { attributes });
@@ -296,8 +340,8 @@ module.exports = async function handler(req, res) {
 
     // QBO is handled separately now: the Jobber "Job created" webhook creates the
     // QBO customer + project, and "Invoice created" creates the QBO invoice.
-    await run.finish("success", `Quote ${quote.quoteNumber} for ${customerName}${client.matchedBy === "created" ? " (new Jobber client created)" : ""}`);
-    res.status(200).json({ ok: true, quote: quote.quoteNumber, quoteUri: quote.jobberWebUri, client: { id: client.id, name: client.name, matchedBy: client.matchedBy } });
+    await run.finish("success", `Quote ${quote.quoteNumber} for ${customerName}${client.matchedBy === "created" ? " (new Jobber client created)" : ""}${gate.code ? ` — gate code ${gate.code}` : ""}`);
+    res.status(200).json({ ok: true, quote: quote.quoteNumber, quoteUri: quote.jobberWebUri, gateCode: gate.code, client: { id: client.id, name: client.name, matchedBy: client.matchedBy } });
   } catch (e) {
     await run.finish("error", String(e.message || e));
     res.status(500).json({ ok: false, error: String(e.message || e) });
