@@ -65,6 +65,29 @@ function propertyFromTitle(title, customerName) {
   return { street1: street1 || undefined, city, province: "AZ", country: "United States" };
 }
 
+// ArcSite marks a change order in the proposal title:
+//   "Proposal for Jodi Pullen-2518 E Thornton Court,Gilbert - Change Order #1"
+// Ordinary proposals never contain the phrase, so the title is a far more
+// reliable signal than trying to infer one from repeat proposals on a project.
+const CHANGE_ORDER = /\bchange\s*-?\s*order(?:\s*#\s*(\d+))?/i;
+
+// A change order restates the whole scope, not just the addition — the Jodi
+// Pullen example went $5,213.85 → $5,697.13 with a full line-item set — so the
+// quote's lines are REPLACED. Appending would bill the original work twice.
+async function replaceQuoteLineItems(at, quoteId, existingIds, lineItems) {
+  if (existingIds.length) {
+    const d = await jobberGql(at,
+      `mutation($quoteId: EncodedId!, $ids: [EncodedId!]!){ quoteDeleteLineItems(quoteId: $quoteId, lineItemIds: $ids){ quote { id } userErrors { message path } } }`,
+      { quoteId, ids: existingIds });
+    if (d.quoteDeleteLineItems?.userErrors?.length) throw new Error(`quoteDeleteLineItems: ${JSON.stringify(d.quoteDeleteLineItems.userErrors)}`);
+  }
+  const d = await jobberGql(at,
+    `mutation($quoteId: EncodedId!, $lineItems: [QuoteCreateLineItemAttributes!]!){ quoteCreateLineItems(quoteId: $quoteId, lineItems: $lineItems){ quote { id quoteNumber amounts { total } } userErrors { message path } } }`,
+    { quoteId, lineItems });
+  if (d.quoteCreateLineItems?.userErrors?.length) throw new Error(`quoteCreateLineItems: ${JSON.stringify(d.quoteCreateLineItems.userErrors)}`);
+  return d.quoteCreateLineItems?.quote;
+}
+
 async function jobberGql(at, query, variables) {
   const r = await fetch("https://api.getjobber.com/api/graphql", {
     method: "POST", headers: { Authorization: `Bearer ${at}`, "Content-Type": "application/json", "X-JOBBER-GRAPHQL-VERSION": JVER },
@@ -213,6 +236,43 @@ module.exports = async function handler(req, res) {
 
     // 4) Build Jobber quote line items (markup/discounts/fee)
     const { lineItems, title } = await run.step("Build Quote Line Items", arc, async () => buildLineItems(arc));
+
+    // 5a) A change order revises the client's latest quote instead of adding
+    //     another one. Only the line items and title change — the quote keeps
+    //     its number, its deposit and its place in Jobber.
+    const changeOrder = CHANGE_ORDER.exec(String(data.name || ""));
+    let revised = null;
+    if (changeOrder) {
+      revised = await run.step("Revise latest quote (change order)", { client: client.name, changeOrder: changeOrder[1] || "yes", lines: lineItems.length }, async () => {
+        const d = await jobberGql(jat,
+          `query($id: EncodedId!){ client(id: $id){ quotes(first: 25){ nodes { id quoteNumber quoteStatus title createdAt jobberWebUri amounts { total } lineItems(first: 100){ nodes { id } } } } } }`,
+          { id: client.id });
+        const quotes = (d.client?.quotes?.nodes || [])
+          .slice()
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const target = quotes[0];
+        if (!target) return { revised: false, reason: "client has no existing quote" };
+
+        const existingIds = (target.lineItems?.nodes || []).map((n) => n.id);
+        const before = target.amounts?.total;
+        const after = await replaceQuoteLineItems(jat, target.id, existingIds, lineItems);
+        // Carry the change-order wording onto the quote so it's visible in Jobber.
+        await jobberGql(jat,
+          `mutation($quoteId: EncodedId!, $attributes: QuoteEditAttributes!){ quoteEdit(quoteId: $quoteId, attributes: $attributes){ quote { id } userErrors { message path } } }`,
+          { quoteId: target.id, attributes: { title: data.name } });
+        return {
+          revised: true, quoteId: target.id, quoteNumber: target.quoteNumber, status: target.quoteStatus,
+          previousTitle: target.title, replacedLines: existingIds.length, newLines: lineItems.length,
+          totalBefore: before, totalAfter: after?.amounts?.total, jobberWebUri: target.jobberWebUri,
+        };
+      });
+      if (revised.revised) {
+        await run.finish("success", `Change order ${changeOrder[1] ? "#" + changeOrder[1] + " " : ""}applied to quote ${revised.quoteNumber} for ${customerName} — $${revised.totalBefore} → $${revised.totalAfter}`);
+        res.status(200).json({ ok: true, changeOrder: true, quote: revised.quoteNumber, quoteUri: revised.jobberWebUri, totalBefore: revised.totalBefore, totalAfter: revised.totalAfter });
+        return;
+      }
+      run.info("Change order with nothing to revise — creating a quote instead", { reason: revised.reason });
+    }
 
     // 5) Create Jobber quote (assigned to the matched salesperson when found)
     const quote = await run.step("Create Quote in Jobber", { clientId: client.id, propertyId, title, salespersonId, lineItems }, async () => {
