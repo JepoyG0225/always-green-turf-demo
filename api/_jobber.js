@@ -114,9 +114,10 @@ async function createJobFromQuote(at, quote, { salespersonId } = {}) {
   const r = await fetch("https://api.getjobber.com/api/graphql", {
     method: "POST",
     headers: { Authorization: `Bearer ${at}`, "Content-Type": "application/json", "X-JOBBER-GRAPHQL-VERSION": QUOTE_VER },
+    // jobCreate takes `input`, not `attributes` — unlike quoteCreate/clientCreate.
     body: JSON.stringify({
-      query: `mutation($attributes: JobCreateAttributes!){ jobCreate(attributes: $attributes){ job { id jobNumber title } userErrors { message path } } }`,
-      variables: { attributes },
+      query: `mutation($input: JobCreateAttributes!){ jobCreate(input: $input){ job { id jobNumber title } userErrors { message path } } }`,
+      variables: { input: attributes },
     }),
   });
   const d0 = await r.json().catch(() => ({}));
