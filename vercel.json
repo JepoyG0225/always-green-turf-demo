@@ -3,6 +3,12 @@
   "redirects": [
     { "source": "/schedule", "destination": "/direct-booking", "permanent": false },
     { "source": "/warranty-claim", "destination": "/warranty", "permanent": false },
+    {
+      "source": "/blog-article.html",
+      "has": [{ "type": "query", "key": "article", "value": "pricing-guide-2025" }],
+      "destination": "/artificial-grass-cost-arizona",
+      "permanent": true
+    },
     { "source": "/admin", "destination": "/admin/login", "permanent": false },
     { "source": "/dispatch", "destination": "/admin/login", "permanent": false },
     { "source": "/dispatch/:path*", "destination": "/admin/:path*", "permanent": false }
