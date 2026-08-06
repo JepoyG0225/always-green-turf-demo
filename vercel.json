@@ -12,6 +12,9 @@
     { "source": "/jobber/oauth/callback", "destination": "/api/jobber-callback" },
     { "source": "/quote-pdfs/:file", "destination": "/api/quote-pdf?file=:file" }
   ],
+  "functions": {
+    "api/jobber-job-closed.js": { "maxDuration": 60 }
+  },
   "crons": [
     { "path": "/api/sheet-leads", "schedule": "*/15 * * * *" }
   ]
