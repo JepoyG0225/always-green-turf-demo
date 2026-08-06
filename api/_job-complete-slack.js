@@ -59,15 +59,25 @@ async function uploadPhoto(file, bytes) {
   return d.file_id;
 }
 
-function summary({ job, client, address, mention, photoCount, skipped }) {
-  const lines = [
-    `✅ *Job Completed* — #${job.jobNumber}${job.title ? ` · ${job.title}` : ""}`,
-    `*Customer:* ${client.name || "—"}${client.email ? ` <${client.email}>` : ""}${client.phone ? ` · ${client.phone}` : ""}`,
+// Mirrors the Job Completed Form card the crew-form workflow posts, so both
+// arrive in #job-complete looking like the same thing. The fields differ —
+// these come from Jobber rather than the crew's form — but the shape is the
+// same: header, divider, summary, a two-column field grid, divider.
+function buildBlocks({ job, client, address, mention, photoCount, skipped }) {
+  const dash = (v) => (v && String(v).trim()) || "—";
+  return [
+    { type: "header", text: { type: "plain_text", text: "Job Completed Form", emoji: true } },
+    { type: "divider" },
+    { type: "section", text: { type: "mrkdwn", text: `*Job:* #${job.jobNumber}${job.title ? ` — ${job.title}` : ""}\n*Customer:* ${dash(client.name)}` } },
+    { type: "section", fields: [
+      { type: "mrkdwn", text: `*Email:*\n${dash(client.email)}` },
+      { type: "mrkdwn", text: `*Phone:*\n${dash(client.phone)}` },
+      { type: "mrkdwn", text: `*Address:*\n${dash(address)}` },
+      { type: "mrkdwn", text: `*Sales Rep:*\n${mention || "—"}` },
+    ] },
+    { type: "divider" },
+    { type: "section", text: { type: "mrkdwn", text: `*Completed Project Photos* (${photoCount})${skipped ? ` — showing the first ${photoCount} of ${photoCount + skipped}` : ""}` } },
   ];
-  if (address) lines.push(`*Address:* ${address}`);
-  lines.push(`*Sales rep:* ${mention}`);
-  lines.push(`*Photos:* ${photoCount}${skipped ? ` (showing the first ${photoCount} of ${photoCount + skipped})` : ""}`);
-  return lines.join("\n");
 }
 
 // A channel override arrives either as an id (C0…) or a name (#workflow-testing).
@@ -128,12 +138,27 @@ async function postJobComplete(log, { job, client, address, rep, photos, channel
   }
   if (!uploaded.length) return { posted: false, reason: "every photo failed to upload" };
 
-  const d = await slack("files.completeUploadExternal", {
-    files: uploaded,
-    channel_id: target,
-    initial_comment: summary({ job, client, address, mention: mention.text, photoCount: uploaded.length, skipped }),
+  // The card goes up first, then the photos are shared into its thread.
+  // files.completeUploadExternal only accepts a plain-text initial_comment, so a
+  // Block Kit card has to be its own message; threading the photos underneath
+  // keeps the channel readable when several jobs close the same day.
+  //
+  // Photos are already uploaded by this point — the card is only posted once
+  // there's something to hang under it.
+  const card = await slack("chat.postMessage", {
+    channel: target,
+    text: `Job Completed — #${job.jobNumber}${client.name ? ` · ${client.name}` : ""}`,
+    blocks: buildBlocks({ job, client, address, mention: mention.text, photoCount: uploaded.length, skipped }),
   });
-  return { posted: true, photos: uploaded.length, skipped, repMentioned: mention.resolved, channel: target, ts: d.files && d.files[0] && d.files[0].id };
+
+  try {
+    await slack("files.completeUploadExternal", { files: uploaded, channel_id: target, thread_ts: card.ts });
+  } catch (e) {
+    // The card is already in the channel; say so rather than reporting a clean
+    // failure that would send someone looking for a message that's right there.
+    return { posted: true, photos: 0, photosFailed: uploaded.length, skipped, repMentioned: mention.resolved, channel: target, ts: card.ts, reason: `card posted, photos failed to attach: ${String(e.message || e)}` };
+  }
+  return { posted: true, photos: uploaded.length, skipped, repMentioned: mention.resolved, channel: target, ts: card.ts };
 }
 
 module.exports = { postJobComplete, isPhoto };
