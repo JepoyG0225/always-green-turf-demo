@@ -13,7 +13,6 @@ const qbo = require("./_qbo");
 const { isPublished } = require("./_workflow-config");
 const { ensureCustomerProject, customerFields, jobberGql } = require("./_jobber-job");
 const { buildQboLines } = require("./_jobber-invoice");
-const { postJobComplete, isPhoto } = require("./_job-complete-slack");
 
 // Marking sent emails the customer — off by default (invoice stays a draft).
 const MARK_SENT = process.env.JOBBER_INVOICE_MARK_SENT === "true";
@@ -32,55 +31,6 @@ function businessDate(iso) {
   if (!iso || isNaN(d.getTime())) return null;
   // en-CA formats as YYYY-MM-DD, which is what QBO wants.
   return new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
-}
-
-// The completion photos the installer attached to the job's notes, plus the rep
-// and customer details for the Slack post.
-//
-// Asked for in its own query and tolerantly: the notes/attachment shape is the
-// part of Jobber's schema I'm least sure of, and a wrong guess here must not
-// cost the invoice. Two shapes are tried — attachments hanging off each note,
-// and a flat list on the job — and whichever answers is used.
-const COMPLETION_QUERIES = [
-  `query($id:EncodedId!){ job(id:$id){ jobNumber title
-     salesperson { name { full } email { raw } }
-     client { name emails { address } phones { friendly } }
-     property { address { street1 street2 city province postalCode } }
-     notes(first: 50){ nodes { ... on JobNote { id message createdAt
-       fileAttachments(first: 25){ nodes { id fileName contentType url } } } } } } }`,
-  `query($id:EncodedId!){ job(id:$id){ jobNumber title
-     salesperson { name { full } email { raw } }
-     client { name emails { address } phones { friendly } }
-     property { address { street1 street2 city province postalCode } }
-     noteAttachments(first: 50){ nodes { id fileName contentType url } } } }`,
-];
-
-async function completionDetails(at, jobId, log) {
-  for (const [i, q] of COMPLETION_QUERIES.entries()) {
-    try {
-      const d = await jobberGql(at, q, { id: jobId });
-      const j = d.job;
-      if (!j) continue;
-      const fromNotes = ((j.notes && j.notes.nodes) || [])
-        .flatMap((n) => ((n && n.fileAttachments && n.fileAttachments.nodes) || []));
-      const flat = (j.noteAttachments && j.noteAttachments.nodes) || [];
-      const files = [...fromNotes, ...flat].filter(Boolean);
-      const a = (j.property && j.property.address) || {};
-      return {
-        job: { jobNumber: j.jobNumber, title: j.title },
-        rep: j.salesperson ? { name: j.salesperson.name && j.salesperson.name.full, email: j.salesperson.email && j.salesperson.email.raw } : null,
-        client: {
-          name: j.client && j.client.name,
-          email: j.client && j.client.emails && j.client.emails[0] && j.client.emails[0].address,
-          phone: j.client && j.client.phones && j.client.phones[0] && j.client.phones[0].friendly,
-        },
-        address: [a.street1, a.street2, a.city, a.province, a.postalCode].filter(Boolean).join(", "),
-        photos: files.filter(isPhoto).map((f) => ({ fileName: f.fileName, contentType: f.contentType, url: f.url })),
-        shape: i,
-      };
-    } catch (e) { log.info(`Job notes shape ${i} unavailable`, { error: String(e.message || e).slice(0, 160) }); }
-  }
-  return null;
 }
 
 // When the job was marked complete. Asked for separately and tolerantly: if the
@@ -132,7 +82,7 @@ async function run({ jobId, dryRun }) {
     if (uninvoiced <= 0) {
       log.info("Nothing to invoice", { uninvoicedTotal: uninvoiced, existingInvoices: existing });
       await log.finish("skipped", `Job #${job.jobNumber} has nothing uninvoiced — no invoice created`);
-      return { ok: true, skipped: "nothing-to-invoice", jobNumber: job.jobNumber, existingInvoices: existing };
+      return { ok: true, skipped: "nothing-to-invoice", jobNumber: job.jobNumber, existingInvoices: existing, clientName: name };
     }
 
     // Mirror the quote's processing-fee decision onto the invoice's tax rate.
@@ -208,27 +158,11 @@ async function run({ jobId, dryRun }) {
         qbo.createPayment(qat, rlm, { customerId: project.Id, amount: applied, invoiceId: qboInv.Id }));
     }
 
-    // Slack #job-complete — the installer's photos, the customer and the rep.
-    // Wrapped: the invoice is done and must not be undone by a Slack problem.
-    let slackPost = { posted: false, reason: "not attempted" };
-    try {
-      const details = await completionDetails(at, jobId, log);
-      if (!details) slackPost = { posted: false, reason: "could not read the job's notes" };
-      else {
-        slackPost = await log.step("Post to Slack #job-complete", { photos: details.photos.length, rep: details.rep && details.rep.email }, () =>
-          postJobComplete(log, { job: details.job, client: details.client, address: details.address, rep: details.rep, photos: details.photos }));
-      }
-    } catch (e) {
-      slackPost = { posted: false, reason: String(e.message || e) };
-      log.info("Slack job-complete post failed", { error: slackPost.reason });
-    }
-
     const balance = money((inv.amounts || {}).invoiceBalance);
     await log.finish("success",
       `Job #${job.jobNumber} → Jobber invoice #${inv.invoiceNumber} ($${jobberTotal}) + QBO invoice #${qboNumber} for ${name}` +
-      (applied > 0 ? ` — $${applied} deposit applied, $${balance} due` : "") +
-      (slackPost.posted ? ` · Slack: ${slackPost.photos} photo(s)` : ""));
-    return { ok: true, jobNumber: job.jobNumber, jobberInvoice: inv.invoiceNumber, qboInvoice: qboNumber, qboInvoiceMatchesJobber: made.matched, total: jobberTotal, depositApplied: applied, balanceDue: balance, qboPaymentId: qboPayment && qboPayment.Id, clientName: name, slack: slackPost };
+      (applied > 0 ? ` — $${applied} deposit applied, $${balance} due` : ""));
+    return { ok: true, jobNumber: job.jobNumber, jobberInvoice: inv.invoiceNumber, qboInvoice: qboNumber, qboInvoiceMatchesJobber: made.matched, total: jobberTotal, depositApplied: applied, balanceDue: balance, qboPaymentId: qboPayment && qboPayment.Id, clientName: name };
   } catch (e) { await log.finish("error", String(e.message || e)); throw e; }
 }
 

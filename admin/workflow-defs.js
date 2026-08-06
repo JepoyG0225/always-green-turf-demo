@@ -44,6 +44,15 @@ export const WORKFLOWS = [
     steps: [["Job closed","bolt"],["Jobber auth","lock"],["Fetch job","search","Jobber"],["Apply quote deposits","dollar"],["Create Jobber invoice","doc","Jobber"],["QBO auth","lock"],["Ensure customer + project","user","QBO"],["Create QBO invoice","doc","QBO"],["Apply deposit in QBO","dollar","QBO"]],
   },
   {
+    key: "jobber-job-complete",
+    name: "Jobber Job Completed → Slack Photos",
+    desc: "When a job is completed in Jobber, read the photos the installer attached to the job's notes and post them to #job-complete with the customer, the address and the sales rep tagged (mentioned by Slack ID, matched on their Jobber email). Photos are uploaded to Slack rather than linked, because Jobber's own attachment URLs expire. Skips quietly when the job has no photos attached. Runs on its own — publishing, run logs and retries are independent of the invoice workflow.",
+    trigger: "Jobber webhook · job completed",
+    endpoint: "/api/jobber-job-complete",
+    icon: 'M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9zM15 13a3 3 0 11-6 0 3 3 0 016 0z',
+    steps: [["Job completed","bolt"],["Jobber auth","lock"],["Read job notes","search","Jobber"],["Collect photos","folder"],["Match rep to Slack","user"],["Upload photos","cloud","Slack"],["Post to #job-complete","chat","Slack"]],
+  },
+  {
     key: "arcsite-signed",
     name: "ArcSite Signed → Jobber Note",
     desc: "When an ArcSite proposal is signed/approved, find the customer's Jobber quote and attach a note linking the signed proposal PDF (re-hosted on our domain).",

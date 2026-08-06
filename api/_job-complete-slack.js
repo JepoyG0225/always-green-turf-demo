@@ -70,10 +70,47 @@ function summary({ job, client, address, mention, photoCount, skipped }) {
   return lines.join("\n");
 }
 
+// A channel override arrives either as an id (C0…) or a name (#workflow-testing).
+// files.completeUploadExternal only accepts an id, so names are resolved here
+// rather than making the caller look one up.
+async function resolveChannelId(nameOrId) {
+  const v = String(nameOrId || "").trim();
+  if (!v) return null;
+  if (/^[CGD][A-Z0-9]{6,}$/.test(v)) return v;
+  const want = v.replace(/^#/, "").toLowerCase();
+  let cursor = "";
+  for (let page = 0; page < 10; page++) {
+    const params = new URLSearchParams({ limit: "1000", exclude_archived: "true", types: "public_channel,private_channel" });
+    if (cursor) params.set("cursor", cursor);
+    const r = await fetch(`https://slack.com/api/conversations.list?${params}`, { headers: { Authorization: `Bearer ${SLACK_TOKEN}` } });
+    const d = await r.json().catch(() => ({}));
+    if (!d.ok) throw new Error(`conversations.list: ${d.error || r.status}`);
+    const hit = (d.channels || []).find((c) => String(c.name).toLowerCase() === want);
+    if (hit) return hit.id;
+    cursor = (d.response_metadata && d.response_metadata.next_cursor) || "";
+    if (!cursor) break;
+  }
+  throw new Error(`no Slack channel named "${v}" that the bot can see`);
+}
+
 // photos: [{ fileName, contentType, url }] straight off the job's notes.
-async function postJobComplete(log, { job, client, address, rep, photos }) {
+// channel: optional override (id or #name) — used to send a test run somewhere
+// other than #job-complete.
+async function postJobComplete(log, { job, client, address, rep, photos, channel }) {
   if (!SLACK_TOKEN) return { posted: false, reason: "SLACK_BOT_TOKEN not set" };
   if (!photos.length) return { posted: false, reason: "no photos on the job notes — nothing posted" };
+
+  let target = CHANNEL;
+  if (channel) {
+    try {
+      target = await resolveChannelId(channel);
+      log.info("Posting to an override channel", { requested: channel, channelId: target });
+    } catch (e) {
+      // Never silently fall back to #job-complete — a test posting to the real
+      // channel is worse than a test that doesn't post at all.
+      return { posted: false, reason: String(e.message || e) };
+    }
+  }
 
   const take = photos.slice(0, MAX_PHOTOS);
   const skipped = photos.length - take.length;
@@ -93,10 +130,10 @@ async function postJobComplete(log, { job, client, address, rep, photos }) {
 
   const d = await slack("files.completeUploadExternal", {
     files: uploaded,
-    channel_id: CHANNEL,
+    channel_id: target,
     initial_comment: summary({ job, client, address, mention: mention.text, photoCount: uploaded.length, skipped }),
   });
-  return { posted: true, photos: uploaded.length, skipped, repMentioned: mention.resolved, ts: d.files && d.files[0] && d.files[0].id };
+  return { posted: true, photos: uploaded.length, skipped, repMentioned: mention.resolved, channel: target, ts: d.files && d.files[0] && d.files[0].id };
 }
 
 module.exports = { postJobComplete, isPhoto };
