@@ -4,7 +4,7 @@
     { "source": "/schedule", "destination": "/direct-booking", "permanent": false },
     { "source": "/warranty-claim", "destination": "/warranty", "permanent": false },
     {
-      "source": "/blog-article.html",
+      "source": "/blog-article",
       "has": [{ "type": "query", "key": "article", "value": "pricing-guide-2025" }],
       "destination": "/artificial-grass-cost-arizona",
       "permanent": true
