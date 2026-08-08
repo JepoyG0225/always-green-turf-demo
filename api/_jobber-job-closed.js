@@ -55,6 +55,44 @@ const JOB_QUERY = `query($id:EncodedId!){ job(id:$id){ id jobNumber title jobSta
   lineItems{ nodes{ id name description quantity unitPrice taxable } }
   invoices(first:5){ nodes{ id invoiceNumber } } } }`;
 
+// Read an invoice back after creating it. invoiceCreate returns the invoice as
+// it stands at that instant — before Jobber has applied the linked quote's
+// discount to it. Mirroring that response into QBO posts the undiscounted
+// total, which is what happened to job #5163 (Rodney Phillips): Jobber invoice
+// #2905 correctly showed a $1,565.67 discount, QBO did not.
+//
+// Note the create response was internally consistent without the discount, so
+// the existing computed-vs-total check could not catch it. The re-read has to
+// be unconditional rather than triggered by a mismatch.
+const INVOICE_QUERY = `query($id:EncodedId!){ invoice(id:$id){ id invoiceNumber invoiceStatus
+  client{ id name firstName lastName companyName emails{ address } }
+  lineItems{ nodes{ name description quantity unitPrice totalPrice } }
+  amounts{ subtotal discountAmount taxAmount depositAmount paymentsTotal invoiceBalance total } } }`;
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Read until two consecutive reads agree on the total, so we mirror a settled
+// invoice rather than one mid-update. Falls back to the create response if the
+// reads fail — an invoice mirrored imperfectly beats no QBO invoice at all.
+async function settledInvoice(at, id, created, log) {
+  let prev = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    let cur = null;
+    try {
+      const d = await jobberGql(at, INVOICE_QUERY, { id });
+      cur = d.invoice || null;
+    } catch (e) {
+      log.info("Invoice re-read failed", { attempt, error: String(e.message || e).slice(0, 140) });
+    }
+    // A failed read retries rather than giving up: bailing here would fall back
+    // to the create response, which is the very thing this exists to avoid.
+    if (cur && prev && money((prev.amounts || {}).total) === money((cur.amounts || {}).total)) return cur;
+    if (cur) prev = cur;
+    if (attempt < 3) await sleep(1200);
+  }
+  return prev || created;
+}
+
 const INVOICE_CREATE = `mutation($input:InvoiceCreateInput!){ invoiceCreate(input:$input){
   invoice{ id invoiceNumber invoiceStatus
     client{ id name firstName lastName companyName emails{ address } }
@@ -129,12 +167,26 @@ async function run({ jobId, dryRun }) {
       return d.invoiceCreate.invoice;
     });
 
+    // 1b) Read the invoice back before mirroring — see settledInvoice above.
+    const settled = await log.step("Re-read the Jobber invoice", { invoiceId: inv.id, invoiceNumber: inv.invoiceNumber }, () =>
+      settledInvoice(at, inv.id, inv, log));
+    const createdDiscount = money((inv.amounts || {}).discountAmount);
+    const settledDiscount = money((settled.amounts || {}).discountAmount);
+    const createdTotal = money((inv.amounts || {}).total);
+    const settledTotal = money((settled.amounts || {}).total);
+    if (settledDiscount !== createdDiscount || settledTotal !== createdTotal) {
+      log.info("Invoice settled after create — mirroring the settled figures", {
+        discountAtCreate: createdDiscount, discountSettled: settledDiscount,
+        totalAtCreate: createdTotal, totalSettled: settledTotal,
+      });
+    }
+
     // 2) Mirror into QBO (discount + processing fee become explicit lines).
-    const { lines, computed, jobberTotal } = buildQboLines(inv);
+    const { lines, computed, jobberTotal } = buildQboLines(settled);
     if (computed !== jobberTotal) log.info("Total mismatch — check mapping", { computed, jobberTotal });
     const qat = await log.step("QBO auth", {}, () => qbo.accessToken());
     const rlm = await qbo.realm();
-    const { project } = await ensureCustomerProject(log, qat, rlm, inv.client || job.client, job.property);
+    const { project } = await ensureCustomerProject(log, qat, rlm, settled.client || inv.client || job.client, job.property);
     // Same number on both sides, and the memo names the Jobber invoice so a
     // later run can tell this one is already mirrored instead of copying it.
     // Date the invoice the day the job was marked complete, not the day this
@@ -151,14 +203,14 @@ async function run({ jobId, dryRun }) {
     else if (made.requested && !made.matched) log.info("QBO ignored the requested number — enable Custom transaction numbers in QBO to keep them matched", { requested: made.requested, qbo: made.docNumber });
 
     // 3) Mirror any deposit Jobber allocated, so both invoices show the same balance.
-    const applied = money((inv.amounts || {}).depositAmount);
+    const applied = money((settled.amounts || {}).depositAmount);
     let qboPayment = null;
     if (applied > 0) {
       qboPayment = await log.step("Apply deposit to QBO invoice", { amount: applied, invoiceId: qboInv.Id, customerRef: project.Id }, () =>
         qbo.createPayment(qat, rlm, { customerId: project.Id, amount: applied, invoiceId: qboInv.Id }));
     }
 
-    const balance = money((inv.amounts || {}).invoiceBalance);
+    const balance = money((settled.amounts || {}).invoiceBalance);
     await log.finish("success",
       `Job #${job.jobNumber} → Jobber invoice #${inv.invoiceNumber} ($${jobberTotal}) + QBO invoice #${qboNumber} for ${name}` +
       (applied > 0 ? ` — $${applied} deposit applied, $${balance} due` : ""));
@@ -166,4 +218,4 @@ async function run({ jobId, dryRun }) {
   } catch (e) { await log.finish("error", String(e.message || e)); throw e; }
 }
 
-module.exports = { run };
+module.exports = { run, settledInvoice };
